@@ -121,7 +121,8 @@ const WritingPage = ({ projectId, category }) => {
           sessionStorage.removeItem("login-token");
           delete axios.defaults.headers.common["Authorization"];
           navigate("/LoginPage");
-        } else if (response.data.code === 8000) {
+        }
+        else if (response.data.code === 8000) {
           alert("해당 사용자는" + response.data.message); // "접근 권한이 없습니다."
         }
       } else {
