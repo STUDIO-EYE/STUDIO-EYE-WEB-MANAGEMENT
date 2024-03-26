@@ -74,9 +74,10 @@ const WritingButton = styled.button`
 `;
 
 
-
-
-const BoardPage = ({ subTitle , tableData , writingButtonContent, projectId,postId, category }) => {
+const BoardPage = ({
+    subTitle: string, 
+    tableData , 
+    writingButtonContent, projectId,postId, category }) => {
     const navigate = useNavigate();
     const [showTable, setShowTable] = useState(true);
     const [showWritingPage, setShowWritingPage] = useState(false);
@@ -125,10 +126,10 @@ const BoardPage = ({ subTitle , tableData , writingButtonContent, projectId,post
                            <TitleSm>HOME</TitleSm>
                         </Title>
                         <Title onClick={goToProjectPage}>
-                            <TextMd>> Project</TextMd>
+                            <TextMd> Project</TextMd>
                         </Title>
                         <Title>
-                            <TextSm>> {subTitle}</TextSm>
+                            <TextSm> {subTitle}</TextSm>
                         </Title>
                     </BoardTitleDiv>
                     <DashboardBox>
