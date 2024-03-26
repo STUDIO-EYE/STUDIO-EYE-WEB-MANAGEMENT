@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-// import palette from '../../lib/styles/palette';
 
 const StyledButton = styled.button`
   border: none;
@@ -10,9 +9,10 @@ const StyledButton = styled.button`
   padding: 0.25rem 1rem;
   outline: none;
   cursor: pointer;
-  
 `;
 
-const Button = props => <StyledButton {...props} />;
+const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = (props) => (
+    <StyledButton {...props} />
+);
 
 export default Button;

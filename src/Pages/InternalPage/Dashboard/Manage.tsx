@@ -74,11 +74,12 @@ const CancelButton = styled.button`
     background-color: black;
   }
 `;
-function toKoreanTime(date) {
+function toKoreanTime(date: Date): string {
   const offset = 9; // Korea is UTC+9
   const localDate = new Date(date.getTime() + offset * 60 * 60 * 1000);
   return localDate.toISOString().substr(0, 10);
 }
+
 //프로젝트의 시작날짜와 마지막 날짜 사이에 일정이 추가되어야 함.
 function Manage() {
   const [startDate, setStartDate] = useState(toKoreanTime(new Date()));

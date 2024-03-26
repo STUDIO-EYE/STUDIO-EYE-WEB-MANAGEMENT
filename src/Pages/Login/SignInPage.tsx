@@ -149,7 +149,7 @@ function SignInPage(){
         verificationCode: "",
     });
 
-    const formatPhoneNumber = (value) => {
+    const formatPhoneNumber = (value: string) => {
         const numericValue = value.replace(/\D/g, ''); // 숫자 이외의 문자 제거
         const formattedValue = numericValue.slice(0, 11);
 
@@ -168,7 +168,7 @@ function SignInPage(){
     };
 
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
 
         // phoneNumber 필드만 형식을 맞추고 나머지 필드는 그대로 유지
@@ -229,21 +229,28 @@ function SignInPage(){
     };
 
     useEffect(() => {
-        let timer;
+        let timer: NodeJS.Timeout;
 
-        if (isTimerRunning && timeLeft > 0) {
-            timer = setInterval(() => {
-                setTimeLeft((prevTimeLeft) => prevTimeLeft - 1);
-            }, 1000);
-        } else if (timeLeft === 0) {
-            setIsTimerRunning(false);
-            clearInterval(timer);
-        }
+        const handleTimer = () => {
+            if (isTimerRunning && timeLeft > 0) {
+                timer = setInterval(() => {
+                    setTimeLeft((prevTimeLeft) => prevTimeLeft - 1);
+                }, 1000);
+            } else if (timeLeft === 0) {
+                setIsTimerRunning(false);
+                if (timer) {
+                    clearInterval(timer);
+                }
+            }
+        };
+
+        handleTimer();
 
         return () => {
             clearInterval(timer);
         };
     }, [isTimerRunning, timeLeft]);
+
 
     const handleVerifiyCode = () => {
 
@@ -293,7 +300,10 @@ function SignInPage(){
                         <HorizontalBox>
                             <TextMd>Email Verification Code</TextMd>
                             {isTimerRunning && !isVerified && (
-                                <TextMd>{Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}</TextMd>
+                                <TextMd>
+                                    {Math.floor(timeLeft / 60)}:
+                                    {timeLeft % 60 < 10 ? "0" + (timeLeft % 60).toString() : (timeLeft % 60).toString()}
+                                </TextMd>
                             )}
                         </HorizontalBox>
                         <InputSizeWithBtn   name="verificationCode"

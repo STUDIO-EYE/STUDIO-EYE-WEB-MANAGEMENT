@@ -1,10 +1,22 @@
-import axios from "axios";
-const storedToken = sessionStorage.getItem('login-token');
+import axios, { AxiosResponse } from "axios";
+
+const storedToken: string | null = sessionStorage.getItem('login-token');
 if (storedToken) {
   axios.defaults.headers.common['Authorization'] = 'Bearer ' + storedToken;
 }
-// 게시글 crud api
-const boardApi = {
+
+interface BoardApi {
+  getPlanningDashboard: (projectId: number) => Promise<AxiosResponse>;
+  getProductionDashboard: (projectId: number) => Promise<AxiosResponse>;
+  getEditingDashboard: (projectId: number) => Promise<AxiosResponse>;
+  postBoard: (data: any) => Promise<AxiosResponse>;
+  putBoard: (data: any) => Promise<AxiosResponse>;
+  deleteBoard: (data: any) => Promise<AxiosResponse>;
+  getBoard: (data: { projectId: number, postId: string }) => Promise<AxiosResponse>;
+  getBoardList: (projectId: number, category: string) => Promise<AxiosResponse>;
+}
+
+const boardApi: BoardApi = {
   // 계획 최신 3개 불러오기
   getPlanningDashboard: async (projectId) => {
     const response = await axios.get(

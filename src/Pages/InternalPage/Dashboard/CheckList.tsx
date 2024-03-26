@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from "react";
-import styled from "styled-components";
 import checkTodoApi from "../../../api/checkTodoApi";
 import { useNavigate } from "react-router-dom";
 import { FaPen } from "react-icons/fa";
 import axios from "axios";
+import styled from "styled-components";
 
-function CheckList({ projectId }) {
-  const [items, setItems] = useState([]);
+interface TodoItem {
+  todoIndex: number;
+  todoContent: string;
+  todoEmergency: boolean;
+  checked: boolean;
+}
+
+interface Props {
+  projectId: number;
+}
+
+function CheckList({ projectId }: Props) {
+  const [items, setItems] = useState<TodoItem[]>([]);
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
@@ -27,7 +38,9 @@ function CheckList({ projectId }) {
             delete axios.defaults.headers.common["Authorization"];
             navigate("/LoginPage");
           } else if (response.data.code === 8000) {
-            alert("해당 사용자는 권한이 없어 프로젝트 내용을 볼 수 없습니다.");
+            alert(
+                "해당 사용자는 권한이 없어 프로젝트 내용을 볼 수 없습니다."
+            );
             navigate("/");
           }
           return;
@@ -40,15 +53,15 @@ function CheckList({ projectId }) {
     fetchData();
   }, []);
 
-  const handleCheck = async (id) => {
+  const handleCheck = async (id: number) => {
     try {
       const response = await checkTodoApi.completeCheckTodo(id);
       if (response.status === 200) {
         // 상태를 불변하게 유지하며 변경
         setItems(
-          items.map((item) =>
-            item.todoIndex === id ? { ...item, checked: !item.checked } : item
-          )
+            items.map((item) =>
+                item.todoIndex === id ? { ...item, checked: !item.checked } : item
+            )
         );
       } else {
         // 여기서는 오류 처리를 하면 됩니다. 예를 들어:
@@ -59,7 +72,7 @@ function CheckList({ projectId }) {
     }
   };
 
-  const handleDelete = async (todoIndex) => {
+  const handleDelete = async (todoIndex: number) => {
     const filteredItems = items.filter((item) => item.todoIndex !== todoIndex);
     setItems(filteredItems);
 
@@ -113,52 +126,27 @@ function CheckList({ projectId }) {
   });
 
   return (
-    <Container>
-      <List>
-        <Title>CheckList</Title>
-        <AddButton type="button" onClick={() => setShowModal(true)}>
-          <FaPen />
-        </AddButton>
-      </List>
-      <ItemsList>
-        {sortedItems.map((item) => (
-          <Item completed={item.checked}>
-            <Checkbox
-              type="checkbox"
-              checked={item.checked}
-              onChange={() => handleCheck(item.todoIndex)}
-            />
-            {item.todoEmergency ? <UrgencyLabel>[긴급]</UrgencyLabel> : null}
-            {item.todoContent}
-            <DeleteButton onClick={() => handleDelete(item.todoIndex)}>
-              x
-            </DeleteButton>
-          </Item>
-        ))}
-      </ItemsList>
-      {showModal && (
-        <Modal>
-          <h2>Add Item</h2>
-          <input
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-          />
-          <div>
-            <label>
-              <input
-                type="checkbox"
-                checked={isUrgent}
-                onChange={(e) => setIsUrgent(e.target.checked)}
-              />
-              긴급
-            </label>
-          </div>
-          <ModalButton onClick={handleAdd}>Add</ModalButton>
-          <ModalButton onClick={() => setShowModal(false)}>Cancel</ModalButton>
-        </Modal>
-      )}
-    </Container>
+      <div>
+        <ul>
+          {items.map((item) => (
+              <Item key={item.todoIndex} completed={item.checked}>
+                <Checkbox
+                    type="checkbox"
+                    checked={item.checked}
+                    onChange={() => handleCheck(item.todoIndex)}
+                />
+                {item.todoEmergency ? <UrgencyLabel>[긴급]</UrgencyLabel> : null}
+                {item.todoContent}
+                <DeleteButton onClick={() => handleDelete(item.todoIndex)}>
+                  Delete
+                </DeleteButton>
+              </Item>
+          ))}
+
+        </ul>
+      </div>
   );
+
 }
 
 const Container = styled.div`
@@ -209,19 +197,21 @@ const ItemsList = styled.ul`
   margin-top: 24px;
 `;
 
-const Item = styled.li`
+const Item = styled.li<ItemProps>`
   display: flex;
   justify-content: flex-start;
   align-items: center;
   padding: 10px;
   border-radius: 5px;
-
   margin-bottom: 10px;
   background-color: #ffffff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-
   text-decoration: ${(props) => (props.completed ? "line-through" : "none")};
 `;
+
+interface ItemProps {
+  completed: boolean;
+}
 
 const Checkbox = styled.input.attrs({ type: "checkbox" })``;
 
