@@ -23,7 +23,7 @@ const MainBody = styled.div`
   flex-direction: column;
   height: 100vh;
   margin-top: 4rem;
-  
+  class:${props=>props.className};
 `;
 
 const DashboardDiv = styled.div`
@@ -74,15 +74,13 @@ const WritingButton = styled.button`
 `;
 
 
-const BoardPage = ({
-    subTitle: string, 
-    tableData , 
-    writingButtonContent, projectId,postId, category }) => {
+const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postId, category }
+    :{subTitle:string,tableData:any,writingButtonContent:string,projectId:number,postId:number,category:string}) => {
     const navigate = useNavigate();
     const [showTable, setShowTable] = useState(true);
     const [showWritingPage, setShowWritingPage] = useState(false);
     const [showViewWritingPage, setShowViewWritingPage] = useState(false);
-    const [selectedRowId, setSelectedRowId] = useState("");
+    const [selectedRowId, setSelectedRowId] = useState(0);
 
     useEffect(() => {
         if (postId) {
@@ -103,13 +101,13 @@ const BoardPage = ({
         setShowWritingPage(true);
         setShowViewWritingPage(false);
     };
-    const handleRowClick = (rowId) => {
+    const handleRowClick = (rowId:any) => {
         setSelectedRowId(rowId);
         setShowTable(false);
         setShowWritingPage(false);
         setShowViewWritingPage(true);
     };
-    const handleRecentClick = (postId) => {
+    const handleRecentClick = (postId:any) => {
         setSelectedRowId(postId);
         setShowTable(false);
         setShowWritingPage(false);
@@ -118,9 +116,10 @@ const BoardPage = ({
 
     // WritingMainPage 컴포넌트가 마운트될 때 goToWritingMainPage 함수를 자동으로 호출
     return (
+        /**여기도 주의 class를 classname으로 바꿔봄*/
         <>
-            <MainBody class="MainBody">
-                <DashboardDiv class="DashboardDiv">
+            <MainBody className="MainBody">
+                <DashboardDiv className="DashboardDiv">
                     <BoardTitleDiv>
                         <Title onClick={goToHomePage}>
                            <TitleSm>HOME</TitleSm>

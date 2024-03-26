@@ -37,13 +37,15 @@ const TableStyled = styled.table`
 const TableCellCenter = styled.td`
   padding: 8px;
   text-align: center;
+  colSpan:${props=>props.colSpan};
 `;
 
 
-const Table = ({  tableData, onRowClick }) => {
+const Table = ({  tableData, onRowClick }
+  :{tableData:any,onRowClick:any}) => {
 
     // Table의 열을 클릭했을 때 호출될 함수
-    const sendDataBoard = (rowId) => {
+    const sendDataBoard = (rowId:number) => {
         onRowClick(rowId);
     };
 
@@ -60,13 +62,14 @@ const Table = ({  tableData, onRowClick }) => {
                 <tbody>
                 {tableData.length === 0 ? (
 
+                    /**여기 안 먹힐 수도 있으니 체크*/
                     <tr>
-                        <TableCellCenter colSpan="5">게시글이 존재하지 않습니다.</TableCellCenter>
+                        <TableCellCenter colSpan={5}>게시글이 존재하지 않습니다.</TableCellCenter>
                     </tr>
 
                 ) : (
 
-                    tableData.map((row) => (
+                    tableData.map((row:any) => (
                         <tr
                             key={row.id}
                             onClick={() => sendDataBoard(row.id)}

@@ -10,6 +10,24 @@ import boardApi from "../../api/boardApi";
 import commentApi from "../../api/commentApi";
 // WritingMainPage.js
 
+interface Comment{
+  id:number
+  userName:string
+  content:string
+  createdAt:Date
+  updatedAt:Date
+  isNew:boolean
+}
+interface PostInfo{
+  id:number
+  title:string
+  content:string
+  userName:string
+  startDate:string
+  commentSum:number
+  category:string
+}
+
 /////////제목,내용/////////
 const FormContainer = styled.div`
   max-height: 30rem; /* 댓글 컨테이너의 최대 높이 */
@@ -133,13 +151,14 @@ const CommentContainer = styled.div`
   background-color: #eeeeee;
   min-height: 13rem;
 `;
-const ViewWritingPage = ({ selectedRowId, projectId, postId }) => {
+const ViewWritingPage = ({ selectedRowId, projectId, postId }
+  :{selectedRowId:number,projectId:number,postId:number}) => {
   const [editorHtml, setEditorHtml] = useState(""); // Quill Editor의 HTML 내용을 저장하는 상태
   const [title, setTitle] = useState(""); // 제목을 저장하는 상태
   const [showViewWriting, setShowViewWriting] = useState(true);
   const [showPutWriting, setShowPutWriting] = useState(false);
   const [selectedPost, setSelectedPost] = useState({
-    commentId: "",
+    commentId: 0,
     title: "",
     content: "",
     author: "",
@@ -147,7 +166,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }) => {
     commentCount: 0,
     category: "",
   });
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const navigate = useNavigate();
 
   const goToPreviousPage = () => {
@@ -229,7 +248,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }) => {
     setShowPutWriting(true);
   };
   // 게시글 내용을 담을 객체 나중에 DB연결하면 내용 set해주기
-  const handleAddComment = (newComment) => {
+  const handleAddComment = (newComment:any) => {
     setComments((prevComments) => [...prevComments, newComment]); //댓글 최신게 나중에 보여주기
     setSelectedPost((prevPost) => ({
       ...prevPost,
@@ -249,12 +268,13 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }) => {
       try {
         const [postResponse, commentsResponse] = await Promise.all([
           boardApi.getBoard({ projectId: projectId, postId: selectedRowId }),
-          commentApi.getCommentList({ postId: selectedRowId }),
+          commentApi.getCommentList(selectedRowId),
         ]);
         // postResponse 처리
-        const postInfo = postResponse.data.data;
+
+        const postInfo:PostInfo = postResponse.data.data;
         setSelectedPost({
-          postId: postInfo.id,
+          commentId: postInfo.id,
           title: postInfo.title,
           content: postInfo.content,
           author: postInfo.userName,

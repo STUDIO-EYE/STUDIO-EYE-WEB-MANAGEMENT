@@ -125,7 +125,7 @@ const CancelButton = styled.button`
     margin-right: 10px;
   }
 `;
-function toKoreanTime(date) {
+function toKoreanTime(date:Date) {
   const offset = 9; // Korea is UTC+9
   const localDate = new Date(date.getTime() + offset * 60 * 60 * 1000);
   return localDate.toISOString().substr(0, 10);
@@ -136,9 +136,9 @@ function Project() {
 
   const [projectName, setProjectName] = useState("");
   const [projectDetails, setProjectDetails] = useState("");
-  const [teamMemberCount, setTeamMemberCount] = useState("");
-  const [teamMemberEmails, setTeamMemberEmails] = useState([]);
-  const [emailsRegisteredCheck, setEmailsRegisteredCheck] = useState([]);
+  const [teamMemberCount, setTeamMemberCount] = useState<number>(0);
+  const [teamMemberEmails, setTeamMemberEmails] = useState<string[]>([]);
+  const [emailsRegisteredCheck, setEmailsRegisteredCheck] = useState<boolean[]>([]);
 
   const navigate = useNavigate();
 
@@ -204,16 +204,16 @@ function Project() {
       alert("프로젝트 생성에 실패했습니다."); // 에러 알림 메시지
     }
   };
-  const handleTeamMemberChange = (index, email) => {
-    const updatedEmails = [...teamMemberEmails];
+  const handleTeamMemberChange = (index:number, email:string) => {
+    const updatedEmails:string[] = [...teamMemberEmails];
     updatedEmails[index] = email;
     setTeamMemberEmails(updatedEmails);
   };
-  const validateEmail = (email) => {
+  const validateEmail = (email:string) => {
     const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     return emailPattern.test(email);
   };
-  const handleEmailRegistration = async (index, email) => {
+  const handleEmailRegistration = async (index:number, email:string) => {
     if (!validateEmail(email)) {
       alert("이메일 형식이 올바르지 않습니다.");
       return;
@@ -227,10 +227,10 @@ function Project() {
       console.log(response.data);
       //이 api 지금 아무것도 안뱉어내서 에러처리 못함. 등록되지않은 email도 잘 등록되었습니다. 라는 문구가 뜰수밖에없음.
       alert("잘 등록되었습니다.");
-      const updatedRegistered = [...emailsRegisteredCheck];
+      const updatedRegistered:boolean[] = [...emailsRegisteredCheck];
       updatedRegistered[index] = true;
       setEmailsRegisteredCheck(updatedRegistered);
-    } catch (error) {
+    } catch (error:any) {
       console.error("Error during email registration: ", error);
       if (error.response && error.response.status === 500) {
         alert("존재하지 않는 이메일입니다.");
@@ -265,7 +265,7 @@ function Project() {
           <Label>팀원 수&nbsp;: </Label>
           <StyledSelect
             value={teamMemberCount}
-            onChange={(e) => {
+            onChange={(e:React.ChangeEvent<HTMLSelectElement>) => {
               setTeamMemberCount(Number(e.target.value));
               setTeamMemberEmails(new Array(Number(e.target.value)).fill(""));
               setEmailsRegisteredCheck(

@@ -7,9 +7,9 @@ import boardApi from "../../../api/boardApi";
 import axios from "axios";
 
 const MakingNoticeMainpage = () => {
-    const {projectId, postId} = useParams();
+    const {projectId, postId} = useParams() as {projectId:any,postId:any};
     const navigate = useNavigate();
-    const getPostsByCategory = async (category) => {
+    const getPostsByCategory = async (category:string) => {
         try {
             const response = await boardApi.getBoardList(projectId, category);
             if (response.data && response.data.success === false) {

@@ -12,7 +12,7 @@ interface BoardApi {
   postBoard: (data: any) => Promise<AxiosResponse>;
   putBoard: (data: any) => Promise<AxiosResponse>;
   deleteBoard: (data: any) => Promise<AxiosResponse>;
-  getBoard: (data: { projectId: number, postId: string }) => Promise<AxiosResponse>;
+  getBoard: (data: { projectId: number, postId: number }) => Promise<AxiosResponse>;
   getBoardList: (projectId: number, category: string) => Promise<AxiosResponse>;
 }
 

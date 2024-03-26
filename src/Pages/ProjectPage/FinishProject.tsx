@@ -116,7 +116,7 @@ function FinishProject() {
     indexOfLastProject
   );
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber:number) => setCurrentPage(pageNumber);
   const PageNumbers = () => {
     const totalPages = Math.ceil(projects.length / projectsPerPage);
 
@@ -162,7 +162,7 @@ function FinishProject() {
     }, 100);
   };
 
-  const handleDeleteClick = async (e, projectId) => {
+  const handleDeleteClick = async (e:React.MouseEvent<HTMLButtonElement>, projectId:number) => {
     e.stopPropagation();
     const isConfirmed = window.confirm("프로젝트를 삭제하시겠습니까?");
     if (!isConfirmed) return;
@@ -172,7 +172,7 @@ function FinishProject() {
       if (response.data && response.data.success) {
         // If deletion is successful, filter out the deleted project and update the state
         const updatedProjects = projects.filter(
-          (project) => project.projectId !== projectId
+          (project:any) => project.projectId !== projectId
         );
         setProjects(updatedProjects);
         alert("프로젝트가 삭제 처리 되었습니다.");
@@ -200,7 +200,7 @@ function FinishProject() {
           return;
         }
         const checkedProjects = response.data.list.filter(
-          (item) => item.isFinished === true
+          (item:any) => item.isFinished === true
         );
 
         setProjects(checkedProjects);
@@ -230,7 +230,7 @@ function FinishProject() {
           </tr>
         </thead>
         <tbody>
-          {projects.map((project) => (
+          {projects.map((project:any) => (
             <tr key={project.projectId}>
               {/*<td>{index + 1}</td>*/}
               <td>{project.projectId}</td>

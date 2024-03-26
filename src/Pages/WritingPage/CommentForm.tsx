@@ -50,14 +50,15 @@ const SubmitButton = styled.button`
   }
 `;
 
-const CommentForm = ({ onAddComment, postId, selectedPost }) => {
+const CommentForm = ({ onAddComment, postId, selectedPost }
+  :{onAddComment:any,postId:number,selectedPost:any}) => {
   const [content, setContent] = useState("");
   const [tokenUserName, setTokenUserName] = useState("");
   const token = sessionStorage.getItem("login-token");
   useEffect(() => {
 
     if (token) {
-      const decodedToken = jwt_decode(token);
+      const decodedToken:any = jwt_decode(token);
       setTokenUserName(decodedToken.username);
     }
   }, []);

@@ -1,5 +1,7 @@
-import {Login} from "./Login/login.js";
-import {Portfolio} from "./Portfolio/portfolio.js";
-import {AboutUs} from "./AboutUs/about-us.tsx";
+import LoginPage from "./Login/LoginPage";
+// import Portfolio from "./Portfolio/portfolio.tsx";
+// import AboutUs from "./AboutUs/about-us";
 
-export {Login, Portfolio, AboutUs};
+export {LoginPage
+    // , Portfolio, AboutUs
+};

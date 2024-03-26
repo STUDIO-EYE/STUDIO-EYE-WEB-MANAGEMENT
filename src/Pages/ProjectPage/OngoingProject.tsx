@@ -7,6 +7,14 @@ import { FaTrash, FaCheck, FaEdit } from "react-icons/fa";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 
+interface Project{
+  projectId:number
+  name:string
+  startDate:Date
+  finishDate:Date
+  description:string
+}
+
 const AppContainer = styled.div`
   text-align: center;
   justify-content: center;
@@ -138,7 +146,7 @@ const PaginationContainer = styled.div`
 function OngoingProject() {
   const [projects, setProjects] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [currentDetailsProjects, setCurrentDetailsProjects] = useState([]);
+  const [currentDetailsProjects, setCurrentDetailsProjects] = useState<any[]>([]);
 
   const projectsPerPage = 10;
   const navigate = useNavigate();
@@ -152,7 +160,7 @@ function OngoingProject() {
   //토큰 정보 저장
   const [tokenUserId, setTokenUserId] = useState("");
   // 페이지 번호를 렌더링하기 위한 컴포넌트
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber:number) => setCurrentPage(pageNumber);
 
   const PageNumbers = () => {
     const totalPages = Math.ceil(projects.length / projectsPerPage);
@@ -209,13 +217,13 @@ function OngoingProject() {
           return;
         }
         const checkedProjects = response.data.list.filter(
-          (item) => item.isFinished === false
+          (item:any) => item.isFinished === false
         );
         setProjects(checkedProjects.reverse());
 
         // 각 프로젝트에 대한 정보를 가져와서 저장
-        const projectDetails = await Promise.all(
-            checkedProjects.map((project) =>
+        const projectDetails:any[] = await Promise.all(
+            checkedProjects.map((project:Project) =>
                 projectApi.getProjectDetails(project.projectId)
             )
         );
@@ -224,7 +232,7 @@ function OngoingProject() {
         // console.log(projectDetails[index].data.data.leaderAndMemberList[index].userId); //유저 경로
         const token = sessionStorage.getItem("login-token");
         if (token) {
-          const decodedToken = jwt_decode(token);
+          const decodedToken:any = jwt_decode(token);
           setTokenUserId(decodedToken.userId);
         }
         setCurrentDetailsProjects(projectDetails);
@@ -236,14 +244,14 @@ function OngoingProject() {
 
     fetchProjects();
   }, []);
-  const isTeamLeader = (currentDetailsProjects) => {
+  const isTeamLeader = (currentDetailsProjects:any) => {
     if (!currentDetailsProjects.data.success) {
 
       return false;
     }
     const leaderAndMemberList = currentDetailsProjects.data.data.leaderAndMemberList;
     const teamLeader = leaderAndMemberList.find(
-        (member) => member.userId === tokenUserId && member.role === '팀장'
+        (member:any) => member.userId === tokenUserId && member.role === '팀장'
     );
 
     return !!teamLeader;
@@ -253,7 +261,7 @@ function OngoingProject() {
   const handleAddProject = () => {
     navigate("/Project");
   };
-  const handleRowClick = (projectId) => {
+  const handleRowClick = (projectId:number) => {
     navigate(`/Manage/${projectId}`);
   };
   const goToHome = () => {
@@ -267,8 +275,8 @@ function OngoingProject() {
       window.location.reload();
     }, 100);
   };
-  const renumberProjects = (projects) => {
-    return projects.map((project, index) => {
+  const renumberProjects = (projects:Project[]) => {
+    return projects.map((project:Project, index:number) => {
       return {
         ...project,
         id: index + 1,
@@ -276,7 +284,7 @@ function OngoingProject() {
     });
   };
 
-  const handleDeleteClick = async (e, projectId) => {
+  const handleDeleteClick = async (e:any, projectId:number) => {
     e.stopPropagation();
     const isConfirmed = window.confirm("프로젝트를 삭제하시겠습니까?");
     if (!isConfirmed) return;
@@ -304,7 +312,7 @@ function OngoingProject() {
     }
   };
 
-  const handleCompleteClick = async (e, projectId) => {
+  const handleCompleteClick = async (e:any, projectId:number) => {
     e.stopPropagation();
     const isConfirmed = window.confirm("프로젝트를 완료하시겠습니까?");
     if (!isConfirmed) return;
@@ -358,14 +366,14 @@ function OngoingProject() {
         </thead>
         <tbody>
         {currentDetailsProjects.length > 0 && (
-          currentProjects.map((project, index) => (
+          currentProjects.map((project:Project, index) => (
             <tr
               key={project.projectId}
               onClick={() => handleRowClick(project.projectId)}
             >
               <td>{project.projectId}</td>
               <td>
-                {project.startDate}~{project.finishDate}
+                {project.startDate.toString()}~{project.finishDate.toString()}
               </td>
               <td>{project.name}</td>
               <td>{project.description}</td>
