@@ -30,7 +30,7 @@ const DashboardBody = styled.div`
   margin-top: 12px;
 `;
 
-const Panel = styled.div`
+const Panel = styled.div<{ expanded: boolean }>`
   display: flex;
   flex: 1;
   height: ${(props) => (props.expanded ? "1000px" : "500px")};
@@ -40,7 +40,7 @@ const LeftComponent = styled.div`
   height: 33.33%;
 `;
 
-const Left = styled.div`
+const Left = styled.div<{ expanded: boolean }>`
   padding: 20px;
   background-color: white;
   flex-basis: 50%;
@@ -61,14 +61,6 @@ const Arc = styled.div`
   display: flex;
 `;
 
-// const Right = styled.div`
-//   padding: 20px;
-//   border-radius: 0 40px 40px 0;
-//   border-left: 2px solid black;
-//   background-color: white;
-//   flex-basis: 50%;
-//   height: ${(props) => (props.expanded ? "700px" : "300px")};
-// `;
 const NewPanel = styled.button`
   height: 300px;
   width: 100%;
@@ -76,51 +68,37 @@ const NewPanel = styled.button`
   border-radius: 40px;
   transition: height 0.3s ease-in-out; /* transition 추가 */
 `;
-// const ExpandButton = styled.button`
-//   margin-top: 10px;
-//   cursor: pointer;
-//   border-radius: 50%;
-//   border: none;
-//   width: 60px;
-//   height: 60px;
-//   display: flex;
-//   background-color: #f1f1f1;
-//   justify-content: center;
-//   align-items: center;
-//   margin: 0 auto;
-//   margin-top: 20px;
-// `;
 
-const Dashboard = ({ projectId }) => {
+const Dashboard = ({ projectId }: { projectId: number }) => {
   const [expanded, setExpanded] = useState(false);
 
   const toggleExpansion = () => {
     setExpanded(!expanded);
   };
   return (
-    <DashboardBox>
-      <Arc>
-        <Title>Dashboard</Title>
-      </Arc>
-      <DashboardBody>
-        <Panel>
-          <Left>
-            <LeftComponent>
-              <WeekCalendar projectId={projectId} />
-            </LeftComponent>
-            <LeftComponent>
-              <Line />
-              <Today projectId={projectId} />
-            </LeftComponent>
-            <LeftComponent>
-              <CheckList projectId={projectId} />
-            </LeftComponent>
-          </Left>
-          <RightDashboard projectId={projectId} />
-        </Panel>
-        {expanded && <NewPanel />}
-      </DashboardBody>
-    </DashboardBox>
+      <DashboardBox>
+        <Arc>
+          <Title>Dashboard</Title>
+        </Arc>
+        <DashboardBody>
+          <Panel expanded={expanded}>
+            <Left expanded={expanded}>
+              <LeftComponent>
+                <WeekCalendar projectId={projectId} />
+              </LeftComponent>
+              <LeftComponent>
+                <Line />
+                <Today projectId={projectId} />
+              </LeftComponent>
+              <LeftComponent>
+                <CheckList projectId={projectId} />
+              </LeftComponent>
+            </Left>
+            <RightDashboard projectId={projectId} />
+          </Panel>
+          {expanded && <NewPanel />}
+        </DashboardBody>
+      </DashboardBox>
   );
 };
 

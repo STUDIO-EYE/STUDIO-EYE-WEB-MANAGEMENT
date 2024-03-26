@@ -2,15 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 import { FaProjectDiagram, FaFolderOpen } from "react-icons/fa";
-import {
-  media,
-  TitleLg,
-  TitleMd,
-  TitleSm,
-  TextLg,
-  TextMd,
-  TextSm,
-} from "../../Components/common/Font";
+import { media, TitleLg, TitleMd, TitleSm, TextLg, TextMd, TextSm } from "./Font";
 import { CgMenu } from "react-icons/cg";
 import NEWSearchBar from "../NEWSearchBar";
 import { useEffect, useState } from "react";
@@ -21,16 +13,16 @@ import jwt_decode from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import projectApi from "../../api/projectApi";
 import Modal from "react-modal";
-import ChatModal from "./ChatModal";
+// import ChatModal from "./ChatModal";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+
 
 const HeaderWrapper = styled.div`
   position: fixed;
   height: 4rem;
   width: 100%;
   background: white;
-  /* box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08); */
   border-bottom: 1px solid rgba(200, 200, 200, 0.6);
 `;
 
@@ -85,8 +77,6 @@ const LoginButton = styled.button`
   border-radius: 20px;
   width: 88px;
   height: 28px;
-  /* padding: 4px; */
-  /* margin: 10px; */
   cursor: pointer;
   &:hover {
     background-color: #ffa900;
@@ -102,13 +92,13 @@ const LogoBox = styled.img`
 `;
 
 const StyledLink = styled(Link)`
-  text-decoration: none; /* 밑줄 제거 */
-  color: inherit; /* 부모 요소의 색상 상속 */
-  cursor: pointer; /* 포인터 커서 표시 */
-  display: inline-block; /* 또는 block로 설정 */
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  display: inline-block;
 `;
 
-Modal.setAppElement("#root"); // 모달을 렌더링할 때 root 요소 설정
+Modal.setAppElement("#root");
 
 const customStyles = {
   content: {
@@ -126,10 +116,10 @@ const NEWheader = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [modalIsOpen, setIsOpen] = useState(false);
-  const [myProjects, setMyProjects] = useState([]);
+  const [myProjects, setMyProjects] = useState<any[]>([]); // Type assertion to 'any[]' to resolve the 'never' type error
   const [chatIsOpen, setChatIsOpen] = useState(false);
 
-  const handleProjectClick = (projectId) => {
+  const handleProjectClick = (projectId: number) => {
     navigate(`/manage/${projectId}`);
   };
 
@@ -162,7 +152,7 @@ const NEWheader = () => {
     if (token) {
       setIsLoggedIn(true);
       const decodedToken = jwt_decode(token);
-      setUserName(decodedToken.username);
+      setUserName((decodedToken as any).username); // Type assertion to 'any' to access 'username'
     }
   }, []);
 
@@ -176,54 +166,54 @@ const NEWheader = () => {
   };
 
   return (
-    <>
-      <HeaderWrapper>
-        <SpaceBetweenBlock>
-          <LogoBox src={StudioeyeLogo} onClick={() => navigate("/")} />
-          <RightBlock>
-            <NameBlock>
-              {isLoggedIn ? (
-                <>
-                  <TextLgButton>{userName} 님</TextLgButton>
-                  <ProjectButton onClick={openModal}>
-                    <FaFolderOpen />
-                  </ProjectButton>
-                  <StyledLink to="/LoginPage">
-                    <LoginButton onClick={handleLogout}>로그아웃</LoginButton>
-                  </StyledLink>
-                </>
-              ) : (
-                <StyledLink to="/LoginPage">
-                  <LoginButton>로그인</LoginButton>
-                </StyledLink>
-              )}
-            </NameBlock>
-          </RightBlock>
-        </SpaceBetweenBlock>
-        <Modal
-          isOpen={modalIsOpen}
-          onRequestClose={closeModal}
-          style={customStyles}
-          contentLabel="My Projects Modal"
-        >
-          <h2>내 프로젝트</h2>
-          {myProjects && myProjects.length ? (
-            myProjects.map((project, index) => (
-              <div
-                key={index}
-                onClick={() => handleProjectClick(project.projectId)}
-                style={{ cursor: "pointer" }}
-              >
-                {project.projectId}. {project.name}
-              </div>
-            ))
-          ) : (
-            <p>프로젝트가 없습니다.</p>
-          )}
-          <button onClick={closeModal}>닫기</button>
-        </Modal>
-      </HeaderWrapper>
-    </>
+      <>
+        <HeaderWrapper>
+          <SpaceBetweenBlock>
+            <LogoBox src={StudioeyeLogo} onClick={() => navigate("/")} />
+            <RightBlock>
+              <NameBlock>
+                {isLoggedIn ? (
+                    <>
+                      <TextLgButton>{userName} 님</TextLgButton>
+                      <ProjectButton onClick={openModal}>
+                        <FaFolderOpen />
+                      </ProjectButton>
+                      <StyledLink to="/LoginPage">
+                        <LoginButton onClick={handleLogout}>로그아웃</LoginButton>
+                      </StyledLink>
+                    </>
+                ) : (
+                    <StyledLink to="/LoginPage">
+                      <LoginButton>로그인</LoginButton>
+                    </StyledLink>
+                )}
+              </NameBlock>
+            </RightBlock>
+          </SpaceBetweenBlock>
+          <Modal
+              isOpen={modalIsOpen}
+              onRequestClose={closeModal}
+              style={customStyles}
+              contentLabel="My Projects Modal"
+          >
+            <h2>내 프로젝트</h2>
+            {myProjects && myProjects.length ? (
+                myProjects.map((project, index) => (
+                    <div
+                        key={index}
+                        onClick={() => handleProjectClick(project.projectId)}
+                        style={{ cursor: "pointer" }}
+                    >
+                      {project.projectId}. {project.name}
+                    </div>
+                ))
+            ) : (
+                <p>프로젝트가 없습니다.</p>
+            )}
+            <button onClick={closeModal}>닫기</button>
+          </Modal>
+        </HeaderWrapper>
+      </>
   );
 };
 
