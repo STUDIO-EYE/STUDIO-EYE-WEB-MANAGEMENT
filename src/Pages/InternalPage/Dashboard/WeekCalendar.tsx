@@ -12,10 +12,12 @@ const List = styled.div`
   align-items: center;
   width: 100%;
 `;
-const Title = styled.text`
+
+const Title = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
 `;
+
 const CalendarHeader = styled.div`
   display: flex;
   justify-content: space-between;
@@ -40,6 +42,7 @@ const Calendar = styled.div`
   margin-left: auto;
   margin-right: auto;
 `;
+
 const ManageButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -64,6 +67,7 @@ const ManageButton = styled.button`
     background-color: whitesmoke;
   }
 `;
+
 const MoreButton = styled.button`
   background-color: transparent;
   border: transparent;
@@ -122,14 +126,24 @@ const ScheduleItem = styled.p`
   cursor: pointer;
 `;
 
-function WeekCalendar({ projectId }: { projectId: number }) {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [events, setEvents] = useState<any[]>([]);
-  const navigate = useNavigate();
+interface Event {
+  scheduleId: number;
+  content: string;
+  date: string;
+}
 
-  const [showModal, setShowModal] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<any>(null);
-  const [message, setMessage] = useState("");
+interface WeekCalendarProps {
+  projectId: number;
+}
+
+const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const [events, setEvents] = useState<Event[]>([]);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [message, setMessage] = useState<string>("");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -154,7 +168,7 @@ function WeekCalendar({ projectId }: { projectId: number }) {
     fetchEvents();
   }, [projectId]);
 
-  const getDayColor = (dayIndex: number) => {
+  const getDayColor = (dayIndex: number): string => {
     switch (dayIndex) {
       case 0:
         return "#ffb3b3";
@@ -162,7 +176,7 @@ function WeekCalendar({ projectId }: { projectId: number }) {
         return "#ffdab3";
       case 2:
         return "#ffffb3";
-      case       3:
+      case 3:
         return "#d1ffb3";
       case 4:
         return "#b3e0ff";
@@ -175,9 +189,9 @@ function WeekCalendar({ projectId }: { projectId: number }) {
     }
   };
 
-  const getWeekDates = (date: Date) => {
+  const getWeekDates = (date: Date): Date[] => {
     const weekDates: Date[] = [];
-    let startDate = new Date(date.getTime());
+    let startDate = new Date(date);
     startDate.setDate(date.getDate() - date.getDay());
 
     for (let i = 0; i < 7; i++) {
@@ -188,8 +202,6 @@ function WeekCalendar({ projectId }: { projectId: number }) {
 
     return weekDates;
   };
-
-  const currentWeekDates = getWeekDates(currentDate);
 
   const goToPreviousWeek = () => {
     const newDate = new Date(currentDate);
@@ -218,7 +230,7 @@ function WeekCalendar({ projectId }: { projectId: number }) {
     }
   };
 
-  const findEventsForDate = (date: Date) => {
+  const findEventsForDate = (date: Date): Event[] => {
     const targetDate = new Date(
         date.getFullYear(),
         date.getMonth(),
@@ -227,14 +239,14 @@ function WeekCalendar({ projectId }: { projectId: number }) {
 
     return events.filter((e) => {
       const eventStartDate = new Date(
-          new Date(e.startDate).getFullYear(),
-          new Date(e.startDate).getMonth(),
-          new Date(e.startDate).getDate()
+          new Date(e.date).getFullYear(),
+          new Date(e.date).getMonth(),
+          new Date(e.date).getDate()
       ).getTime();
-      const eventEndDate = new Date(
-          new Date(e.endDate).getFullYear(),
-          new Date(e.endDate).getMonth(),
-          new Date(e.endDate).getDate(),
+      const eventEndDate       = new Date(
+          new Date(e.date).getFullYear(),
+          new Date(e.date).getMonth(),
+          new Date(e.date).getDate(),
           23,
           59,
           59,
@@ -245,52 +257,158 @@ function WeekCalendar({ projectId }: { projectId: number }) {
     });
   };
 
+  const currentWeekDates = getWeekDates(currentDate);
+
+  const fetchEvents = async () => {
+    try {
+      const response = await scheduleApi.getScheduleList(projectId);
+      setEvents(response.data.list);
+    } catch (error) {
+      console.error("Error fetching the schedules", error);
+    }
+  };
+
+  const handleDeleteEvent = async (scheduleId: number) => {
+    try {
+      await scheduleApi.deleteSchedule(scheduleId);
+      fetchEvents();
+      alert("성공적으로 삭제되었습니다.");
+      window.location.reload();
+    } catch (error) {
+      console.error("스케줄 삭제 중 오류 발생", error);
+    }
+  };
+
+  const handleEditEventSave = async (scheduleId: number, newText: string) => {
+    const eventToUpdate = events.find((e) => e.scheduleId === scheduleId);
+
+    if (eventToUpdate) {
+      try {
+        const updatedData: Event = { ...eventToUpdate, content: newText };
+        await scheduleApi.updateSchedule(scheduleId, updatedData);
+
+        setEvents((prevEvents) =>
+            prevEvents.map((e) => (e.scheduleId === scheduleId ? updatedData : e))
+        );
+        setShowModal(false);
+        alert("성공적으로 수정되었습니다.");
+        window.location.reload();
+      } catch (error) {
+        console.error("스케줄 업데이트 중 오류 발생", error);
+      }
+    }
+  };
+
   const days = ["일", "월", "화", "수", "목", "금", "토"];
 
   return (
       <div className="App">
-        <div>
-          <div>
-            <button onClick={goToPreviousWeek}>
-              <FaArrowLeft />
-            </button>
-            <span onClick={goToNewDate}>{currentDate.toDateString()}</span>
-            <button onClick={goToNextWeek}>
-              <FaArrowRight />
-            </button>
-          </div>
-          <div>
-            {days.map((day) => (
-                <div key={day}>{day}</div>
-            ))}
-          </div>
-          <div>
-            {currentWeekDates.map((date) => {
-              const eventsForDate = findEventsForDate(date);
-              const hasMoreEvents = eventsForDate.length > 3;
-              return (
-                  <div key={date.toISOString()}>
-                    <DayHeader isWeekend={date.getDay() === 0 || date.getDay() === 6}>
-                      {date.getDate()}
-                    </DayHeader>
-                    {eventsForDate.slice(0, 3).map((event, index) => (
-                        <ScheduleItem key={index}>{event.content}</ScheduleItem>
-                    ))}
-                    {hasMoreEvents && (
-                        <button onClick={() => setShowModal(true)}>더보기..</button>
-                    )}
-                  </div>
-              );
-            })}
-          </div>
-        </div>
-        <div>
-          <button onClick={() => navigate("/manage", { state: { projectId: projectId } })}>
+        <List>
+          <Title>Schedule</Title>
+        </List>
+        <CalendarHeader>
+          <ArrowButton onClick={goToPreviousWeek}>
+            <FaArrowLeft />
+          </ArrowButton>
+          <span onClick={goToNewDate}>{currentDate.toDateString()}</span>
+          <ArrowButton onClick={goToNextWeek}>
+            <FaArrowRight />
+          </ArrowButton>
+        </CalendarHeader>
+        <Calendar>
+          {days.map((day, index) => (
+              <DayHeader key={index} isWeekend={index === 0 || index === 6}>
+                {day}
+              </DayHeader>
+          ))}
+
+          {currentWeekDates.map((date) => {
+            const eventsForDate = findEventsForDate(date);
+            const hasMoreEvents = eventsForDate.length > 3;
+            return (
+                <Day
+                    key={date.toString()}
+                    onClick={() => {
+                      if (eventsForDate.length) {
+                        setEditingEvent(eventsForDate[0]);
+                        setShowModal(true);
+                      }
+                    }}
+                >
+                  <div>{date.getDate()}</div>
+                  {eventsForDate.slice(0, 3).map((event, index) => (
+                      <ScheduleItem
+                          key={index}
+                          title={event.content}
+                          onClick={() => {
+                            setEditingEvent(event);
+                            setShowModal(true);
+                          }}
+                          style={{ backgroundColor: getDayColor(date.getDay()) }}
+                      >
+                        {event.content.length > 5
+                            ? `${event.content.substring(0, 5)}...`
+                            : event.content}
+                      </ScheduleItem>
+                  ))}
+                  {hasMoreEvents && (
+                      <MoreButton
+                          onClick={() => {
+                            setEditingEvent(eventsForDate[0]);
+                            setShowModal(true);
+                          }}
+                      >
+                        더보기..
+                      </MoreButton>
+                  )}
+                </Day>
+            );
+          })}
+
+          {showModal && (
+              <Modal>
+                {editingEvent && (
+                    <div>
+                <textarea
+                    value={editingEvent.content}
+                    onChange={(e) => {
+                      if (editingEvent) {
+                        const updatedEvent: Event = {
+                          ...editingEvent,
+                          content: e.target.value,
+                        };
+                        setEditingEvent(updatedEvent);
+                      }
+                    }}
+                />
+                      <button
+                          onClick={() =>
+                              editingEvent && handleEditEventSave(editingEvent.scheduleId, editingEvent.content)
+                          }
+                      >
+                        수정 저장
+                      </button>
+                      <button onClick={() => editingEvent && handleDeleteEvent(editingEvent.scheduleId)}>
+                        삭제
+                      </button>
+                    </div>
+                )}
+                <button onClick={() => setShowModal(false)}>닫기</button>
+              </Modal>
+          )}
+        </Calendar>
+        <ManageButtonContainer>
+          <ManageButton
+              onClick={() =>
+                  navigate("/manage", { state: { projectId: projectId } })
+              }
+          >
             <FaPen />
-          </button>
-        </div>
+          </ManageButton>
+        </ManageButtonContainer>
       </div>
   );
-}
+};
 
 export default WeekCalendar;
+
