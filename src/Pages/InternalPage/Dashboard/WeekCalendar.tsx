@@ -217,7 +217,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
 
   const goToNewDate = () => {
     const newDateString = window.prompt(
-        "Enter the date you want to go to in YYYY-MM-DD format:",
+        "궁금한 일정을 YYYY-MM-DD 형식으로 입력하세요:",
         currentDate.toISOString().split("T")[0]
     );
     if (newDateString) {
@@ -225,7 +225,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
       if (!isNaN(newDate.getTime())) {
         setCurrentDate(newDate);
       } else {
-        alert("Invalid date format.");
+        alert("유효한 날짜 형식이 아닙니다.");
       }
     }
   };
@@ -272,8 +272,8 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
     try {
       await scheduleApi.deleteSchedule(scheduleId);
       fetchEvents();
-      alert("성공적으로 삭제되었습니다."); // Show message with alert
-      window.location.reload(); // Reload page
+      alert("성공적으로 삭제되었습니다.");
+      window.location.reload();
     } catch (error) {
       console.error("스케줄 삭제 중 오류 발생", error);
     }
@@ -358,7 +358,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
                             setShowModal(true);
                           }}
                       >
-                        See more..
+                        더보기..
                       </MoreButton>
                   )}
                 </Day>
@@ -386,14 +386,14 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
                               editingEvent && handleEditEventSave(editingEvent.scheduleId, editingEvent.content)
                           }
                       >
-                        Save Edit
+                        수정 저장
                       </button>
                       <button onClick={() => editingEvent && handleDeleteEvent(editingEvent.scheduleId)}>
-                        Delete
+                        삭제
                       </button>
                     </div>
                 )}
-                <button onClick={() => setShowModal(false)}>Close</button>
+                <button onClick={() => setShowModal(false)}>닫기</button>
               </Modal>
           )}
         </Calendar>
