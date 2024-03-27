@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import checkTodoApi from "../../../api/checkTodoApi";
+import styled from "styled-components";
+import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 import { FaPen } from "react-icons/fa";
-import axios from "axios";
-import styled from "styled-components";
+import checkTodoApi from "../../../api/checkTodoApi";
 
 interface TodoItem {
   todoIndex: number;
@@ -12,13 +12,9 @@ interface TodoItem {
   checked: boolean;
 }
 
-interface Props {
-  projectId: number;
-}
-
-function CheckList({ projectId }: Props) {
+function CheckList({ projectId }: { projectId: number }) {
   const [items, setItems] = useState<TodoItem[]>([]);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<string>("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,15 +47,15 @@ function CheckList({ projectId }: Props) {
       }
     };
     fetchData();
-  }, []);
+  }, [navigate, projectId]);
 
   const handleCheck = async (id: number) => {
     try {
       const response = await checkTodoApi.completeCheckTodo(id);
       if (response.status === 200) {
         // 상태를 불변하게 유지하며 변경
-        setItems(
-            items.map((item) =>
+        setItems((prevItems) =>
+            prevItems.map((item) =>
                 item.todoIndex === id ? { ...item, checked: !item.checked } : item
             )
         );
@@ -85,12 +81,12 @@ function CheckList({ projectId }: Props) {
 
   const handleAdd = async () => {
     const newId = items.length
-      ? Math.max(...items.map((item) => item.todoIndex)) + 1
-      : 1;
-    const finalText = isUrgent ? `${inputText}` : inputText;
-    const newItem = {
+        ? Math.max(...items.map((item) => item.todoIndex)) + 1
+        : 1;
+
+    const newItem: TodoItem = {
       todoIndex: newId,
-      todoContent: finalText,
+      todoContent: isUrgent ? `${inputText}` : inputText,
       todoEmergency: isUrgent,
       checked: false,
     };
@@ -103,8 +99,8 @@ function CheckList({ projectId }: Props) {
 
     try {
       await checkTodoApi.createCheckTodo(projectId, {
-        todoContent: finalText,
-        todoEmergency: isUrgent,
+        todoContent: newItem.todoContent,
+        todoEmergency: newItem.todoEmergency,
       });
     } catch (error) {
       console.error("Error adding new item", error);
@@ -115,9 +111,9 @@ function CheckList({ projectId }: Props) {
     setShowModal(false);
   };
 
-  const [showModal, setShowModal] = useState(false);
-  const [inputText, setInputText] = useState("");
-  const [isUrgent, setIsUrgent] = useState(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [inputText, setInputText] = useState<string>("");
+  const [isUrgent, setIsUrgent] = useState<boolean>(false);
 
   const sortedItems = [...items].sort((a, b) => {
     if (a.checked && !b.checked) return 1;
@@ -126,9 +122,15 @@ function CheckList({ projectId }: Props) {
   });
 
   return (
-      <div>
-        <ul>
-          {items.map((item) => (
+      <Container>
+        <List>
+          <Title>CheckList</Title>
+          <AddButton type="button" onClick={() => setShowModal(true)}>
+            <FaPen />
+          </AddButton>
+        </List>
+        <ItemsList>
+          {sortedItems.map((item) => (
               <Item key={item.todoIndex} completed={item.checked}>
                 <Checkbox
                     type="checkbox"
@@ -138,15 +140,34 @@ function CheckList({ projectId }: Props) {
                 {item.todoEmergency ? <UrgencyLabel>[긴급]</UrgencyLabel> : null}
                 {item.todoContent}
                 <DeleteButton onClick={() => handleDelete(item.todoIndex)}>
-                  Delete
+                  x
                 </DeleteButton>
               </Item>
           ))}
-
-        </ul>
-      </div>
+        </ItemsList>
+        {showModal && (
+            <Modal>
+              <h2>Add Item</h2>
+              <input
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+              />
+              <div>
+                <label>
+                  <input
+                      type="checkbox"
+                      checked={isUrgent}
+                      onChange={(e) => setIsUrgent(e.target.checked)}
+                  />
+                  긴급
+                </label>
+              </div>
+              <ModalButton onClick={handleAdd}>Add</ModalButton>
+              <ModalButton onClick={() => setShowModal(false)}>Cancel</ModalButton>
+            </Modal>
+        )}
+      </Container>
   );
-
 }
 
 const Container = styled.div`
@@ -179,7 +200,8 @@ const AddButton = styled.button`
   color: #a9a9a9;
   border: none;
   padding: 8px 16px;
-  font-size: 20px;
+  font-size:
+20px;
   text-align: left;
   cursor: pointer;
   border-radius: 5px;
@@ -197,7 +219,7 @@ const ItemsList = styled.ul`
   margin-top: 24px;
 `;
 
-const Item = styled.li<ItemProps>`
+const Item = styled.li<{ completed: boolean }>`
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -208,10 +230,6 @@ const Item = styled.li<ItemProps>`
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   text-decoration: ${(props) => (props.completed ? "line-through" : "none")};
 `;
-
-interface ItemProps {
-  completed: boolean;
-}
 
 const Checkbox = styled.input.attrs({ type: "checkbox" })``;
 
