@@ -3,6 +3,15 @@ import styled from "styled-components";
 import commentApi from "../../api/commentApi";
 import jwt_decode from "jwt-decode";
 
+interface Comment{
+    id:number
+    userName:string
+    content:string
+    createdAt:Date
+    updatedAt:Date
+    isNew:boolean
+}
+
 const FormContainer = styled.div`
   border-radius: 5px;
   margin-bottom: 0.01rem;
@@ -60,19 +69,20 @@ const CommentTextarea = styled.textarea`
   }
 `;
 
-const CommentList = ({ selectedPost, comments, setComments, onDeleteComment}) => {
-    const [editingCommentId, setEditingCommentId] = useState(null);
+const CommentList = ({ selectedPost, comments, setComments, onDeleteComment}
+    :{selectedPost:any,comments:any,setComments:any,onDeleteComment:any}) => {
+    const [editingCommentId, setEditingCommentId] = useState<number>(0);
     const [editedContent, setEditedContent] = useState("");
     const [tokenUserName, setTokenUserName] = useState("");
     const [tokenUserId, setTokenUserId] = useState("");
     const [tokenUserEmail, setTokenUserEmail] = useState("");
 
-    const deleteComment = (commentId) => {
+    const deleteComment = (commentId:number) => {
         commentApi.deleteComment(commentId)
             .then(response => {
                 alert('댓글이 성공적으로 삭제되었습니다.');
                 // 댓글이 성공적으로 삭제되면 해당 댓글을 상태에서 제거하거나
-                const updatedComments = comments.filter(comment => comment.id !== commentId);
+                const updatedComments = comments.filter((comment: { id: number; }) => comment.id !== commentId);
                 setComments(updatedComments);
                 if (onDeleteComment) { // 추가된 코드
                     onDeleteComment();
@@ -84,7 +94,7 @@ const CommentList = ({ selectedPost, comments, setComments, onDeleteComment}) =>
             });
     };
 
-    const startEditing = (commentId, content) => {
+    const startEditing = (commentId:number, content:string) => {
         setEditingCommentId(commentId);
         setEditedContent(content);
     };
@@ -92,24 +102,22 @@ const CommentList = ({ selectedPost, comments, setComments, onDeleteComment}) =>
     useEffect(() => {
         const token = sessionStorage.getItem("login-token");
         if (token) {
-            const decodedToken = jwt_decode(token);
+            const decodedToken:any = jwt_decode(token);
             setTokenUserName(decodedToken.username);
             setTokenUserId(decodedToken.userId);
             setTokenUserEmail(decodedToken.sub);
         }
     }, []);
 
-
-
-    const finishEditing = (commentId) => {
+    const finishEditing = (commentId:number) => {
         commentApi.putComment(commentId, { content: editedContent })
             .then(response => {
                 alert('댓글이 성공적으로 수정되었습니다.');
-                const updatedComments = comments.map(comment =>
+                const updatedComments = comments.map((comment: { id: number; }) =>
                     comment.id === commentId ? {...comment, content: editedContent} : comment
                 );
                 setComments(updatedComments);
-                setEditingCommentId(null);
+                setEditingCommentId(0);
             })
             .catch(error => {
                 console.error('Error updating comment:', error);
@@ -119,7 +127,7 @@ const CommentList = ({ selectedPost, comments, setComments, onDeleteComment}) =>
     return (
         <>
             <CommentTitle>댓글 {selectedPost.commentCount} 개</CommentTitle>
-            {comments.map((comment, index) => (
+            {comments.map((comment:Comment, index:number) => (
                 <FormContainer key={index}>
                     <Author>{comment.userName}</Author>
                     {editingCommentId === comment.id ? (
@@ -130,9 +138,9 @@ const CommentList = ({ selectedPost, comments, setComments, onDeleteComment}) =>
                     ) : (
                         <Content>{comment.content}</Content>
                     )}
-                    <Date>{comment.updatedAt ?
-                        comment.updatedAt + "(수정됨)"
-                        : comment.createdAt
+                    <Date>{comment.updatedAt.toString() ?
+                        comment.updatedAt.toString() + "(수정됨)"
+                        : comment.createdAt.toString()
                     }</Date>
                     {!comment.isNew && (
                         <ButtonContainer>

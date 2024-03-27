@@ -1,21 +1,22 @@
-import React, {useEffect, useState} from "react";
+import React, {useState, useEffect} from "react";
+import styled from "styled-components";
 import Body from "../../../Components/common/Body";
 import BoardPage from "../common/BoardPage";
-import {useNavigate, useParams} from 'react-router-dom';
+import {useNavigate, useParams} from "react-router-dom";
 import boardApi from "../../../api/boardApi";
 import axios from "axios";
 
-const EditNoticeMainpage = () => {
-    const {projectId, postId} = useParams();
+const PlanNoticeManinpage = () => {
+    const {projectId, postId} = useParams() as {projectId:any,postId:any};
     const navigate = useNavigate();
-    const getPostsByCategory = async (category) => {
+    const getPostsByCategory = async (category:string) => {
         try {
             const response = await boardApi.getBoardList(projectId, category);
             if (response.data && response.data.success === false) {
-                if (response.data.code === 7000) {
+                if(response.data.code === 7000){
                     alert("로그인을 먼저 진행시켜 주시길 바랍니다.");
                     navigate("/LoginPage");
-                } else if (response.data.code === 7001) {
+                }else if(response.data.code === 7001){
                     alert("세션이 만료되었습니다. 다시 로그인 해주세요.");
                     // 토큰 제거
                     sessionStorage.removeItem("login-token");
@@ -27,14 +28,15 @@ const EditNoticeMainpage = () => {
             return response.data; // 게시글 목록을 반환
         } catch (error) {
             console.error('게시글을 불러오는 중 오류가 발생했습니다.', error);
-
             throw error;
         }
     };
-    const subTitle = "편집";
+    const subTitle = "기획";
     const writingButtonContent = "글쓰기";
-    const category = "EDITING";
+    const category = "PLANNING"
+
     const [tableData, setTableData] = useState([]);
+
     const fetchData = async () => {
         try {
             const posts = await getPostsByCategory(category);
@@ -48,17 +50,15 @@ const EditNoticeMainpage = () => {
     useEffect(() => {
         fetchData();
     }, []);
-
-
     return (
         <Body>
-            <BoardPage subTitle={subTitle}
-                       tableData={tableData}
-                       writingButtonContent={writingButtonContent}
-                       projectId={projectId}
-                       postId={postId}
-                       category={category}/>
+                <BoardPage subTitle={subTitle}
+                           tableData={tableData}
+                           writingButtonContent={writingButtonContent}
+                           projectId={projectId}
+                           postId={postId}
+                           category={category}/>
         </Body>
     );
 };
-export default EditNoticeMainpage;
+export default PlanNoticeManinpage;

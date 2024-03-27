@@ -70,7 +70,7 @@ const PostsButton = styled.button`
   }
 `;
 
-const WritingPage = ({ projectId, category }) => {
+const WritingPage = ({ projectId, category }:{projectId:number,category:string}) => {
   const [editorHtml, setEditorHtml] = useState(""); // Quill Editor의 HTML 내용을 저장하는 상태
   const [title, setTitle] = useState(""); // 제목을 저장하는 상태
 

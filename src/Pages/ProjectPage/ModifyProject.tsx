@@ -95,16 +95,16 @@ const TextMd = styled.p`
 `;
 
 function ModifyProject() {
-  const { projectId } = useParams();
+  const { projectId } = useParams()as {projectId:any};
   const navigate = useNavigate();
   const [projectData, setProjectData] = useState({
     name: "",
     description: "",
     startDate: "",
     finishDate: "",
-    teamMemberEmails: [],
+    teamMemberEmails: [] as string[],
   });
-  const [emailsRegisteredCheck, setEmailsRegisteredCheck] = useState([]);
+  const [emailsRegisteredCheck, setEmailsRegisteredCheck] = useState<boolean[]>([]);
 
   useEffect(() => {
     const fetchProjectDetails = async () => {
@@ -118,8 +118,8 @@ function ModifyProject() {
             finishDate,
             leaderAndMemberList,
           } = response.data.data;
-          const teamMemberEmails = leaderAndMemberList.map(
-            (member) => member.email
+          const teamMemberEmails:any[] = leaderAndMemberList.map(
+            (member:any) => member.email
           );
 
           setProjectData({
@@ -130,7 +130,7 @@ function ModifyProject() {
             teamMemberEmails,
           });
           setEmailsRegisteredCheck(
-            new Array(teamMemberEmails.length).fill(true)
+            new Array(teamMemberEmails.length).fill(true) as boolean[]
           );
         }
       } catch (error) {
@@ -141,11 +141,11 @@ function ModifyProject() {
     fetchProjectDetails();
   }, [projectId]);
 
-  const handleChange = (e) => {
+  const handleChange = (e:any) => {
     setProjectData({ ...projectData, [e.target.name]: e.target.value });
   };
 
-  const handleEmailRegistration = async (index, email) => {
+  const handleEmailRegistration = async (index:number, email:string) => {
     if (!validateEmail(email)) {
       alert("이메일 형식이 올바르지 않습니다.");
       return;
@@ -154,7 +154,7 @@ function ModifyProject() {
       const response = await axios.get(
         `/user-service/response_userByEmail/${email}`
       );
-      const updatedRegistered = [...emailsRegisteredCheck];
+      const updatedRegistered:boolean[] = [...emailsRegisteredCheck];
       updatedRegistered[index] = true;
       setEmailsRegisteredCheck(updatedRegistered);
       alert("이메일이 인증되었습니다.");
@@ -164,7 +164,7 @@ function ModifyProject() {
     }
   };
 
-  const handleUpdate = async (e) => {
+  const handleUpdate = async (e:any) => {
     e.preventDefault();
     const notRegistered = emailsRegisteredCheck.includes(false);
     if (notRegistered) {
@@ -208,7 +208,7 @@ function ModifyProject() {
     setEmailsRegisteredCheck([...emailsRegisteredCheck, false]);
   };
 
-  const removeTeamMemberEmail = (index) => {
+  const removeTeamMemberEmail = (index:number) => {
     const updatedEmails = projectData.teamMemberEmails.filter(
       (_, idx) => idx !== index
     );
@@ -222,7 +222,7 @@ function ModifyProject() {
     setEmailsRegisteredCheck(updatedChecks);
   };
 
-  const validateEmail = (email) => {
+  const validateEmail = (email:string) => {
     const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     return emailPattern.test(email);
   };
@@ -260,7 +260,7 @@ function ModifyProject() {
           onChange={handleChange}
         />
         <TextMd>등록된 팀원</TextMd>
-        {projectData.teamMemberEmails.map((email, index) => (
+        {projectData.teamMemberEmails.map((email, index:number) => (
           <EmailContainer key={`email-${index}`}>
             <div style={{ display: "flex", alignItems: "center" }}>
               <Input
@@ -268,13 +268,13 @@ function ModifyProject() {
                 placeholder={`팀원 ${index + 1} 이메일`}
                 value={email}
                 onChange={(e) => {
-                  const updatedEmails = [...projectData.teamMemberEmails];
+                  const updatedEmails:any[] = [...projectData.teamMemberEmails];
                   updatedEmails[index] = e.target.value;
                   setProjectData({
                     ...projectData,
                     teamMemberEmails: updatedEmails,
                   });
-                  const updatedChecks = [...emailsRegisteredCheck];
+                  const updatedChecks:boolean[] = [...emailsRegisteredCheck];
                   updatedChecks[index] = false;
                   setEmailsRegisteredCheck(updatedChecks);
                 }}
