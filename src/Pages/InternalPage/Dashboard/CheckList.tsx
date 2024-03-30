@@ -60,7 +60,6 @@ function CheckList({ projectId }: { projectId: number }) {
             )
         );
       } else {
-        // 여기서는 오류 처리를 하면 됩니다. 예를 들어:
         console.error("Something error");
       }
     } catch (error) {
