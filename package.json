@@ -10,6 +10,7 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^29.5.12",
     "axios": "^1.5.1",
     "buffer": "^6.0.3",
     "crypto": "^1.0.1",
@@ -23,7 +24,7 @@
     "react-quill": "^2.0.0",
     "react-router-dom": "^6.16.0",
     "react-scripts": "5.0.1",
-    "styled-components": "^6.0.8",
+    "styled-components": "^6.1.8",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -52,5 +53,13 @@
   },
   "browser": {
     "crypto": false
+  },
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.24.1",
+    "@types/node": "^20.11.30",
+    "@types/react": "^18.2.70",
+    "@types/react-dom": "^18.2.22",
+    "@types/react-modal": "^3.16.3",
+    "typescript": "^5.4.3"
   }
 }
