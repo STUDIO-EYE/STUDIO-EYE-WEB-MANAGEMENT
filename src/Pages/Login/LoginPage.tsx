@@ -184,23 +184,20 @@ function LoginPage() {
 
   const handleLogin = () => {
     axios
-        .post("/user-service/login", formData)
-        .then((response: { data: { accessToken: any; }; }) => {
-          // 설마... 타입이 any여서?ㅎ
-          const accessToken = response.data.accessToken;
-          axios.defaults.headers.common["Authorization"] =
-              "Bearer " + accessToken;
-          sessionStorage.setItem("login-token", accessToken);
+      .post("/user-service/login", formData)
+      .then((response) => {
+        const accessToken = response.data.accessToken;
+        axios.defaults.headers.common["Authorization"] =
+          "Bearer " + accessToken; // 토큰을 HTTP 헤더에 포함
+        sessionStorage.setItem("login-token", accessToken);
 
-          alert("로그인 성공");
-          navigate("/");
-          return response.data;
-
-        })
-        .catch((error: any) => {
-          alert("로그인 실패");
-          console.error("API 요청 중 오류 발생:", error);
-        });
+        alert("로그인 성공");
+        navigate("/admin");
+      })
+      .catch((error) => {
+        alert("로그인 실패");
+        console.error("API 요청 중 오류 발생:", error);
+      });
   };
   
 

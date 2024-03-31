@@ -206,23 +206,26 @@ function SignInPage(){
     const [isVerified, setIsVerified] = useState(false);
 
     const handleSendCode = () => {
-        const params = {
+        const data = {
             email: formData.email // 실제 이메일 값을 사용
         };
-
-        axios.post('/user-service/emails/verification-requests', null,{
-            params: params,
+    
+        axios.post('/user-service/emails/verification-requests', data, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
         })
-            .then((response) => {
-                console.log({ message: response.data });
-                alert("입력하신 이메일로 인증코드가 전송되었습니다.");
-                setIsCodeSent(true);
-                startTimer();
-            })
-            .catch((error) => {
-                console.error('API 요청 중 오류 발생:', error);
-            });
+        .then((response) => {
+            console.log({ message: response.data });
+            alert("입력하신 이메일로 인증코드가 전송되었습니다.");
+            setIsCodeSent(true);
+            startTimer();
+        })
+        .catch((error) => {
+            console.error('API 요청 중 오류 발생:', error);
+        });
     }
+    
 
     const startTimer = () => {
         setIsTimerRunning(true);
