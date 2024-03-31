@@ -12,7 +12,7 @@ import {
   TextSm,
 } from "../../Components/common/Font";
 import axios from "axios";
-import {jwtdecode} from "jwt-decode";
+// import jwt-decode from "jwt-decode";
 
 const LoginContainer = styled.div`
   background-color: #fafafa;
