@@ -264,15 +264,16 @@ function Project() {
         <FormContainer>
           <Label>팀원 수&nbsp;: </Label>
           <StyledSelect
-            value={teamMemberCount}
-            onChange={(e:React.ChangeEvent<HTMLSelectElement>) => {
-              setTeamMemberCount(Number(e.target.value));
-              setTeamMemberEmails(new Array(Number(e.target.value)).fill(""));
-              setEmailsRegisteredCheck(
-                new Array(Number(e.target.value)).fill(false)
-              );
-            }}
-          >
+                value={teamMemberCount !== 0 ? teamMemberCount : ""}
+                onChange={(e) => {
+                  const selectedCount = Number(e.target.value);
+                  setTeamMemberCount(selectedCount !== 0 ? selectedCount : 0);
+                  if (selectedCount !== 0) {
+                    setTeamMemberEmails(new Array(selectedCount).fill(""));
+                    setEmailsRegisteredCheck(new Array(selectedCount).fill(false));
+                  }
+                }}
+            >
             <option value="" disabled>
               선택
             </option>

@@ -1,3 +1,5 @@
+export {}
+
 // import React, { useState } from "react";
 // import styled from "styled-components";
 // import { FaRegComments } from "react-icons/fa";

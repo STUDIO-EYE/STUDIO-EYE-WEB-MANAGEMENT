@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import LoginIMG from "./LoginIMG.png";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   media,
   TitleLg,
@@ -12,8 +12,7 @@ import {
   TextSm,
 } from "../../Components/common/Font";
 import axios from "axios";
-import jwt_decode from "jwt-decode";
-import { useNavigate } from "react-router-dom";
+import {jwtdecode} from "jwt-decode";
 
 const LoginContainer = styled.div`
   background-color: #fafafa;
@@ -181,13 +180,13 @@ function LoginPage() {
     if (e.key === "Enter") {
       handleLogin();
     }
-  };
-
+  }; 
 
   const handleLogin = () => {
     axios
         .post("/user-service/login", formData)
-        .then((response) => {
+        .then((response: { data: { accessToken: any; }; }) => {
+          // 설마... 타입이 any여서?ㅎ
           const accessToken = response.data.accessToken;
           axios.defaults.headers.common["Authorization"] =
               "Bearer " + accessToken;
@@ -195,12 +194,15 @@ function LoginPage() {
 
           alert("로그인 성공");
           navigate("/");
+          return response.data;
+
         })
-        .catch((error) => {
+        .catch((error: any) => {
           alert("로그인 실패");
           console.error("API 요청 중 오류 발생:", error);
         });
   };
+  
 
   return (
       <LoginContainer>
