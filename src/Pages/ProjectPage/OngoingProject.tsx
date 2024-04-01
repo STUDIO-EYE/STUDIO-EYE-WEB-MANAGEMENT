@@ -207,7 +207,7 @@ function OngoingProject() {
         if (response.data && response.data.success === false) {
           if (response.data.code === 7000) {
             alert("로그인을 먼저 진행시켜 주시길 바랍니다.");
-            navigate("/LoginPage");
+            //navigate("/LoginPage");
           } else if (response.data.code === 7001) {
             alert("세션이 만료되었습니다. 다시 로그인 해주세요.");
             sessionStorage.removeItem("login-token");

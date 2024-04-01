@@ -210,7 +210,7 @@ function SignInPage(){
             email: formData.email // 실제 이메일 값을 사용
         };
     
-        axios.post('/user-service/emails/verification-requests', JSON.stringify(data), {
+        axios.post('/user-service/emails/verification-requests', data, {
             headers: {
                 'Content-Type': 'application/json'
             }
