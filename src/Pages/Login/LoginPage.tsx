@@ -192,7 +192,7 @@ function LoginPage() {
         sessionStorage.setItem("login-token", accessToken);
 
         alert("로그인 성공");
-        navigate("/admin");
+        navigate("/");
       })
       .catch((error) => {
         alert("로그인 실패");
