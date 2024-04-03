@@ -7,11 +7,10 @@ import { useNavigate } from "react-router-dom";
 import boardApi from "../../api/boardApi";
 import axios from "axios";
 
-// WritingMainPage.js
-
 const FormContainer = styled.div`
   max-height: 30rem; /* 컨테이너의 최대 높이 */
   max-width: 70rem;
+  margin-left: 15%;
   padding-left: 1%;
   padding-right: 1%;
   overflow-y: auto; /* 스크롤 가능하도록 설정 */
@@ -26,23 +25,26 @@ const CustomQuillEditor = styled(ReactQuill)`
 
   .ql-container {
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 15px;
   }
 
   .ql-toolbar {
     /* 툴바 스타일 설정 */
-    background-color: #ccc;
-    border-radius: 5px;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: 15px;
   }
 `;
 
 const TitleInput = styled.input`
-  border: none; /* 기본 테두리 제거 */
-  width: 99%;
+  border: 1px solid #FFBB0D;
+  border-radius: 15px;
+
+  width: 98%;
   height: 2rem;
-  font-size: 1.3rem;
+  padding: 8px 0 8px 18px;
+  font-size: 0.9rem;
+  font-weight: bold;
   margin-bottom: 1rem;
-  border-bottom: 2px solid #ccc;
   outline: none;
 `;
 
@@ -139,7 +141,7 @@ const WritingPage = ({ projectId, category }:{projectId:number,category:string})
       <FormContainer>
         <TitleInput
           type="text"
-          placeholder="제목을 입력하세요"
+          placeholder="제목을 입력하세요."
           value={title}
           onChange={(e) => setTitle(e.target.value)} // 입력 값이 변경될 때마다 title 상태 업데이트
         />

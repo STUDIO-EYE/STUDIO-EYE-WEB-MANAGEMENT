@@ -138,10 +138,7 @@ const CommentList = ({ selectedPost, comments, setComments, onDeleteComment}
                     ) : (
                         <Content>{comment.content}</Content>
                     )}
-                    <Date>{comment.updatedAt.toString() ?
-                        comment.updatedAt.toString() + "(수정됨)"
-                        : ""
-                    }</Date>
+                    <Date> {comment.updatedAt ? comment.updatedAt.toString() + "(수정됨)" : ""} </Date>
                     {!comment.isNew && (
                         <ButtonContainer>
                             {tokenUserName === comment.userName && (
