@@ -25,39 +25,44 @@ const Container = styled.div`
 `;
 const StyledTable = styled.table`
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0 16px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: space-between;
 
   th,
   td {
+    width: calc(50% - 8px); /* 2개의 열이 나란히 위치하도록 */
+    margin-bottom: 16px;
+    box-sizing: border-box;
     padding: 15px;
-    text-align: center;
+    text-align: left;
+    word-wrap: break-word; /* 줄바꿈 */
+  }
+
+  th:last-child {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   tbody tr {
+    width: calc(50% - 8px); /* 2개의 열이 나란히 위치하도록 */
     background-color: #ffffff;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
-  }
-  tbody tr td {
-    padding: 20px 64px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
   }
 
-  thead tr th:nth-child(3),
-  thead tr th:nth-child(4) {
-    margin-left: 10px !important;
-  }
-
-  tbody tr:hover {
-    background-color: #f5f5f5;
-  }
-  tbody tr td:nth-child(3),
-  tbody tr td:nth-child(4) {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 150px;
+  tbody tr:nth-child(even) {
+    margin-left: 16px; /* 짝수 행이 오른쪽으로 밀림 */
   }
 `;
+
 const LabelArea = styled.div`
   width: 128px;
   background: transparent;
@@ -222,14 +227,17 @@ function FinishProject() {
 
       <StyledTable>
         <thead>
-          <tr>
-            <th>번호</th>
-            <th>기한</th>
-            <th>프로젝트명</th>
-            <th>프로젝트 소개</th>
-          </tr>
-        </thead>
+            {/* 임시적으로 이렇게 넣어둠 */}
+            <tr>
+              <th>번호</th>
+              <th>날짜</th>
+              <th>제목</th>
+              <th>내용</th>
+              <th></th>
+            </tr>
+          </thead>
         <tbody>
+          
           {projects.map((project:any) => (
             <tr key={project.projectId}>
               {/*<td>{index + 1}</td>*/}

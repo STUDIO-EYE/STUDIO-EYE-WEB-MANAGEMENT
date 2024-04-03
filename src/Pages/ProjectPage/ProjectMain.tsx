@@ -6,7 +6,7 @@ import styled, { createGlobalStyle } from "styled-components";
 
 const GlobalStyle = createGlobalStyle`
   body {
-    background-color: #fafafa;
+    background-color: white;
     margin: 0;
   }
 `;
@@ -18,7 +18,7 @@ const MainBody = styled.div`
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  background-color: #fafafa;
+  background-color: white;
 `;
 
 const Title = styled.text`
@@ -36,7 +36,7 @@ const Wrapper = styled.div`
 `;
 
 const Container = styled.div`
-  background-color: #fafafa;
+  background-color: whtie;
 `;
 
 const ProjectMain = () => {
