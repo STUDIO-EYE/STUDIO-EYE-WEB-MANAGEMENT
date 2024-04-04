@@ -3,27 +3,19 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { TitleSm, TextLg, TextMd } from "../../Components/common/Font";
 import projectApi from "../../api/projectApi";
-import { FaTrash, FaCheck, FaEdit } from "react-icons/fa";
+import { FaTrash, FaCheck, FaEdit, FaEllipsisH, FaCrown } from "react-icons/fa";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 import swal from 'sweetalert';
 
-
-interface Project{
-  projectId:number
-  name:string
-  startDate:Date
-  finishDate:Date
-  description:string
+interface Project {
+  projectId: number;
+  name: string;
+  startDate: Date;
+  finishDate: Date;
+  description: string;
+  members: string[]; // 멤버 목록 추가
 }
-
-const ProjectWrapper = styled.div`
-  width: 400px;
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
-`;
 
 const AppContainer = styled.div`
   text-align: center;
@@ -36,8 +28,17 @@ const Container = styled.div`
   text-align: left;
 `;
 
+const ProjectWrapper = styled.div`
+  width: 400px;
+  background-color: #ffffff;
+  padding: 20px;
+  margin-right: 50px;
+  margin-bottom: 100px;
+  border-radius: 15px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+`;
+
 const ProjectsContainer = styled.div`
-  display: ;
   flex-wrap: wrap;
   margin-top: 20px;
   justify-content: flex-start;
@@ -45,7 +46,7 @@ const ProjectsContainer = styled.div`
   align-items: center;
 `;
 
-const ProjectItem = styled.div`
+const ProjectItemWrapper = styled.div`
   width: calc(100% - 40px);
   background-color: white;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
@@ -62,6 +63,13 @@ const ProjectItem = styled.div`
   }
 `;
 
+const ProjectItemContent = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
 const ProjectTitle = styled.div`
   flex: 1;
   font-weight: bold;
@@ -71,7 +79,7 @@ const ProjectTitle = styled.div`
 `;
 
 const ProjectPeriod = styled.div`
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   text-align: left;
   font-size: 12px;
 `;
@@ -91,40 +99,63 @@ const ButtonsContainer = styled.div`
   align-items: center;
 `;
 
-const DeleteButton = styled.button`
-  background-color: white;
-  border-radius: 32px;
+const DropdownMenu = styled.div`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.08);
+  z-index: 1;
+`;
+
+const DropdownButton = styled.button`
+  background-color: transparent;
   border: none;
   outline: none;
-  color: black;
-  margin: 4px;
+  cursor: pointer;
 
   &:hover {
-    background-color: grey;
+    color: rgba(0, 0, 0, 0.08);
+  }
+`;
+
+const DeleteButton = styled.button`
+  background-color: white;
+  border: none;
+  outline: none;
+  color: red;
+  margin: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.08);
   }
 `;
 const CompleteButton = styled.button`
   background-color: white;
-  border-radius: 32px;
   border: none;
   outline: none;
   color: green;
   margin: 4px;
+  cursor: pointer;
 
   &:hover {
-    background-color: grey;
+    background-color: rgba(0, 0, 0, 0.08);
   }
 `;
 const ModifyButton = styled.button`
   background-color: transparent;
-  border-radius: 32px;
   border: none;
   outline: none;
   color: #ffa900;
   margin: 4px;
+  cursor: pointer;
 
   &:hover {
-    background-color: grey;
+    background-color: rgba(0, 0, 0, 0.08);
   }
 `;
 
@@ -135,16 +166,12 @@ const LabelArea = styled.div`
 
 const CreateButton = styled.button`
   background-color: white;
-  border-radius: 64px;
-  border: 4px solid #ffa900;
-  outline: none;
-
-  color: #ffa900;
-  padding: 8px 14px;
-  margin: 4px;
+  border: 0px;
+  margin-left: 275px;
+  cursor: pointer;
 
   &:hover {
-    background-color: #ffe9d2;
+    background-color: rgba(0, 0, 0, 0.03);
   }
 `;
 
@@ -172,9 +199,10 @@ const PaginationContainer = styled.div`
 `;
 
 function OngoingProject() {
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentDetailsProjects, setCurrentDetailsProjects] = useState<any[]>([]);
+  const [dropdownOpen, setDropdownOpen] = useState<{ [key: number]: boolean }>({});
 
   const projectsPerPage = 10;
   const navigate = useNavigate();
@@ -185,10 +213,12 @@ function OngoingProject() {
     indexOfFirstProject,
     indexOfLastProject
   );
-  //토큰 정보 저장
+
+  // 토큰 정보 저장
   const [tokenUserId, setTokenUserId] = useState("");
+
   // 페이지 번호를 렌더링하기 위한 컴포넌트
-  const paginate = (pageNumber:number) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   const PageNumbers = () => {
     const totalPages = Math.ceil(projects.length / projectsPerPage);
@@ -229,15 +259,30 @@ function OngoingProject() {
   };
 
   useEffect(() => {
+    const closeDropdownMenu = (e: MouseEvent) => {
+      // 클릭된 요소가 드롭다운 메뉴 내부 요소인지 확인
+      const clickedInsideDropdown = (e.target as HTMLElement).closest('.dropdown-menu');
+      if (!clickedInsideDropdown) {
+        // 다른 데 클릭하면 드롭다운 메뉴 닫기
+        setDropdownOpen({});
+      }
+    };
+
+    document.addEventListener('click', closeDropdownMenu);
+
+    return () => {
+      document.removeEventListener('click', closeDropdownMenu);
+    };
+  }, []);
+
+
+  useEffect(() => {
     const fetchProjects = async () => {
       try {
         const response = await projectApi.getProjectList();
         if (response.data && response.data.success === false) {
           if (response.data.code === 7000) {
-            //swal("로그인을 먼저 진행시켜 주시길 바랍니다.");
-            //navigate("/LoginPage");
-          } else if (response.data.code === 7001) {
-            alert("세션이 만료되었습니다. 다시 로그인 해주세요.");
+            swal("세션이 만료되었습니다. 다시 로그인 해주세요.");
             sessionStorage.removeItem("login-token");
             delete axios.defaults.headers.common["Authorization"];
             navigate("/LoginPage");
@@ -245,26 +290,23 @@ function OngoingProject() {
           return;
         }
         const checkedProjects = response.data.list.filter(
-          (item:any) => item.isFinished === false
+          (item: any) => item.isFinished === false
         );
         setProjects(checkedProjects.reverse());
 
         // 각 프로젝트에 대한 정보를 가져와서 저장
-        const projectDetails:any[] = await Promise.all(
-            checkedProjects.map((project:Project) =>
-                projectApi.getProjectDetails(project.projectId)
-            )
+        const projectDetails: any[] = await Promise.all(
+          checkedProjects.map((project: Project) =>
+            projectApi.getProjectDetails(project.projectId)
+          )
         );
-        // console.log(projectDetails[index].data.success); 이걸 전부 돌려서 true인것 중에 현재 나의 토큰유저ID와 같은 맴버의 유저ID의 role이 팀장인 프로젝트만 수정 삭제 완료 버튼이 보이도록.
-        // console.log(projectDetails[index].data.data.leaderAndMemberList[index].role); //역할 경로
-        // console.log(projectDetails[index].data.data.leaderAndMemberList[index].userId); //유저 경로
+
         const token = sessionStorage.getItem("login-token");
         if (token) {
-          const decodedToken:any = jwt_decode(token);
+          const decodedToken: any = jwt_decode(token);
           setTokenUserId(decodedToken.userId);
         }
         setCurrentDetailsProjects(projectDetails);
-
       } catch (error) {
         console.error("Error fetching the projects:", error);
       }
@@ -272,39 +314,40 @@ function OngoingProject() {
 
     fetchProjects();
   }, []);
-  const isTeamLeader = (currentDetailsProjects:any) => {
-    if (!currentDetailsProjects.data.success) {
 
+  const isTeamLeader = (projectDetails: any) => {
+    if (!projectDetails.data.success) {
       return false;
     }
-    const leaderAndMemberList = currentDetailsProjects.data.data.leaderAndMemberList;
+    const leaderAndMemberList = projectDetails.data.data.leaderAndMemberList;
     const teamLeader = leaderAndMemberList.find(
-        (member:any) => member.userId === tokenUserId && member.role === '팀장'
+      (member: any) =>
+        member.userId === tokenUserId && member.role === "팀장"
     );
 
     return !!teamLeader;
   };
 
-
   const handleAddProject = () => {
     navigate("/Project");
   };
-  const handleRowClick = (projectId:number) => {
+
+  const handleRowClick = (projectId: number) => {
     navigate(`/Manage/${projectId}`);
   };
+
   const goToHome = () => {
-    // setTimeout(function () {
-    //   window.location.reload();
-    // }, 100);
     navigate(`/`);
   };
+
   const refresh = () => {
     setTimeout(function () {
       window.location.reload();
     }, 100);
   };
-  const renumberProjects = (projects:Project[]) => {
-    return projects.map((project:Project, index:number) => {
+
+  const renumberProjects = (projects: Project[]) => {
+    return projects.map((project: Project, index: number) => {
       return {
         ...project,
         id: index + 1,
@@ -312,7 +355,7 @@ function OngoingProject() {
     });
   };
 
-  const handleDeleteClick = async (e:any, projectId:number) => {
+  const handleDeleteClick = async (e: any, projectId: number) => {
     e.stopPropagation();
     const isConfirmed = window.confirm("프로젝트를 삭제하시겠습니까?");
     if (!isConfirmed) return;
@@ -329,26 +372,17 @@ function OngoingProject() {
         alert("프로젝트가 삭제 처리 되었습니다.");
         refresh();
       }
-
-      // const updatedProjects = projects.filter(
-      //   (project) => project.projectIndex !== projectId
-      // );
-      // setProjects(updatedProjects);
     } catch (error) {
       console.error("Error deleting the project:", error);
       alert("프로젝트 삭제에 실패했습니다."); // 에러 알림 메시지 추가
     }
   };
 
-  const handleCompleteClick = async (e:any, projectId:number) => {
+  const handleCompleteClick = async (e: any, projectId: number) => {
     e.stopPropagation();
     const isConfirmed = window.confirm("프로젝트를 완료하시겠습니까?");
     if (!isConfirmed) return;
     try {
-      // const updatedProject = projects.find(
-      //   (project) => project.projectIndex === projectId
-      // );
-      // updatedProject.status = "Completed";
       const response = await projectApi.putProject(projectId);
       if (response.data && response.data.success === false) {
         if (response.data.code === 8000) {
@@ -360,71 +394,85 @@ function OngoingProject() {
         alert("프로젝트가 완료 처리 되었습니다.");
         refresh();
       }
-      // const updatedProjects = projects.map((project) =>
-      //   project.projectIndex === projectId ? updatedProject : project
-      // );
-      // setProjects(updatedProjects);
     } catch (error) {
       console.error("Error marking the project as complete:", error);
       alert("프로젝트 완료 처리에 실패했습니다."); // 에러 알림 메시지 추가
     }
   };
 
+  const toggleDropdown = (e: React.MouseEvent, projectId: number) => {
+    e.stopPropagation();
+    setDropdownOpen(prevState => ({
+      ...prevState,
+      [projectId]: !prevState[projectId]
+    }));
+  };
+
+  const isDropdownOpen = (projectId: number) => dropdownOpen[projectId] || false;
+
+  function handleModifyClick(projectId: number): void {
+    navigate(`/modify/${projectId}`);
+  }
+
   return (
     <AppContainer>
-      
-      
       <ProjectWrapper>
-      <Container>
-        <LabelArea>
-          <TitleSm>In Progress</TitleSm>
-          <CreateButton type="button" onClick={handleAddProject}>
-          <TextLg>+</TextLg>
-        </CreateButton>
-        </LabelArea>
-        
-      </Container>
+        <Container>
+          <LabelArea>
+            <TitleSm>In Progress</TitleSm>
+            <CreateButton type="button" onClick={handleAddProject}>
+              <TextLg>+</TextLg>
+            </CreateButton>
+          </LabelArea>
+        </Container>
         <ProjectsContainer>
           {currentDetailsProjects.length > 0 && (
             currentProjects.map((project: Project, index) => (
-              <ProjectItem
-                key={project.projectId}
-                onClick={() => handleRowClick(project.projectId)}
-              >
-                <ProjectTitle>{project.name}</ProjectTitle>
-                <ProjectPeriod>
-                  {project.startDate.toString()}~{project.finishDate.toString()}
-                </ProjectPeriod>
-                <ProjectDescription>{project.description}</ProjectDescription>
-                <ButtonsContainer>
-                  {isTeamLeader(currentDetailsProjects[index]) && (
-                    <>
-                      <ModifyButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/modify/${project.projectId}`);
-                        }}
-                      >
-                        <FaEdit />
-                      </ModifyButton>
-                      <CompleteButton
-                        onClick={(e) => handleCompleteClick(e, project.projectId)}
-                      >
-                        <FaCheck />
-                      </CompleteButton>
-                      <DeleteButton
-                        onClick={(e) => handleDeleteClick(e, project.projectId)}
-                      >
-                        <FaTrash />
-                      </DeleteButton>
-                    </>
-                  )}
-                </ButtonsContainer>
-              </ProjectItem>
+              <ProjectItemWrapper key={project.projectId}>
+
+                {/* 임시 추가 */}
+                {isTeamLeader(currentDetailsProjects[index]) && (
+                  <div style={{ position: 'absolute', top: '5px', left: '20px' }}>
+                    <FaCrown color="#ffa900" size={15} />
+                  </div>
+                )}
+
+                <ProjectItemContent onClick={() => handleRowClick(project.projectId)}>
+                  <div>
+                    <ProjectTitle>{project.name}</ProjectTitle>
+                    <ProjectPeriod>
+                      {project.startDate.toString()}~{project.finishDate.toString()}
+                    </ProjectPeriod>
+                    <ProjectDescription>{project.description}</ProjectDescription>
+                  </div>
+                  <ButtonsContainer>
+                    <DropdownButton onClick={(e) => toggleDropdown(e, project.projectId)}>
+                      <FaEllipsisH />
+                    </DropdownButton>
+                  </ButtonsContainer>
+
+                </ProjectItemContent>
+                {isDropdownOpen(project.projectId) && (
+                  <DropdownMenu>
+                    {isTeamLeader(currentDetailsProjects[index]) && (
+                      <>
+                        <ModifyButton onClick={() => handleModifyClick(project.projectId)}>
+                          <FaEdit /> 수정
+                        </ModifyButton>
+                        <CompleteButton onClick={(e) => handleCompleteClick(e, project.projectId)}>
+                          <FaCheck /> 완료
+                        </CompleteButton>
+                        <DeleteButton onClick={(e) => handleDeleteClick(e, project.projectId)}>
+                          <FaTrash /> 삭제
+                        </DeleteButton>
+                      </>
+                    )}
+                  </DropdownMenu>
+                )}
+              </ProjectItemWrapper>
             ))
           )}
         </ProjectsContainer>
-        {/* 페이지 번호를 렌더링 */}
         <PageNumbers />
       </ProjectWrapper>
     </AppContainer>

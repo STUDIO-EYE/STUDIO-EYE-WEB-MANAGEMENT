@@ -23,6 +23,77 @@ const AppContainer = styled.div`
 const Container = styled.div`
   text-align: left;
 `;
+
+const ProjectWrapper = styled.div`
+  width: 400px;
+  background-color: #ffffff;
+  padding: 20px;
+  margin-bottom: 100px;
+  border-radius: 15px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+`;
+
+const ProjectsContainer = styled.div`
+  flex-wrap: wrap;
+  margin-top: 20px;
+  justify-content: flex-start;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const ProjectItemWrapper = styled.div`
+  width: calc(100% - 40px);
+  background-color: white;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  padding: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border-radius: 15px;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.01);
+  }
+`;
+
+const ProjectItemContent = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const ProjectTitle = styled.div`
+  flex: 1;
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 10px;
+  text-align: left;
+`;
+
+const ProjectPeriod = styled.div`
+  margin-bottom: 20px;
+  text-align: left;
+  font-size: 12px;
+`;
+
+const ProjectDescription = styled.div`
+  flex: 1;
+  text-align: left;
+  margin: 10px 0;
+  font-size: 14px;
+`;
+
+const ButtonsContainer = styled.div`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+`;
+
 const StyledTable = styled.table`
   width: 100%;
   display: flex;
@@ -64,13 +135,10 @@ const StyledTable = styled.table`
 `;
 
 const LabelArea = styled.div`
-  width: 128px;
-  background: transparent;
-  border: 2px solid #ff530e;
-  border-radius: 32px;
-  text-align: center;
-  color: #ff530e;
+  width: 100%;
+  text-align: left;
 `;
+
 const DeleteButton = styled.button`
   background-color: white;
   border-radius: 32px;
@@ -112,7 +180,6 @@ function FinishProject() {
   const [currentPage, setCurrentPage] = useState(1);
   const projectsPerPage = 10;
 
-  // ...기존 함수들...
 
   const indexOfLastProject = currentPage * projectsPerPage;
   const indexOfFirstProject = indexOfLastProject - projectsPerPage;
@@ -219,46 +286,39 @@ function FinishProject() {
 
   return (
     <AppContainer>
+      <ProjectWrapper>
       <Container>
         <LabelArea>
-          <TitleSm>완료</TitleSm>
+          <TitleSm>Done</TitleSm>
         </LabelArea>
       </Container>
 
-      <StyledTable>
-        <thead>
-            {/* 임시적으로 이렇게 넣어둠 */}
-            <tr>
-              <th>번호</th>
-              <th>날짜</th>
-              <th>제목</th>
-              <th>내용</th>
-              <th></th>
-            </tr>
-          </thead>
-        <tbody>
-          
+      <ProjectsContainer>
           {projects.map((project:any) => (
-            <tr key={project.projectId}>
-              {/*<td>{index + 1}</td>*/}
-              <td>{project.projectId}</td>
-              <td>
-                {project.startDate}~{project.finishDate}
-              </td>
-              <td>{project.name}</td>
-              <td>{project.description}</td>
-              <td>
-                <DeleteButton
-                  onClick={(e) => handleDeleteClick(e, project.projectId)}
-                >
-                  <FaTrash />
-                </DeleteButton>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </StyledTable>
+              <ProjectItemWrapper>
+                <ProjectItemContent>
+                  <div>
+                    <ProjectTitle>{project.name}</ProjectTitle>
+                    <ProjectPeriod>
+                      {project.startDate.toString()}~{project.finishDate.toString()}
+                    </ProjectPeriod>
+                    <ProjectDescription>{project.description}</ProjectDescription>
+                  </div>
+                  </ProjectItemContent>
+                <ButtonsContainer>
+                  <DeleteButton
+                    onClick={(e) => handleDeleteClick(e, project.projectId)}
+                  >
+                    <FaTrash />
+                  </DeleteButton>
+                </ButtonsContainer>
+              </ProjectItemWrapper>
+            ))
+          }
+        </ProjectsContainer>
+
       <PageNumbers />
+      </ProjectWrapper>
     </AppContainer>
   );
 }

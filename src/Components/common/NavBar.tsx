@@ -8,15 +8,6 @@ import jwt_decode from "jwt-decode";
 import { Link } from "react-router-dom";
 import { Name } from './Font';
 
-// 전역 스타일로 폰트 설정
-const GlobalStyle = createGlobalStyle`
-  body {
-    font-family: 'Pretendard-Regular';
-    src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
-    font-style: normal;
-  }
-`;
-
 const NavigationBar = styled.div`
   width: 225px;
   height: 100vh;
@@ -147,7 +138,6 @@ const NavBar = () => {
 
   return (
     <>
-      <GlobalStyle />
       <NavigationBar>
         <LogoBox src={StudioeyeLogo} onClick={() => navigate("/")} />
         <NavigationWrapper>
