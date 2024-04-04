@@ -2,18 +2,37 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import scheduleApi from "../../../api/scheduleApi";
 import axios from "axios";
+import { TitleSm } from "Components/common/Font";
 
 const Container = styled.div`
-  margin-top: -50px;
-`;
-const Subtitle = styled.text`
-  font-size: 1.5rem;
-  font-weight: 600;
+  max-width: 225px;
+  min-height: 150px; /* 기본 높이 설정 */
+  background-color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 20px auto;
+  border-radius: 15px;
 `;
 
 const ListItem = styled.div`
   margin-top: 5px;
 `;
+
+const Item = styled.li`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 10px;
+  border-radius: 5px;
+  margin: 10px 0 10px 0;
+  background-color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
 function Today({ projectId }: { projectId: number }) { // projectId 타입 명시
   const [todayEvents, setTodayEvents] = useState<any[]>([]); // todayEvents의 타입 명시
 
@@ -42,8 +61,8 @@ function Today({ projectId }: { projectId: number }) { // projectId 타입 명�
 
           // startDate가 오늘이거나, 오늘이 startDate와 endDate 사이에 있거나, endDate가 오늘인 경우를 모두 고려
           return (
-              todayTimestamp >= eventStartDateTimestamp &&
-              todayTimestamp <= eventEndDateTimestamp
+            todayTimestamp >= eventStartDateTimestamp &&
+            todayTimestamp <= eventEndDateTimestamp
           );
         });
 
@@ -57,18 +76,20 @@ function Today({ projectId }: { projectId: number }) { // projectId 타입 명�
   }, [projectId]);
 
   return (
-      <Container>
-        <Subtitle>Today</Subtitle>
+    <Container>
+      <TitleSm>오늘의 일정</TitleSm>
+      <Item>
         {todayEvents.length === 0 ? (
-            <p>오늘의 일정이 없습니다.</p>
+          <p>오늘의 일정이 없습니다.</p>
         ) : (
-            todayEvents.map((event) => (
-                <ListItem key={event.startDate}>
-                  <li>{event.content}</li>
-                </ListItem>
-            ))
+          todayEvents.map((event) => (
+            <ListItem key={event.startDate}>
+              {event.content}
+            </ListItem>
+          ))
         )}
-      </Container>
+      </Item>
+    </Container>
   );
 }
 
