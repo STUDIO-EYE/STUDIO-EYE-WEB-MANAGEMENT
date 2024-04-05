@@ -317,7 +317,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
           <ArrowButton onClick={goToPreviousWeek}>
             <FaArrowLeft />
           </ArrowButton>
-          <span onClick={goToNewDate}>{currentDate.toDateString()}</span>
+          <span style={{ cursor: 'pointer' }} onClick={goToNewDate}>{currentDate.toDateString()}</span>
           <ArrowButton onClick={goToNextWeek}>
             <FaArrowRight />
           </ArrowButton>

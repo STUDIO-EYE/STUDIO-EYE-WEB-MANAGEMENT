@@ -36,7 +36,7 @@ const Panel = styled.div<{ expanded: boolean }>`
 `;
 
 const LeftComponent = styled.div`
-  height: 33.3%;
+  height: 33.33%;
   margin-bottom: 50px;
 `;
 

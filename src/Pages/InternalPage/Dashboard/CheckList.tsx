@@ -111,8 +111,34 @@ function CheckList({ projectId }: { projectId: number }) {
     setShowModal(false);
   };
 
+  const handleEdit = async (todoIndex: number, updatedContent: string) => {
+    try {
+      const response = await checkTodoApi.updateCheckTodo(todoIndex, {
+        todoContent: updatedContent,
+        todoEmergency: false
+      });
+      if (response.status === 200) {
+        setItems(prevItems =>
+          prevItems.map(item =>
+            item.todoIndex === todoIndex ? { ...item, todoContent: updatedContent } : item
+          )
+        );
+      } else {
+        console.error("Something error");
+      }
+    } catch (error) {
+      console.error("Error updating todo item", error);
+    }
+
+    setEditModal(false);
+  };
+
+
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [showEditModal, setEditModal] = useState<boolean>(false);
   const [inputText, setInputText] = useState<string>("");
+  const [editText, setEditText] = useState<string>(inputText);
+  const [editIndex, setEditIndex] = useState<number>(-1);
   const [isUrgent, setIsUrgent] = useState<boolean>(false);
 
   const sortedItems = [...items].sort((a, b) => {
@@ -124,7 +150,7 @@ function CheckList({ projectId }: { projectId: number }) {
   return (
     <Container>
       <List>
-        <TitleSm>CheckList</TitleSm>
+        <TitleSm>ToDo</TitleSm>
         <AddButton type="button" onClick={() => setShowModal(true)}>
           <FaPen />
         </AddButton>
@@ -138,15 +164,17 @@ function CheckList({ projectId }: { projectId: number }) {
               onChange={() => handleCheck(item.todoIndex)}
             />
             {item.todoEmergency ? <UrgencyLabel>[긴급]</UrgencyLabel> : null}
-            {item.todoContent}
+            <ItemContent onClick={() => { setEditIndex(item.todoIndex); setEditText(item.todoContent); setEditModal(true); }}>{item.todoContent}</ItemContent>
             <DeleteButton onClick={() => handleDelete(item.todoIndex)}>
               x
             </DeleteButton>
           </Item>
         ))}
+
+
       </ItemsList>
       {showModal && (
-        <Modal>
+        <AddModal>
           <h2>Add Item</h2>
           <input
             value={inputText}
@@ -162,13 +190,28 @@ function CheckList({ projectId }: { projectId: number }) {
               긴급
             </label>
           </div>
-          <ModalButton onClick={handleAdd}>Add</ModalButton>
-          <ModalButton onClick={() => setShowModal(false)}>Cancel</ModalButton>
-        </Modal>
+          <AddModalButton onClick={handleAdd}>Add</AddModalButton>
+          <AddModalButton onClick={() => setShowModal(false)}>Cancel</AddModalButton>
+        </AddModal>
       )}
+      {showEditModal && (
+        <EditModal>
+          <h2>Edit Item</h2>
+          <input
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+          />
+          <EditModalButton onClick={() => handleEdit(editIndex, editText)}>Save</EditModalButton>
+          <EditModalButton onClick={() => setEditModal(false)}>Cancel</EditModalButton>
+        </EditModal>
+      )}
+
     </Container>
   );
 }
+const ItemContent = styled.span`
+  cursor: pointer;
+`;
 
 const Container = styled.div`
   max-width: 225px;
@@ -223,14 +266,19 @@ const Item = styled.li<{ completed: boolean }>`
 
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.08) white;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+  }
 `;
 
 const Checkbox = styled.input.attrs({ type: "checkbox" })``;
 
 const UrgencyLabel = styled.span`
-  margin-right: 10px;
+  margin-right: 5px;
   font-weight: bold;
   color: red;
+  white-space: nowrap;
 `;
 
 const DeleteButton = styled.button`
@@ -241,6 +289,7 @@ const DeleteButton = styled.button`
   cursor: pointer;
   border-radius: 15px;
   margin-left: auto;
+  text-decoration: none;
 
   &:hover {
     background-color: red;
@@ -248,7 +297,7 @@ const DeleteButton = styled.button`
   }
 `;
 
-const Modal = styled.div`
+const AddModal = styled.div`
   position: fixed;
   top: 50%;
   left: 50%;
@@ -270,7 +319,43 @@ const Modal = styled.div`
   }
 `;
 
-const ModalButton = styled.button`
+const EditModal = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #ffffff;
+  padding: 20px;
+  width: 80%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  z-index: 1000;
+  text-align: center;
+
+  h2 {
+    margin-top: 0;
+  }
+  input {
+    font-size: 1.3rem;
+  }
+`;
+
+const AddModalButton = styled.button`
+  background-color: white;
+  color: #ff5722;
+  border-color: #ff5722;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 16px;
+
+  &:hover {
+    background-color: #e64a19;
+    color: white;
+  }
+`;
+
+const EditModalButton = styled.button`
   background-color: white;
   color: #ff5722;
   border-color: #ff5722;

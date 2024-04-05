@@ -44,7 +44,7 @@ const RightDashboardBox = styled.div`
 
 const RightboardBody = styled.div<RightBoardProps>`
   width: 90%;
-  height: 33.3%;
+  height: 33.33%;
   margin-top: 1rem;
   margin-left: 2rem;
   flex-direction: column;

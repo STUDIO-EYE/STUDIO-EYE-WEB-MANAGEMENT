@@ -78,17 +78,17 @@ function Today({ projectId }: { projectId: number }) { // projectId 타입 명�
   return (
     <Container>
       <TitleSm>오늘의 일정</TitleSm>
-      <Item>
+      <ListItem>
         {todayEvents.length === 0 ? (
           <p>오늘의 일정이 없습니다.</p>
         ) : (
           todayEvents.map((event) => (
-            <ListItem key={event.startDate}>
+            <Item key={event.startDate}>
               {event.content}
-            </ListItem>
+            </Item>
           ))
         )}
-      </Item>
+      </ListItem>
     </Container>
   );
 }
