@@ -150,7 +150,6 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     commentCount: 0,
     category: "",
   });
-  const [comments, setComments] = useState<Comment[]>([]);
   const navigate = useNavigate();
 
   const goToPreviousPage = () => {
@@ -201,13 +200,13 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
         alert("게시글 업데이트 중 오류가 발생했습니다.");
       });
   };
+
+  //게시글 삭제 함수
   const deletePost = () => {
     boardApi
       .deleteBoard({
-        data: {
           projectId: projectId,
-          postId: selectedRowId,
-        },
+          postId: selectedRowId
       })
       .then(() => {
         alert("게시글이 성공적으로 삭제되었습니다.");
@@ -259,11 +258,17 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
 
     fetchData();
   }, [selectedRowId, projectId]);
+
+const checktoken=()=>{
+  console.log(sessionStorage.getItem('login-token'))
+}
+
   //조회하면 showViewWriting + 수정화면 showPutWriting
   return (
     <>
       {showViewWriting ? (
         <>
+        <button onClick={checktoken}>토큰 확인</button>
           <FormContainer>
             <ViewTitleInput>
             <AuthorAndDate>

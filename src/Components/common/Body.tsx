@@ -34,7 +34,7 @@ const SideDiv = styled.div<{ additionalWidth: number }>`
 `;
 
 const RealBody = styled.div<{ mainWidth: number }>`
-  width: ${({ mainWidth }) => mainWidth}px;
+  width: ${({ mainWidth }) => mainWidth-90}px;
 `;
 
 interface BodyProps {

@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 import { Name } from './Font';
 
 const NavigationBar = styled.div`
-  width: 225px;
+  // width: 225px;
   height: 100vh;
   background-color: white;
   box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);

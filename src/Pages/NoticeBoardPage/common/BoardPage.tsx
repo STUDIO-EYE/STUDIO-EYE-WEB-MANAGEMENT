@@ -20,6 +20,7 @@ import CommentPage from "Pages/WritingPage/CommentPage";
 import writeBtnImg from "../../../assets/drawable/WriteButton.svg";
 import Dropdown from "Components/common/Selector";
 import Selector from "Components/common/Selector";
+import DashboardBody from "Components/common/DashboardBody";
 
 
 const MainBody = styled.div`
@@ -129,6 +130,7 @@ const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postI
     return (
         /**여기도 주의 class를 classname으로 바꿔봄*/
         <>
+        <DashboardBody>
             <MainBody className="MainBody">
                 <Title>
                     {
@@ -175,6 +177,7 @@ const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postI
                 }
                 </div>
             </MainBody>
+            </DashboardBody>
         </>
     );
 };
