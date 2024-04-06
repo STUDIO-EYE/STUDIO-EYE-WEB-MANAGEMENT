@@ -83,7 +83,7 @@ export const Caption = styled.span`
 `;
 
 export const Name = styled.span`
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
   @media ${media.mobile} {
     font-size: 0.875rem;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled from 'styled-components';
 import StudioeyeLogo from "../../assets/logo/studioeye.png";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
@@ -7,12 +7,13 @@ import projectApi from 'api/projectApi';
 import jwt_decode from "jwt-decode";
 import { Link } from "react-router-dom";
 import { Name } from './Font';
+import { FaBriefcase, FaChartLine, FaSignOutAlt, FaUser } from 'react-icons/fa';
 
 const NavigationBar = styled.div`
   width: 225px;
   height: 100vh;
-  background-color: white;
-  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
+  background-color: #f8f9fa;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -22,7 +23,7 @@ const NavigationBar = styled.div`
 `;
 
 const LogoBox = styled.img`
-  margin: 30px 0 30px 45px;
+  margin: 30px 0 20px 45px;
   max-width: 60%;
   width: 170px;
   cursor: pointer;
@@ -33,86 +34,59 @@ const NavigationWrapper = styled.div`
 `;
 
 const NavigationContent = styled.div`
-  padding: 0px;
-  color: rgba(0, 0, 0, 1);
-  width: 100%;
+  padding: 20px 0;
+  color: #495057;
+  font-size: 1rem;
 `;
 
 const NavigationLink = styled.a`
-  display: block;
-  color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  color: #495057;
   text-decoration: none;
   margin-bottom: 15px;
   transition: background-color 0.3s, font-weight 0.3s;
-  padding: 15px 20px;
-  font-weight: 600;
+  padding: 10px 20px;
+  font-weight: 500;
   &:hover {
-    background-color: #FEF7ED;
-    font-weight: bold;
-    color: rgba(0, 0, 0, 1);
+    background-color: #e9ecef;
   }
 `;
 
 const LoginButton = styled.button`
   border: none;
-  outline: none;
-  background-color: #EDA943;
-  color: white;
-  border-radius: 20px;
-  width: 88px;
-  height: 28px;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  margin-top: 15px;
+  transition: background-color 0.3s, font-weight 0.3s;
+  padding: 10px 20px;
+  font-weight: 500;
+  width: 100%;
   cursor: pointer;
-  margin: 20px;
-  align-self: center;
+  font-size: 1rem;
   &:hover {
-    background-color: #FEF7ED;
-    color: rgba(0, 0, 0, 1);
+    background-color: #e9ecef;
   }
 `;
 
 const NameBlock = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 0 50px 20px;
-  font-weight: 400;
+  flex-direction: column;
+  text-align: center;
+  margin-bottom: 100px;
 `;
 
 const StyledLink = styled(Link)`
   text-decoration: none;
   color: inherit;
   cursor: pointer;
-  display: inline-block;
 `;
 
 const NavBar = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
-  const [modalIsOpen, setIsOpen] = useState(false);
-  const [myProjects, setMyProjects] = useState<any[]>([]);
-
-  const handleProjectClick = (projectId: number) => {
-    navigate(`/manage/${projectId}`);
-  };
-
-  const openModal = () => {
-    setIsOpen(true);
-    fetchMyProjects();
-  };
-
-  const closeModal = () => {
-    setIsOpen(false);
-  };
-
-  const fetchMyProjects = async () => {
-    try {
-      const response = await projectApi.getMyProjects();
-      setMyProjects(response.data.list);
-    } catch (error) {
-      console.error("프로젝트를 가져오는 중 에러가 발생했습니다.", error);
-    }
-  };
 
   useEffect(() => {
     const token = sessionStorage.getItem("login-token");
@@ -132,34 +106,39 @@ const NavBar = () => {
     navigate("/");
   };
 
-  const handleLogin = () => {
-    navigate("/LoginPage");
-  };
-
   return (
     <>
       <NavigationBar>
         <LogoBox src={StudioeyeLogo} onClick={() => navigate("/")} />
         <NavigationWrapper>
           <NavigationContent>
-            <NavigationLink href="/">Project</NavigationLink>
-            <NavigationLink href="/dashboard">Manage</NavigationLink>
-            <NavigationLink href="#">Auth</NavigationLink>
+            <NavigationLink href="/">
+              <FaBriefcase style={{ marginRight: '10px' }} /> Project
+            </NavigationLink>
+            <NavigationLink href="/dashboard">
+              <FaChartLine style={{ marginRight: '10px' }} /> Manage
+            </NavigationLink>
+            <NavigationLink href="#">
+              <FaUser style={{ marginRight: '10px' }} /> Auth
+            </NavigationLink>
           </NavigationContent>
         </NavigationWrapper>
         <NameBlock>
-        {isLoggedIn ? (
-                    <>
-                      <Name>{userName} 님</Name>
-                      <StyledLink to="/">
-                        <LoginButton onClick={handleLogout}>Log Out</LoginButton>
-                      </StyledLink>
-                    </>
-                ) : (
-                    <StyledLink to="/LoginPage">
-                      <LoginButton>로그인</LoginButton>
-                    </StyledLink>
-                )}
+          {isLoggedIn ? (
+            <>
+              <Name>{userName} 님, 안녕하세요.</Name>
+              <StyledLink to="/">
+                <LoginButton onClick={handleLogout}>
+                  <FaSignOutAlt style={{ marginRight: '10px' }} />
+                  Log Out
+                </LoginButton>
+              </StyledLink>
+            </>
+          ) : (
+            <StyledLink to="/LoginPage">
+              <LoginButton>Log In</LoginButton>
+            </StyledLink>
+          )}
         </NameBlock>
       </NavigationBar>
     </>
