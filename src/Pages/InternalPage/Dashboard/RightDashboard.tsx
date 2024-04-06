@@ -3,10 +3,16 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import boardApi from "../../../api/boardApi";
 import axios from "axios";
+import { TitleSm } from "Components/common/Font";
 
 interface Post {
   id: number;
   title: string;
+}
+
+interface RightBoardProps {
+  children: React.ReactNode;
+  isEditing?: boolean;
 }
 
 interface DashboardProps {
@@ -14,34 +20,55 @@ interface DashboardProps {
 }
 
 const RightDashboardBox = styled.div`
-  border-left: 1px dotted black;
   background-color: white;
   flex-basis: 50%;
-  padding-left: 1rem;
-  padding-top: 0.1rem;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 15px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: white;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 15px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.08);
+  }
 `;
 
-const RightboardBody = styled.div`
+const RightboardBody = styled.div<RightBoardProps>`
   width: 90%;
-  height: 33%; // 크기 변경
-  margin: 0.2rem;
+  height: 33.33%;
+  margin-top: 1rem;
+  margin-left: 2rem;
   flex-direction: column;
   background-color: white;
   overflow: hidden;
   transition: height 0.3s ease-in-out;
   flex: 1;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
+  ${(props) => props.isEditing && "margin-bottom: 100px;"}
 `;
 
 const BoardTitleDiv = styled.div`
   display: flex;
   text-align: center;
-  height: 30%;
+  margin: 20px;
+  height: 20%;
 `;
 
 const BoardContentDiv = styled.div`
   text-align: center;
   height: 70%;
   width: 100%;
+  margin: 0 10px 0 10px;
 `;
 
 const ContentDiv = styled.div`
@@ -56,11 +83,6 @@ const ContentDiv = styled.div`
   margin: -10px;
 `;
 
-const SubTitle = styled.text`
-  font-weight: 600;
-  font-size: 1.5rem;
-`;
-
 const Text = styled.text`
   font-size: 1rem;
   text-decoration: underline;
@@ -69,6 +91,7 @@ const Text = styled.text`
   cursor: pointer;
   padding-left: 1rem;
 `;
+
 const GoButton = styled.div`
   cursor: pointer;
   font-weight: 600;
@@ -144,68 +167,68 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectId }) => {
   };
 
   return (
-      <RightDashboardBox>
-        <RightboardBody>
-          <BoardTitleDiv>
-            <SubTitle>기획</SubTitle>
-            <GoButton onClick={goToPlanPage}>+</GoButton>
-          </BoardTitleDiv>
-          <BoardContentDiv>
-            {planData.length === 0 ? (
-                <div>게시글내용이 없습니다</div>
-            ) : (
-                planData.map((plan) => (
-                    <ContentDiv
-                        key={plan.id}
-                        onClick={() => handlePostClick(plan.id, "plan")}
-                    >
-                      <Text>{plan.title}</Text>
-                    </ContentDiv>
-                ))
-            )}
-          </BoardContentDiv>
-        </RightboardBody>
-        <RightboardBody>
-          <BoardTitleDiv>
-            <SubTitle>제작</SubTitle>
-            <GoButton onClick={goToMakingPage}>+</GoButton>
-          </BoardTitleDiv>
-          <BoardContentDiv>
-            {productionDate.length === 0 ? (
-                <div>게시글내용이 없습니다</div>
-            ) : (
-                productionDate.map((production) => (
-                    <ContentDiv
-                        key={production.id}
-                        onClick={() => handlePostClick(production.id, "production")}
-                    >
-                      <Text>{production.title}</Text>
-                    </ContentDiv>
-                ))
-            )}
-          </BoardContentDiv>
-        </RightboardBody>
-        <RightboardBody>
-          <BoardTitleDiv>
-            <SubTitle>편집</SubTitle>
-            <GoButton onClick={goToEditPage}>+</GoButton>
-          </BoardTitleDiv>
-          <BoardContentDiv>
-            {editData.length === 0 ? (
-                <div>게시글내용이 없습니다</div>
-            ) : (
-                editData.map((edit) => (
-                    <ContentDiv
-                        key={edit.id}
-                        onClick={() => handlePostClick(edit.id, "edit")}
-                    >
-                      <Text>{edit.title}</Text>
-                    </ContentDiv>
-                ))
-            )}
-          </BoardContentDiv>
-        </RightboardBody>
-      </RightDashboardBox>
+    <RightDashboardBox>
+      <RightboardBody>
+        <BoardTitleDiv>
+          <TitleSm>기획</TitleSm>
+          <GoButton onClick={goToPlanPage}>+</GoButton>
+        </BoardTitleDiv>
+        <BoardContentDiv>
+          {planData.length === 0 ? (
+            <div>게시글 내용이 없습니다</div>
+          ) : (
+            planData.map((plan) => (
+              <ContentDiv
+                key={plan.id}
+                onClick={() => handlePostClick(plan.id, "plan")}
+              >
+                <Text>{plan.title}</Text>
+              </ContentDiv>
+            ))
+          )}
+        </BoardContentDiv>
+      </RightboardBody>
+      <RightboardBody>
+        <BoardTitleDiv>
+          <TitleSm>제작</TitleSm>
+          <GoButton onClick={goToMakingPage}>+</GoButton>
+        </BoardTitleDiv>
+        <BoardContentDiv>
+          {productionDate.length === 0 ? (
+            <div>게시글 내용이 없습니다</div>
+          ) : (
+            productionDate.map((production) => (
+              <ContentDiv
+                key={production.id}
+                onClick={() => handlePostClick(production.id, "production")}
+              >
+                <Text>{production.title}</Text>
+              </ContentDiv>
+            ))
+          )}
+        </BoardContentDiv>
+      </RightboardBody>
+      <RightboardBody isEditing>
+        <BoardTitleDiv>
+          <TitleSm>편집</TitleSm>
+          <GoButton onClick={goToEditPage}>+</GoButton>
+        </BoardTitleDiv>
+        <BoardContentDiv>
+          {editData.length === 0 ? (
+            <div>게시글 내용이 없습니다</div>
+          ) : (
+            editData.map((edit) => (
+              <ContentDiv
+                key={edit.id}
+                onClick={() => handlePostClick(edit.id, "edit")}
+              >
+                <Text>{edit.title}</Text>
+              </ContentDiv>
+            ))
+          )}
+        </BoardContentDiv>
+      </RightboardBody>
+    </RightDashboardBox>
   );
 };
 

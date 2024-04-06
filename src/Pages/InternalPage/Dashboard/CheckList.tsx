@@ -4,6 +4,7 @@ import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 import { FaPen } from "react-icons/fa";
 import checkTodoApi from "../../../api/checkTodoApi";
+import { TitleSm } from "Components/common/Font";
 
 interface TodoItem {
   todoIndex: number;
@@ -35,7 +36,7 @@ function CheckList({ projectId }: { projectId: number }) {
             navigate("/LoginPage");
           } else if (response.data.code === 8000) {
             alert(
-                "해당 사용자는 권한이 없어 프로젝트 내용을 볼 수 없습니다."
+              "해당 사용자는 권한이 없어 프로젝트 내용을 볼 수 없습니다."
             );
             navigate("/");
           }
@@ -55,9 +56,9 @@ function CheckList({ projectId }: { projectId: number }) {
       if (response.status === 200) {
         // 상태를 불변하게 유지하며 변경
         setItems((prevItems) =>
-            prevItems.map((item) =>
-                item.todoIndex === id ? { ...item, checked: !item.checked } : item
-            )
+          prevItems.map((item) =>
+            item.todoIndex === id ? { ...item, checked: !item.checked } : item
+          )
         );
       } else {
         console.error("Something error");
@@ -80,8 +81,8 @@ function CheckList({ projectId }: { projectId: number }) {
 
   const handleAdd = async () => {
     const newId = items.length
-        ? Math.max(...items.map((item) => item.todoIndex)) + 1
-        : 1;
+      ? Math.max(...items.map((item) => item.todoIndex)) + 1
+      : 1;
 
     const newItem: TodoItem = {
       todoIndex: newId,
@@ -110,8 +111,34 @@ function CheckList({ projectId }: { projectId: number }) {
     setShowModal(false);
   };
 
+  const handleEdit = async (todoIndex: number, updatedContent: string) => {
+    try {
+      const response = await checkTodoApi.updateCheckTodo(todoIndex, {
+        todoContent: updatedContent,
+        todoEmergency: false
+      });
+      if (response.status === 200) {
+        setItems(prevItems =>
+          prevItems.map(item =>
+            item.todoIndex === todoIndex ? { ...item, todoContent: updatedContent } : item
+          )
+        );
+      } else {
+        console.error("Something error");
+      }
+    } catch (error) {
+      console.error("Error updating todo item", error);
+    }
+
+    setEditModal(false);
+  };
+
+
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [showEditModal, setEditModal] = useState<boolean>(false);
   const [inputText, setInputText] = useState<string>("");
+  const [editText, setEditText] = useState<string>(inputText);
+  const [editIndex, setEditIndex] = useState<number>(-1);
   const [isUrgent, setIsUrgent] = useState<boolean>(false);
 
   const sortedItems = [...items].sort((a, b) => {
@@ -121,64 +148,79 @@ function CheckList({ projectId }: { projectId: number }) {
   });
 
   return (
-      <Container>
-        <List>
-          <Title>CheckList</Title>
-          <AddButton type="button" onClick={() => setShowModal(true)}>
-            <FaPen />
-          </AddButton>
-        </List>
-        <ItemsList>
-          {sortedItems.map((item) => (
-              <Item key={item.todoIndex} completed={item.checked}>
-                <Checkbox
-                    type="checkbox"
-                    checked={item.checked}
-                    onChange={() => handleCheck(item.todoIndex)}
-                />
-                {item.todoEmergency ? <UrgencyLabel>[긴급]</UrgencyLabel> : null}
-                {item.todoContent}
-                <DeleteButton onClick={() => handleDelete(item.todoIndex)}>
-                  x
-                </DeleteButton>
-              </Item>
-          ))}
-        </ItemsList>
-        {showModal && (
-            <Modal>
-              <h2>Add Item</h2>
+    <Container>
+      <List>
+        <TitleSm>ToDo</TitleSm>
+        <AddButton type="button" onClick={() => setShowModal(true)}>
+          <FaPen />
+        </AddButton>
+      </List>
+      <ItemsList>
+        {sortedItems.map((item) => (
+          <Item key={item.todoIndex} completed={item.checked}>
+            <Checkbox
+              type="checkbox"
+              checked={item.checked}
+              onChange={() => handleCheck(item.todoIndex)}
+            />
+            {item.todoEmergency ? <UrgencyLabel>[긴급]</UrgencyLabel> : null}
+            <ItemContent onClick={() => { setEditIndex(item.todoIndex); setEditText(item.todoContent); setEditModal(true); }}>{item.todoContent}</ItemContent>
+            <DeleteButton onClick={() => handleDelete(item.todoIndex)}>
+              x
+            </DeleteButton>
+          </Item>
+        ))}
+
+
+      </ItemsList>
+      {showModal && (
+        <AddModal>
+          <h2>Add Item</h2>
+          <input
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+          />
+          <div>
+            <label>
               <input
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
+                type="checkbox"
+                checked={isUrgent}
+                onChange={(e) => setIsUrgent(e.target.checked)}
               />
-              <div>
-                <label>
-                  <input
-                      type="checkbox"
-                      checked={isUrgent}
-                      onChange={(e) => setIsUrgent(e.target.checked)}
-                  />
-                  긴급
-                </label>
-              </div>
-              <ModalButton onClick={handleAdd}>Add</ModalButton>
-              <ModalButton onClick={() => setShowModal(false)}>Cancel</ModalButton>
-            </Modal>
-        )}
-      </Container>
+              긴급
+            </label>
+          </div>
+          <AddModalButton onClick={handleAdd}>Add</AddModalButton>
+          <AddModalButton onClick={() => setShowModal(false)}>Cancel</AddModalButton>
+        </AddModal>
+      )}
+      {showEditModal && (
+        <EditModal>
+          <h2>Edit Item</h2>
+          <input
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+          />
+          <EditModalButton onClick={() => handleEdit(editIndex, editText)}>Save</EditModalButton>
+          <EditModalButton onClick={() => setEditModal(false)}>Cancel</EditModalButton>
+        </EditModal>
+      )}
+
+    </Container>
   );
 }
+const ItemContent = styled.span`
+  cursor: pointer;
+`;
 
 const Container = styled.div`
-  font-family: Arial, sans-serif;
-  max-width: 600px;
-  max-height: 300px; // 최대 높이 설정
-  overflow-y: auto; // 스크롤 기능 활성화
-  margin: 0 auto;
-  padding: 20px;
-  border-radius: 10px;
+  max-width: 225px;
+  min-height: 150px; /* 기본 높이 설정 */
   background-color: #ffffff;
-  margin-left: -15px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 20px auto;
+  border-radius: 15px;
 `;
 
 const List = styled.div`
@@ -188,27 +230,19 @@ const List = styled.div`
   margin-bottom: -20px;
 `;
 
-const Title = styled.text`
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-top: 15px;
-`;
-
 const AddButton = styled.button`
-  background-color: white;
+  background-color: transparent;
   color: #a9a9a9;
   border: none;
   padding: 8px 16px;
-  font-size:
-20px;
+  font-size: 10px;
   text-align: left;
   cursor: pointer;
   border-radius: 5px;
-  margin-right: -24px;
   transition: background-color 0.3s;
 
   &:hover {
-    background-color: whitesmoke;
+    background-color: rgba(0, 0, 0, 0.08);
   }
 `;
 
@@ -224,36 +258,46 @@ const Item = styled.li<{ completed: boolean }>`
   align-items: center;
   padding: 10px;
   border-radius: 5px;
-  margin-bottom: 10px;
+  margin: 10px 0 10px 0;
   background-color: #ffffff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   text-decoration: ${(props) => (props.completed ? "line-through" : "none")};
+  overflow-x: auto;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.08) white;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+  }
 `;
 
 const Checkbox = styled.input.attrs({ type: "checkbox" })``;
 
 const UrgencyLabel = styled.span`
-  margin-right: 10px;
+  margin-right: 5px;
   font-weight: bold;
   color: red;
+  white-space: nowrap;
 `;
 
 const DeleteButton = styled.button`
-  background-color: white;
-  color: #ff5722;
-  border-color: #ff5722;
+  background-color: transparent;
+  color: red;
+  border-color: red;
   padding: 5px 10px;
   cursor: pointer;
-  border-radius: 16px;
+  border-radius: 15px;
   margin-left: auto;
+  text-decoration: none;
 
   &:hover {
-    background-color: #e64a19;
+    background-color: red;
     color: white;
   }
 `;
 
-const Modal = styled.div`
+const AddModal = styled.div`
   position: fixed;
   top: 50%;
   left: 50%;
@@ -275,7 +319,43 @@ const Modal = styled.div`
   }
 `;
 
-const ModalButton = styled.button`
+const EditModal = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #ffffff;
+  padding: 20px;
+  width: 80%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  z-index: 1000;
+  text-align: center;
+
+  h2 {
+    margin-top: 0;
+  }
+  input {
+    font-size: 1.3rem;
+  }
+`;
+
+const AddModalButton = styled.button`
+  background-color: white;
+  color: #ff5722;
+  border-color: #ff5722;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 16px;
+
+  &:hover {
+    background-color: #e64a19;
+    color: white;
+  }
+`;
+
+const EditModalButton = styled.button`
   background-color: white;
   color: #ff5722;
   border-color: #ff5722;

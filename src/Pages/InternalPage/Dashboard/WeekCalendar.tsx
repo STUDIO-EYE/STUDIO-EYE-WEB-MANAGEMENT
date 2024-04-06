@@ -4,6 +4,15 @@ import { useNavigate } from "react-router-dom";
 import { FaPen, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import scheduleApi from "../../../api/scheduleApi";
 import axios from "axios";
+import { TitleSm } from "Components/common/Font";
+
+const Container = styled.div`
+  background-color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 50px;
+  border-radius: 15px;
+`;
 
 const List = styled.div`
   margin-top: -15px;
@@ -29,7 +38,7 @@ const ArrowButton = styled.button`
   background-color: transparent;
   border: none;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 15px;
 `;
 
 const Calendar = styled.div`
@@ -55,7 +64,7 @@ const ManageButton = styled.button`
   color: #a9a9a9;
   border: none;
   padding: 8px 16px;
-  font-size: 20px;
+  font-size: 10px;
   align-items: flex-end;
   cursor: pointer;
   border-radius: 5px;
@@ -217,8 +226,8 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
 
   const goToNewDate = () => {
     const newDateString = window.prompt(
-        "궁금한 일정을 YYYY-MM-DD 형식으로 입력하세요:",
-        currentDate.toISOString().split("T")[0]
+      "궁금한 일정을 YYYY-MM-DD 형식으로 입력하세요:",
+      currentDate.toISOString().split("T")[0]
     );
     if (newDateString) {
       const newDate = new Date(newDateString);
@@ -232,25 +241,25 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
 
   const findEventsForDate = (date: Date): Event[] => {
     const targetDate = new Date(
-        date.getFullYear(),
-        date.getMonth(),
-        date.getDate()
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
     ).getTime();
 
     return events.filter((e) => {
       const eventStartDate = new Date(
-          new Date(e.date).getFullYear(),
-          new Date(e.date).getMonth(),
-          new Date(e.date).getDate()
+        new Date(e.date).getFullYear(),
+        new Date(e.date).getMonth(),
+        new Date(e.date).getDate()
       ).getTime();
-      const eventEndDate       = new Date(
-          new Date(e.date).getFullYear(),
-          new Date(e.date).getMonth(),
-          new Date(e.date).getDate(),
-          23,
-          59,
-          59,
-          999
+      const eventEndDate = new Date(
+        new Date(e.date).getFullYear(),
+        new Date(e.date).getMonth(),
+        new Date(e.date).getDate(),
+        23,
+        59,
+        59,
+        999
       ).getTime();
 
       return targetDate >= eventStartDate && targetDate <= eventEndDate;
@@ -288,7 +297,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
         await scheduleApi.updateSchedule(scheduleId, updatedData);
 
         setEvents((prevEvents) =>
-            prevEvents.map((e) => (e.scheduleId === scheduleId ? updatedData : e))
+          prevEvents.map((e) => (e.scheduleId === scheduleId ? updatedData : e))
         );
         setShowModal(false);
         alert("성공적으로 수정되었습니다.");
@@ -302,74 +311,73 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
   const days = ["일", "월", "화", "수", "목", "금", "토"];
 
   return (
-      <div className="App">
-        <List>
-          <Title>Schedule</Title>
-        </List>
+    <div className="App">
+      <Container>
         <CalendarHeader>
           <ArrowButton onClick={goToPreviousWeek}>
             <FaArrowLeft />
           </ArrowButton>
-          <span onClick={goToNewDate}>{currentDate.toDateString()}</span>
+          <span style={{ cursor: 'pointer' }} onClick={goToNewDate}>{currentDate.toDateString()}</span>
           <ArrowButton onClick={goToNextWeek}>
             <FaArrowRight />
           </ArrowButton>
         </CalendarHeader>
         <Calendar>
           {days.map((day, index) => (
-              <DayHeader key={index} isWeekend={index === 0 || index === 6}>
-                {day}
-              </DayHeader>
+            <DayHeader key={index} isWeekend={index === 0 || index === 6}>
+              {day}
+            </DayHeader>
           ))}
 
           {currentWeekDates.map((date) => {
             const eventsForDate = findEventsForDate(date);
             const hasMoreEvents = eventsForDate.length > 3;
             return (
-                <Day
-                    key={date.toString()}
+              <Day
+                key={date.toString()}
+                onClick={() => {
+                  if (eventsForDate.length) {
+                    setEditingEvent(eventsForDate[0]);
+                    setShowModal(true);
+                  }
+                }}
+              >
+                <div>{date.getDate()}</div>
+                {eventsForDate.slice(0, 3).map((event, index) => (
+                  <ScheduleItem
+                    key={index}
+                    title={event.content}
                     onClick={() => {
-                      if (eventsForDate.length) {
-                        setEditingEvent(eventsForDate[0]);
-                        setShowModal(true);
-                      }
+                      setEditingEvent(event);
+                      setShowModal(true);
                     }}
-                >
-                  <div>{date.getDate()}</div>
-                  {eventsForDate.slice(0, 3).map((event, index) => (
-                      <ScheduleItem
-                          key={index}
-                          title={event.content}
-                          onClick={() => {
-                            setEditingEvent(event);
-                            setShowModal(true);
-                          }}
-                          style={{ backgroundColor: getDayColor(date.getDay()) }}
-                      >
-                        {event.content.length > 5
-                            ? `${event.content.substring(0, 5)}...`
-                            : event.content}
-                      </ScheduleItem>
-                  ))}
-                  {hasMoreEvents && (
-                      <MoreButton
-                          onClick={() => {
-                            setEditingEvent(eventsForDate[0]);
-                            setShowModal(true);
-                          }}
-                      >
-                        더보기..
-                      </MoreButton>
-                  )}
-                </Day>
+                    style={{ backgroundColor: getDayColor(date.getDay()) }}
+                  >
+                    {event.content.length > 5
+                      ? `${event.content.substring(0, 5)}...`
+                      : event.content}
+                  </ScheduleItem>
+                ))}
+                {hasMoreEvents && (
+                  <MoreButton
+                    onClick={() => {
+                      setEditingEvent(eventsForDate[0]);
+                      setShowModal(true);
+                    }}
+                  >
+                    더보기..
+                  </MoreButton>
+                )}
+              </Day>
             );
           })}
 
+
           {showModal && (
-              <Modal>
-                {editingEvent && (
-                    <div>
-                <textarea
+            <Modal>
+              {editingEvent && (
+                <div>
+                  <textarea
                     value={editingEvent.content}
                     onChange={(e) => {
                       if (editingEvent) {
@@ -380,33 +388,35 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
                         setEditingEvent(updatedEvent);
                       }
                     }}
-                />
-                      <button
-                          onClick={() =>
-                              editingEvent && handleEditEventSave(editingEvent.scheduleId, editingEvent.content)
-                          }
-                      >
-                        수정 저장
-                      </button>
-                      <button onClick={() => editingEvent && handleDeleteEvent(editingEvent.scheduleId)}>
-                        삭제
-                      </button>
-                    </div>
-                )}
-                <button onClick={() => setShowModal(false)}>닫기</button>
-              </Modal>
+                  />
+                  <button
+                    onClick={() =>
+                      editingEvent && handleEditEventSave(editingEvent.scheduleId, editingEvent.content)
+                    }
+                  >
+                    수정 저장
+                  </button>
+                  <button onClick={() => editingEvent && handleDeleteEvent(editingEvent.scheduleId)}>
+                    삭제
+                  </button>
+                </div>
+              )}
+              <button onClick={() => setShowModal(false)}>닫기</button>
+            </Modal>
           )}
         </Calendar>
         <ManageButtonContainer>
           <ManageButton
-              onClick={() =>
-                  navigate("/manage", { state: { projectId: projectId } })
-              }
+            onClick={() =>
+              navigate("/manage", { state: { projectId: projectId } })
+            }
           >
             <FaPen />
           </ManageButton>
         </ManageButtonContainer>
-      </div>
+      </Container>
+
+    </div>
   );
 };
 

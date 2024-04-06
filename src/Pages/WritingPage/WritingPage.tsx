@@ -13,13 +13,12 @@ import NewButton from "Components/common/NewButton";
 import { theme } from "LightTheme";
 import { left } from "@popperjs/core";
 
-// WritingMainPage.js
-
 const FormContainer = styled.div`
   display:flex;
   flex-direction:column;
   max-height: 30rem; /* 컨테이너의 최대 높이 */
   max-width: 70rem;
+
   padding: 0 0.5rem;
   overflow-y: auto; /* 스크롤 가능하도록 설정 */
 `;
@@ -33,15 +32,16 @@ const CustomQuillEditor = styled(ReactQuill)`
 
   .ql-container {
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 15px;
   }
 
   .ql-toolbar {
     /* 툴바 스타일 설정 */
-    background-color: #ccc;
-    border-radius: 5px;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: 15px;
   }
 `;
+
 
 const WritingTitle=styled.span`
   font-size: 1rem;

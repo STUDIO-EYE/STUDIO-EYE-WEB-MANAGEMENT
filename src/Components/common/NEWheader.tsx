@@ -23,7 +23,6 @@ const HeaderWrapper = styled.div`
   height: 4rem;
   width: 100%;
   background: white;
-  border-bottom: 1px solid rgba(200, 200, 200, 0.6);
 `;
 
 const SpaceBetweenBlock = styled.div`
@@ -37,6 +36,7 @@ const RightBlock = styled.div`
   display: flex;
   margin-right: 120px;
 `;
+
 const NameBlock = styled.div`
   display: flex;
   justify-content: center;
@@ -83,13 +83,6 @@ const LoginButton = styled.button`
   }
 `;
 
-const LogoBox = styled.img`
-  margin-left: 60px;
-  margin-right: 16px;
-  max-width: 100%;
-  width: 170px;
-  cursor: pointer;
-`;
 
 const StyledLink = styled(Link)`
   text-decoration: none;
@@ -152,7 +145,7 @@ const NEWheader = () => {
     if (token) {
       setIsLoggedIn(true);
       const decodedToken = jwt_decode(token);
-      setUserName((decodedToken as any).username); // Type assertion to 'any' to access 'username'
+      setUserName((decodedToken as any).username);
     }
   }, []);
 
@@ -169,25 +162,8 @@ const NEWheader = () => {
       <>
         <HeaderWrapper>
           <SpaceBetweenBlock>
-            <LogoBox src={StudioeyeLogo} onClick={() => navigate("/")} />
             <RightBlock>
-              <NameBlock>
-                {isLoggedIn ? (
-                    <>
-                      <TextLgButton>{userName} 님</TextLgButton>
-                      <ProjectButton onClick={openModal}>
-                        <FaFolderOpen />
-                      </ProjectButton>
-                      <StyledLink to="/LoginPage">
-                        <LoginButton onClick={handleLogout}>로그아웃</LoginButton>
-                      </StyledLink>
-                    </>
-                ) : (
-                    <StyledLink to="/LoginPage">
-                      <LoginButton>로그인</LoginButton>
-                    </StyledLink>
-                )}
-              </NameBlock>
+              
             </RightBlock>
           </SpaceBetweenBlock>
           <Modal
