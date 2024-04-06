@@ -308,8 +308,7 @@ function OngoingProject() {
           const decodedToken: any = jwt_decode(token);
           setTokenUserId(decodedToken.userId);
 
-          const userInProjects: boolean[] = isUserInProject(projectDetails, decodedToken.userId);
-          setUserInProjects(userInProjects);
+          
         }
         setCurrentDetailsProjects(projectDetails);
       } catch (error) {
@@ -421,15 +420,7 @@ function OngoingProject() {
     navigate(`/modify/${projectId}`);
   }
 
-  // OngoingProject 컴포넌트 내에서 사용자가 각 프로젝트에 속해 있는지를 판단하는 함수
-  const isUserInProject = (projectDetails: any[], tokenUserId: string) => {
-    // 각 프로젝트의 멤버 목록을 확인하고 사용자의 ID가 포함되어 있는지를 검사
-    const userInProjects: boolean[] = projectDetails.map((details: any) => {
-      const memberList = details.data.data.leaderAndMemberList;
-      return memberList.some((member: any) => member.userId === tokenUserId);
-    });
-    return userInProjects; // 각 프로젝트에 대한 사용자의 소속 여부를 리턴
-  };
+ 
 
 
   return (
@@ -452,15 +443,6 @@ function OngoingProject() {
                 {isTeamLeader(currentDetailsProjects[index]) && (
                   <div style={{ position: 'absolute', top: '5px', left: '20px' }}>
                     <FaCrown color="#ffa900" size={15} />
-                  </div>
-                )}
-                {userInProjects[index] ? (
-                  <div style={{ position: 'absolute', top: '5px', left: '20px' }}>
-                    <FaUser color="blue" size={15} />
-                  </div>
-                ) : (
-                  <div style={{ position: 'absolute', top: '5px', left: '20px' }}>
-                    <FaUserSlash color="red" size={15} />
                   </div>
                 )}
                 <ProjectItemContent onClick={() => handleRowClick(project.projectId)}>
