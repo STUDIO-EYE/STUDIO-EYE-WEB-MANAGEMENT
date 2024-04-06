@@ -3,6 +3,7 @@ import styled from "styled-components";
 export const media = {
   mobileWithImage: "only screen and (max-width: 1150px)",
   mobile: "only screen and (max-width: 390px)",
+  half: "only screen and (max-width: 50rem)"
 };
 
 export const TitleLg = styled.span`
@@ -33,7 +34,6 @@ export const TitleSm = styled.span`
     font-weight: 600;
   }
 `;
-
 export const TextLg = styled.span`
   font-size: 1.125rem;
   font-weight: 600;
@@ -41,6 +41,16 @@ export const TextLg = styled.span`
   @media ${media.mobile} {
     font-size: 1.125rem;
     font-weight: 600;
+  }
+`;
+
+export const TableText=styled.span`
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: black;
+
+  @media ${media.half}{
+    font-size: 0.8rem;
   }
 `;
 
