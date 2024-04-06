@@ -126,7 +126,7 @@ const CommentList = ({ selectedPost, comments, setComments, onDeleteComment}
     };
     return (
         <>
-            <CommentTitle>댓글 {selectedPost.commentCount} 개</CommentTitle>
+            <CommentTitle>댓글 {comments.length}</CommentTitle>
             {comments.map((comment:Comment, index:number) => (
                 <FormContainer key={index}>
                     <Author>{comment.userName}</Author>
@@ -138,7 +138,7 @@ const CommentList = ({ selectedPost, comments, setComments, onDeleteComment}
                     ) : (
                         <Content>{comment.content}</Content>
                     )}
-                    <Date>{comment.updatedAt.toString() ?
+                    <Date>{comment.updatedAt ?
                         comment.updatedAt.toString() + "(수정됨)"
                         : ""
                     }</Date>

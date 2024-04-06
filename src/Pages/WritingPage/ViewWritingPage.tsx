@@ -8,16 +8,9 @@ import CommentList from "./CommentList"; // Quill Editor의 스타일을 불러�
 import "react-quill/dist/quill.snow.css";
 import boardApi from "../../api/boardApi";
 import commentApi from "../../api/commentApi";
+import HorizontalLine from "Components/common/HorizontalLine"
 // WritingMainPage.js
 
-interface Comment{
-  id:number
-  userName:string
-  content:string
-  createdAt:Date
-  updatedAt:Date
-  isNew:boolean
-}
 interface PostInfo{
   id:number
   title:string
@@ -95,62 +88,53 @@ const ViewTitleInput = styled.div`
   display: flex;
   flex-direction: column;
   margin-bottom: 0.1rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
   padding-right: 1rem;
   padding-left: 1rem;
 `;
 
-const Title = styled.h2`
+const Title = styled.span`
   font-size: 1.2rem;
-  margin-bottom: 0rem;
+  margin-top: 0.5rem;
 `;
 
-const AuthorAndDate = styled.p`
-  font-size: 0.8rem;
-  color: gray;
+const AuthorAndDate = styled.span`
+  font-size: 0.9rem;
+  color: black;
   display: flex;
-  align-items: center;
-`;
-
-const Dot = styled.span`
-  font-size: 1rem;
-  color: gray;
-  margin: 0 0.2rem;
-`;
-const ReplyCount = styled.span`
-  font-size: 0.8rem;
-  color: gray;
+  align-items: top;
 `;
 //////내용부분/////////////
 const Content = styled.div`
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 1rem;
+  padding-right: 1rem;
+  padding-left: 1rem;
   margin-top: 0.1rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.1rem;
   min-height: 10rem;
   .ql-font-serif {
     font-family: Georgia, Times New Roman, serif, "Courier New", Courier,
       monospace;
   }
-
   .ql-size-huge {
     font-size: 2.5em;
   }
-
   .ql-size-large {
     font-size: 1.5em;
   }
-
   .ql-size-small {
     font-size: 0.75em;
   }
 `;
-const CommentContainer = styled.div`
-  background-color: #eeeeee;
-  min-height: 13rem;
-`;
+
+interface PostData{
+  commentId: number,
+  title: string,
+  content: string,
+  author: string,
+  date: string,
+  commentCount: number,
+  category: string,
+}
+
 const ViewWritingPage = ({ selectedRowId, projectId, postId }
   :{selectedRowId:number,projectId:number,postId:number}) => {
   const [editorHtml, setEditorHtml] = useState(""); // Quill Editor의 HTML 내용을 저장하는 상태
@@ -248,27 +232,13 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     setShowPutWriting(true);
   };
   // 게시글 내용을 담을 객체 나중에 DB연결하면 내용 set해주기
-  const handleAddComment = (newComment:any) => {
-    setComments((prevComments) => [...prevComments, newComment]); //댓글 최신게 나중에 보여주기
-    setSelectedPost((prevPost) => ({
-      ...prevPost,
-      commentCount: prevPost.commentCount + 1,
-    }));
-  };
-  const handleDeleteComment = () => {
-    setSelectedPost((prevPost) => ({
-      ...prevPost,
-      commentCount: prevPost.commentCount - 1,
-    }));
-  };
 
   useEffect(() => {
     // 병렬로 API 호출을 수행하는 함수
     const fetchData = async () => {
       try {
-        const [postResponse, commentsResponse] = await Promise.all([
+        const [postResponse] = await Promise.all([
           boardApi.getBoard({ projectId: projectId, postId: selectedRowId }),
-          commentApi.getCommentList(selectedRowId),
         ]);
         // postResponse 처리
 
@@ -282,10 +252,6 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
           commentCount: postInfo.commentSum,
           category: postInfo.category,
         });
-
-        if (commentsResponse.data.success) {
-          setComments(commentsResponse.data.data);
-        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -300,29 +266,15 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
         <>
           <FormContainer>
             <ViewTitleInput>
-              <Title>{selectedPost.title}</Title>
-              <AuthorAndDate>
-                {selectedPost.author}
-                <Dot>·</Dot>
-                {selectedPost.date}
+            <AuthorAndDate>
+                {selectedPost.author} | {selectedPost.date}
               </AuthorAndDate>
+              <Title>{selectedPost.title}</Title>
             </ViewTitleInput>
+            <HorizontalLine/>
             <Content
               dangerouslySetInnerHTML={{ __html: selectedPost.content }}
             />
-            <CommentContainer>
-              <CommentForm
-                postId={selectedRowId}
-                onAddComment={handleAddComment}
-                selectedPost={selectedPost}
-              />
-              <CommentList
-                comments={comments}
-                selectedPost={selectedPost}
-                setComments={setComments}
-                onDeleteComment={handleDeleteComment}
-              />
-            </CommentContainer>
           </FormContainer>
           <PostsButtonContainer>
             <PostsButton onClick={changePutView}>수정</PostsButton>

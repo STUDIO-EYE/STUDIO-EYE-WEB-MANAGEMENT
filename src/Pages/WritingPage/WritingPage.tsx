@@ -6,14 +6,21 @@ import "react-quill/dist/quill.snow.css";
 import { useNavigate } from "react-router-dom";
 import boardApi from "../../api/boardApi";
 import axios from "axios";
+import { TableText, TextMd } from "Components/common/Font";
+import InputText from "Components/common/InputText";
+import Button from "Components/common/Button";
+import NewButton from "Components/common/NewButton";
+import { theme } from "LightTheme";
+import { left } from "@popperjs/core";
 
 // WritingMainPage.js
 
 const FormContainer = styled.div`
+  display:flex;
+  flex-direction:column;
   max-height: 30rem; /* 컨테이너의 최대 높이 */
   max-width: 70rem;
-  padding-left: 1%;
-  padding-right: 1%;
+  padding: 0 0.5rem;
   overflow-y: auto; /* 스크롤 가능하도록 설정 */
 `;
 
@@ -36,38 +43,15 @@ const CustomQuillEditor = styled(ReactQuill)`
   }
 `;
 
-const TitleInput = styled.input`
-  border: none; /* 기본 테두리 제거 */
-  width: 99%;
-  height: 2rem;
-  font-size: 1.3rem;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid #ccc;
-  outline: none;
+const WritingTitle=styled.span`
+  font-size: 1rem;
+  font-weight: 600;
+  color: black;
 `;
 
 const PostsButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
-`;
-const PostsButton = styled.button`
-  width: 6rem;
-  height: 2rem;
-  margin: 1%;
-  font-size: 1rem;
-  border-radius: 1rem;
-  background-color: #ff530e;
-  color: white;
-  font-weight: bold;
-  border: none;
-  transition: background-color 0.3s;
-
-  /* 마우스를 가져다 대었을 때의 스타일 */
-  &:hover {
-    background-color: #ff7c7c;
-    color: white;
-    cursor: pointer;
-  }
 `;
 
 const WritingPage = ({ projectId, category }:{projectId:number,category:string}) => {
@@ -79,6 +63,10 @@ const WritingPage = ({ projectId, category }:{projectId:number,category:string})
     setTimeout(function () {
       window.location.reload();
     }, 100);
+  };
+
+  const handleContentChange=(content:string)=>{
+    setTitle(content);
   };
 
   const addPost = async () => {
@@ -137,12 +125,12 @@ const WritingPage = ({ projectId, category }:{projectId:number,category:string})
   return (
     <>
       <FormContainer>
-        <TitleInput
-          type="text"
+        <WritingTitle style={{margin:'0.5rem 0'}}>제목</WritingTitle>
+        <InputText
           placeholder="제목을 입력하세요"
           value={title}
-          onChange={(e) => setTitle(e.target.value)} // 입력 값이 변경될 때마다 title 상태 업데이트
-        />
+          onChange={handleContentChange} // 입력 값이 변경될 때마다 title 상태 업데이트
+          width={"99%"} height="2rem"/>
         <CustomQuillEditor
           value={editorHtml}
           onChange={setEditorHtml}
@@ -159,8 +147,8 @@ const WritingPage = ({ projectId, category }:{projectId:number,category:string})
         />
       </FormContainer>
       <PostsButtonContainer>
-        <PostsButton onClick={addPost}>등록</PostsButton>
-        <PostsButton onClick={goToPreviousPage}>취소</PostsButton>
+        <NewButton onClick={addPost} textcolor="white" backcolor={theme.color.orange} width={"6rem"} height={"2rem"} style={{marginLeft:'1rem'}}>등록</NewButton>
+        <NewButton onClick={goToPreviousPage} textcolor="black" backcolor={theme.color.white} width={"6rem"} height={"2rem"}>취소</NewButton>
       </PostsButtonContainer>
     </>
   );
