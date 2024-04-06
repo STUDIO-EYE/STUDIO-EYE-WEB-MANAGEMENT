@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { TitleSm, TextLg, TextMd } from "../../Components/common/Font";
 import projectApi from "../../api/projectApi";
-import { FaTrash, FaCheck, FaEdit, FaEllipsisH, FaCrown } from "react-icons/fa";
+import { FaTrash, FaCheck, FaEdit, FaEllipsisH, FaCrown, FaUser, FaUserSlash } from "react-icons/fa";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 import swal from 'sweetalert';
@@ -203,6 +203,8 @@ function OngoingProject() {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentDetailsProjects, setCurrentDetailsProjects] = useState<any[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState<{ [key: number]: boolean }>({});
+  const [userInProjects, setUserInProjects] = useState<boolean[]>([]);
+
 
   const projectsPerPage = 10;
   const navigate = useNavigate();
@@ -305,6 +307,9 @@ function OngoingProject() {
         if (token) {
           const decodedToken: any = jwt_decode(token);
           setTokenUserId(decodedToken.userId);
+
+          const userInProjects: boolean[] = isUserInProject(projectDetails, decodedToken.userId);
+          setUserInProjects(userInProjects);
         }
         setCurrentDetailsProjects(projectDetails);
       } catch (error) {
@@ -316,7 +321,7 @@ function OngoingProject() {
   }, []);
 
   const isTeamLeader = (projectDetails: any) => {
-    if (!projectDetails.data.success) {
+    if (!projectDetails || !projectDetails.data || !projectDetails.data.success) {
       return false;
     }
     const leaderAndMemberList = projectDetails.data.data.leaderAndMemberList;
@@ -327,6 +332,7 @@ function OngoingProject() {
 
     return !!teamLeader;
   };
+
 
   const handleAddProject = () => {
     navigate("/Project");
@@ -408,11 +414,23 @@ function OngoingProject() {
     }));
   };
 
+
   const isDropdownOpen = (projectId: number) => dropdownOpen[projectId] || false;
 
   function handleModifyClick(projectId: number): void {
     navigate(`/modify/${projectId}`);
   }
+
+  // OngoingProject 컴포넌트 내에서 사용자가 각 프로젝트에 속해 있는지를 판단하는 함수
+  const isUserInProject = (projectDetails: any[], tokenUserId: string) => {
+    // 각 프로젝트의 멤버 목록을 확인하고 사용자의 ID가 포함되어 있는지를 검사
+    const userInProjects: boolean[] = projectDetails.map((details: any) => {
+      const memberList = details.data.data.leaderAndMemberList;
+      return memberList.some((member: any) => member.userId === tokenUserId);
+    });
+    return userInProjects; // 각 프로젝트에 대한 사용자의 소속 여부를 리턴
+  };
+
 
   return (
     <AppContainer>
@@ -436,7 +454,15 @@ function OngoingProject() {
                     <FaCrown color="#ffa900" size={15} />
                   </div>
                 )}
-
+                {userInProjects[index] ? (
+                  <div style={{ position: 'absolute', top: '5px', left: '20px' }}>
+                    <FaUser color="blue" size={15} />
+                  </div>
+                ) : (
+                  <div style={{ position: 'absolute', top: '5px', left: '20px' }}>
+                    <FaUserSlash color="red" size={15} />
+                  </div>
+                )}
                 <ProjectItemContent onClick={() => handleRowClick(project.projectId)}>
                   <div>
                     <ProjectTitle>{project.name}</ProjectTitle>
@@ -454,7 +480,7 @@ function OngoingProject() {
                 </ProjectItemContent>
                 {isDropdownOpen(project.projectId) && (
                   <DropdownMenu>
-                    {isTeamLeader(currentDetailsProjects[index]) && (
+                    {isTeamLeader(currentDetailsProjects[index]) ? (
                       <>
                         <ModifyButton onClick={() => handleModifyClick(project.projectId)}>
                           <FaEdit /> 수정
@@ -466,6 +492,10 @@ function OngoingProject() {
                           <FaTrash /> 삭제
                         </DeleteButton>
                       </>
+                    ) : (
+                      <div onClick={() => alert("팀장이 아니므로 드롭다운 메뉴를 열 자격이 없습니다.")}>
+                        팀장이 아니므로 드롭다운 메뉴를 열 자격이 없습니다.
+                      </div>
                     )}
                   </DropdownMenu>
                 )}
