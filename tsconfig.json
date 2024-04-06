@@ -24,6 +24,6 @@
     "typeRoots": ["assets/logo"]
   },
   "include": [
-    "src"
+    "src", "src/custom.d.ts"
   ]
 }
