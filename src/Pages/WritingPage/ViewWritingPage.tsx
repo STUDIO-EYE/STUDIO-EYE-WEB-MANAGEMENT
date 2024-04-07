@@ -94,13 +94,14 @@ const ViewTitleInput = styled.div`
 `;
 
 const Title = styled.span`
-  font-size: 1.2rem;
-  margin-top: 0.5rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0.5rem 0 0.5rem 0;
 `;
 
 const AuthorAndDate = styled.span`
-  font-size: 0.9rem;
-  color: black;
+  font-size: 0.7rem;
+  color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: top;
 `;
@@ -281,22 +282,20 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   const updatedAtDate = new Date(selectedPost.updatedAt);
   const formattedUpdatedAt = `${updatedAtDate.getFullYear()}년 ${String(updatedAtDate.getMonth() + 1).padStart(2, '0')}월 ${String(updatedAtDate.getDate()).padStart(2, '0')}일 ${String(updatedAtDate.getHours()).padStart(2, '0')}:${String(updatedAtDate.getMinutes()).padStart(2, '0')}:${String(updatedAtDate.getSeconds()).padStart(2, '0')}`;
 
-
   //조회하면 showViewWriting + 수정화면 showPutWriting
   return (
     <>
       {showViewWriting ? (
         <>
-          <button onClick={checktoken}>토큰 확인</button>
           <FormContainer>
             <ViewTitleInput>
+              <Title>{selectedPost.title}</Title>
               <AuthorAndDate>
                 작성자: {selectedPost.author} | 작성일시: {selectedPost.date}
               </AuthorAndDate>
               <AuthorAndDate>
                 <span>마지막 수정 시간: {formattedUpdatedAt}</span>
               </AuthorAndDate>
-              <Title>{selectedPost.title}</Title>
             </ViewTitleInput>
             <HorizontalLine />
             <Content
