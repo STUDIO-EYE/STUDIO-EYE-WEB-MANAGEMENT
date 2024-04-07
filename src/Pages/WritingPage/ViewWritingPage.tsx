@@ -11,14 +11,14 @@ import commentApi from "../../api/commentApi";
 import HorizontalLine from "Components/common/HorizontalLine"
 // WritingMainPage.js
 
-interface PostInfo{
-  id:number
-  title:string
-  content:string
-  userName:string
-  startDate:string
-  commentSum:number
-  category:string
+interface PostInfo {
+  id: number
+  title: string
+  content: string
+  userName: string
+  startDate: string
+  commentSum: number
+  category: string
 }
 
 /////////제목,내용/////////
@@ -125,7 +125,7 @@ const Content = styled.div`
   }
 `;
 
-interface PostData{
+interface PostData {
   commentId: number,
   title: string,
   content: string,
@@ -136,7 +136,7 @@ interface PostData{
 }
 
 const ViewWritingPage = ({ selectedRowId, projectId, postId }
-  :{selectedRowId:number,projectId:number,postId:number}) => {
+  : { selectedRowId: number, projectId: number, postId: number }) => {
   const [editorHtml, setEditorHtml] = useState(""); // Quill Editor의 HTML 내용을 저장하는 상태
   const [title, setTitle] = useState(""); // 제목을 저장하는 상태
   const [showViewWriting, setShowViewWriting] = useState(true);
@@ -213,9 +213,10 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
 
     boardApi
       .deleteBoard({
+        data: {
           projectId: projectId,
-          postId: selectedRowId,
-          token: token
+          postId: selectedRowId
+        }
       })
       .then(() => {
         alert("게시글이 성공적으로 삭제되었습니다.");
@@ -249,7 +250,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
         ]);
         // postResponse 처리
 
-        const postInfo:PostInfo = postResponse.data.data;
+        const postInfo: PostInfo = postResponse.data.data;
         setSelectedPost({
           commentId: postInfo.id,
           title: postInfo.title,
@@ -267,24 +268,24 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     fetchData();
   }, [selectedRowId, projectId]);
 
-const checktoken=()=>{
-  console.log(sessionStorage.getItem('login-token'))
-}
+  const checktoken = () => {
+    console.log(sessionStorage.getItem('login-token'))
+  }
 
   //조회하면 showViewWriting + 수정화면 showPutWriting
   return (
     <>
       {showViewWriting ? (
         <>
-        <button onClick={checktoken}>토큰 확인</button>
+          <button onClick={checktoken}>토큰 확인</button>
           <FormContainer>
             <ViewTitleInput>
-            <AuthorAndDate>
+              <AuthorAndDate>
                 {selectedPost.author} | {selectedPost.date}
               </AuthorAndDate>
               <Title>{selectedPost.title}</Title>
             </ViewTitleInput>
-            <HorizontalLine/>
+            <HorizontalLine />
             <Content
               dangerouslySetInnerHTML={{ __html: selectedPost.content }}
             />

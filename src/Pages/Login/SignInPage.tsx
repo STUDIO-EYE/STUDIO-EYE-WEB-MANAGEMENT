@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
-import { media ,TitleLg, TitleMd, TitleSm, TextLg, TextMd, TextSm } from '../../Components/common/Font';
+import { media, TitleLg, TitleMd, TitleSm, TextLg, TextMd, TextSm } from '../../Components/common/Font';
 
 const SignInContainer = styled.div`
   background: #FAFAFA;
@@ -138,8 +138,8 @@ const HorizontalBox = styled.div`
   width: 100%;
 `;
 
-function SignInPage(){
-   const navigate = useNavigate();
+function SignInPage() {
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         email: "",
@@ -147,6 +147,7 @@ function SignInPage(){
         name: "",
         phoneNumber: "",
         verificationCode: "",
+        role: "USER"
     });
 
     const formatPhoneNumber = (value: string) => {
@@ -209,23 +210,21 @@ function SignInPage(){
         const data = {
             email: formData.email // 실제 이메일 값을 사용
         };
-    
-        axios.post('/user-service/emails/verification-requests', data, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
+
+        axios.post('/user-service/emails/verification-requests', null, {
+            params:data,
         })
-        .then((response) => {
-            console.log({ message: response.data });
-            alert("입력하신 이메일로 인증코드가 전송되었습니다.");
-            setIsCodeSent(true);
-            startTimer();
-        })
-        .catch((error) => {
-            console.error('API 요청 중 오류 발생:', error);
-        });
+            .then((response) => {
+                console.log({ message: response.data });
+                alert("입력하신 이메일로 인증코드가 전송되었습니다.");
+                setIsCodeSent(true);
+                startTimer();
+            })
+            .catch((error) => {
+                console.error('API 요청 중 오류 발생:', error);
+            });
     }
-    
+
 
     const startTimer = () => {
         setIsTimerRunning(true);
@@ -263,14 +262,14 @@ function SignInPage(){
         axios.get(`/user-service/emails/verifications?email=${email}&code=${authCode}`)
             .then((response) => {
                 console.log({ message: response.data });
-                    alert(response.data.message);
-                    if(response.data.verificationStatus){
-                        setIsCodeSent(false);
-                        setIsVerified(true);
-                    }else{
-                        setIsCodeSent(true);
-                        setIsVerified(false);
-                    }
+                alert(response.data.message);
+                if (response.data.verificationStatus) {
+                    setIsCodeSent(false);
+                    setIsVerified(true);
+                } else {
+                    setIsCodeSent(true);
+                    setIsVerified(false);
+                }
             })
             .catch((error) => {
                 console.error('API 요청 중 오류 발생:', error);
@@ -280,72 +279,84 @@ function SignInPage(){
 
     //-----------------------------phoneNum--------------------------
 
-    return(
+    return (
         <SignInContainer>
             <WhiteBoxContainer className="WhiteBoxContainer">
                 <TitleCenterBox className="TitleCenterBox">
                     <Margin16px><TitleLg>Sign In</TitleLg></Margin16px>
                 </TitleCenterBox>
-            <SignInBox className="SignInBox">
-                <SignInForm className="SignInForm">
-                    <SubInputForm className="SubInputFormWithButton">
-                        <TextMd>Email</TextMd>
-                        <HorizontalBox>
-                            <InputSizeWithBtn   name="email"
-                                                value={formData.email}
-                                                onChange={handleChange} />
-                            <BtnWithInput onClick={handleSendCode}>Send</BtnWithInput>
-                        </HorizontalBox>
+                <SignInBox className="SignInBox">
+                    <SubInputForm className="SubInputForm">
+                        <TextMd>Role</TextMd>
+                        <select
+                            name="role"
+                            value={formData.role}
+                            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                        >
+                            <option value="USER">사용자</option>
+                            <option value="ADMIN">관리자</option>
+                        </select>
+                    </SubInputForm>
 
-                    </SubInputForm>
-                    {isCodeSent && (
-                    <SubInputForm>
-                        <HorizontalBox>
-                            <TextMd>Email Verification Code</TextMd>
-                            {isTimerRunning && !isVerified && (
-                                <TextMd>
-                                    {Math.floor(timeLeft / 60)}:
-                                    {timeLeft % 60 < 10 ? "0" + (timeLeft % 60).toString() : (timeLeft % 60).toString()}
-                                </TextMd>
-                            )}
-                        </HorizontalBox>
-                        <InputSizeWithBtn   name="verificationCode"
-                                            value={formData.verificationCode}
-                                            onChange={handleChange} />
-                        <BtnWithInput onClick={handleVerifiyCode}>Verify</BtnWithInput>
-                    </SubInputForm>
+                    <SignInForm className="SignInForm">
+                        <SubInputForm className="SubInputFormWithButton">
+                            <TextMd>Email</TextMd>
+                            <HorizontalBox>
+                                <InputSizeWithBtn name="email"
+                                    value={formData.email}
+                                    onChange={handleChange} />
+                                <BtnWithInput onClick={handleSendCode}>Send</BtnWithInput>
+                            </HorizontalBox>
+
+                        </SubInputForm>
+                        {isCodeSent && (
+                            <SubInputForm>
+                                <HorizontalBox>
+                                    <TextMd>Email Verification Code</TextMd>
+                                    {isTimerRunning && !isVerified && (
+                                        <TextMd>
+                                            {Math.floor(timeLeft / 60)}:
+                                            {timeLeft % 60 < 10 ? "0" + (timeLeft % 60).toString() : (timeLeft % 60).toString()}
+                                        </TextMd>
+                                    )}
+                                </HorizontalBox>
+                                <InputSizeWithBtn name="verificationCode"
+                                    value={formData.verificationCode}
+                                    onChange={handleChange} />
+                                <BtnWithInput onClick={handleVerifiyCode}>Verify</BtnWithInput>
+                            </SubInputForm>
                         )}
-                    <SubInputForm className="SubInputForm">
-                        <TextMd>Password</TextMd>
-                        <InputSize   name="pwd"
-                                     value={formData.pwd}
-                                     onChange={handleChange}
-                                     type="password"
-                        />
-                    </SubInputForm>
-                    <SubInputForm className="SubInputForm">
-                        <TextMd>Confirm Password</TextMd>
-                        <InputSize type="password" />
-                    </SubInputForm>
-                    <SubInputForm className="SubInputForm">
-                        <TextMd>Name</TextMd>
-                        <InputSize   name="name"
-                                     value={formData.name}
-                                     onChange={handleChange}
-                        />
-                    </SubInputForm>
-                    <SubInputForm className="SubInputForm">
-                        <TextMd>Phone</TextMd>
-                        <InputSize   name="phoneNumber"
-                                     value={formData.phoneNumber}
-                                     onChange={handleChange}
-                                     type="tel"
-                                     placeholder="010-1234-5678"
-                        />
-                    </SubInputForm>
-                <SignInPageButton onClick={() => handleSubmit()}>Sign In</SignInPageButton>
-                </SignInForm>
-            </SignInBox>
+                        <SubInputForm className="SubInputForm">
+                            <TextMd>Password</TextMd>
+                            <InputSize name="pwd"
+                                value={formData.pwd}
+                                onChange={handleChange}
+                                type="password"
+                            />
+                        </SubInputForm>
+                        <SubInputForm className="SubInputForm">
+                            <TextMd>Confirm Password</TextMd>
+                            <InputSize type="password" />
+                        </SubInputForm>
+                        <SubInputForm className="SubInputForm">
+                            <TextMd>Name</TextMd>
+                            <InputSize name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                            />
+                        </SubInputForm>
+                        <SubInputForm className="SubInputForm">
+                            <TextMd>Phone</TextMd>
+                            <InputSize name="phoneNumber"
+                                value={formData.phoneNumber}
+                                onChange={handleChange}
+                                type="tel"
+                                placeholder="010-1234-5678"
+                            />
+                        </SubInputForm>
+                        <SignInPageButton onClick={() => handleSubmit()}>Sign In</SignInPageButton>
+                    </SignInForm>
+                </SignInBox>
 
             </WhiteBoxContainer>
         </SignInContainer>
