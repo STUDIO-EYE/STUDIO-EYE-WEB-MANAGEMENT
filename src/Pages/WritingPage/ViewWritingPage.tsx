@@ -203,14 +203,22 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
 
   //게시글 삭제 함수
   const deletePost = () => {
+    const token = sessionStorage.getItem('login-token');
+    console.log(token);
+
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
     boardApi
       .deleteBoard({
           projectId: projectId,
-          postId: selectedRowId
+          postId: selectedRowId,
+          token: token
       })
       .then(() => {
         alert("게시글이 성공적으로 삭제되었습니다.");
-        // 게시글 삭제 후 페이지를 새로고침하거나 다른 페이지로 리다이렉트
         if (postId) {
           goToHome();
         } else {

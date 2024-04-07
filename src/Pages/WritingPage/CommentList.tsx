@@ -1,57 +1,76 @@
-import React , { useState, useEffect }from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import commentApi from "../../api/commentApi";
 import jwt_decode from "jwt-decode";
 
-interface Comment{
-    id:number
-    userName:string
-    content:string
-    createdAt:Date
-    updatedAt:Date
-    isNew:boolean
+interface Comment {
+    id: number;
+    userName: string;
+    content: string;
+    createdAt: Date;
+    updatedAt: Date;
+    isNew: boolean;
 }
 
 const FormContainer = styled.div`
   border-radius: 5px;
-  margin-bottom: 0.01rem;
-  padding: 0.5rem;
-  //background-color: #FC9EBD ;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: transparent;
+  border-radius: 15px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
 `;
 
 const Author = styled.div`
   font-weight: bold;
   margin-bottom: 0.07rem;
-  font-size: 0.75rem;
-  background-color: #D79278;
-  border-radius: 999px; /* 큰 값으로 설정하여 타원 모양 생성 */
-  padding: 0.1rem 0.3rem; /* 내용 주변에 좀 더 공간을 주기 위한 패딩 설정 */
-  display: inline-block; /* 인라인 요소로 표시하여 내용과 함께 가로 정렬 */
-  color: white; /* 텍스트 색상을 흰색으로 설정 */
+  font-size: 1rem;
+  background-color: #d79278;
+  border-radius: 15px;
+  padding: 0.1rem 0.3rem;
+  display: inline-block;
+  color: white;
 `;
 
 const Content = styled.div`
-  margin-bottom: 0.05rem;
-  font-size: 0.75rem;
+  margin-bottom: 0.5rem;
+  margin-top: 0.2rem;
+  font-size: 1rem;
 `;
 
 const Date = styled.div`
   color: #888;
   font-size: 0.7rem;
 `;
+
 const CommentTitle = styled.h3`
   font-size: 1rem;
   color: #282c34;
   margin-left: 0.5rem;
 `;
+
 const CommentButton = styled.div`
-  font-size: 0.5rem;
+  font-size: 0.7rem;
+  cursor: pointer;
   margin-right: 0.4rem;
+
+  &:hover {
+    color: rgba(0, 0, 0, 0.5);
+  }
 `;
+
 const ButtonContainer = styled.div`
   font-size: 0.5rem;
   display: flex;
+  justify-content: flex-end;
 `;
+
+const ButtonAuthorContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+
+`;
+
 const CommentTextarea = styled.textarea`
   width: 80%;
   padding: 0.1rem;
@@ -61,7 +80,7 @@ const CommentTextarea = styled.textarea`
   max-height: 1rem;
   min-height: 1rem;
   resize: none;
-  font-size: 0.5rem;
+  font-size: 1rem;
   vertical-align: middle;
 
   &:focus {
@@ -69,32 +88,43 @@ const CommentTextarea = styled.textarea`
   }
 `;
 
-const CommentList = ({ selectedPost, comments, setComments, onDeleteComment}
-    :{selectedPost:any,comments:any,setComments:any,onDeleteComment:any}) => {
+const CommentList = ({
+    selectedPost,
+    comments,
+    setComments,
+    onDeleteComment,
+}: {
+    selectedPost: any;
+    comments: any;
+    setComments: any;
+    onDeleteComment: any;
+}) => {
     const [editingCommentId, setEditingCommentId] = useState<number>(0);
     const [editedContent, setEditedContent] = useState("");
     const [tokenUserName, setTokenUserName] = useState("");
     const [tokenUserId, setTokenUserId] = useState("");
     const [tokenUserEmail, setTokenUserEmail] = useState("");
 
-    const deleteComment = (commentId:number) => {
-        commentApi.deleteComment(commentId)
-            .then(response => {
-                alert('댓글이 성공적으로 삭제되었습니다.');
-                // 댓글이 성공적으로 삭제되면 해당 댓글을 상태에서 제거하거나
-                const updatedComments = comments.filter((comment: { id: number; }) => comment.id !== commentId);
+    const deleteComment = (commentId: number) => {
+        commentApi
+            .deleteComment(commentId)
+            .then((response) => {
+                alert("댓글이 성공적으로 삭제되었습니다.");
+                const updatedComments = comments.filter(
+                    (comment: { id: number }) => comment.id !== commentId
+                );
                 setComments(updatedComments);
-                if (onDeleteComment) { // 추가된 코드
+                if (onDeleteComment) {
                     onDeleteComment();
                 }
             })
-            .catch(error => {
-                console.error('Error deleting comment:', error);
-                alert('댓글 삭제 중 오류가 발생했습니다.');
+            .catch((error) => {
+                console.error("Error deleting comment:", error);
+                alert("댓글 삭제 중 오류가 발생했습니다.");
             });
     };
 
-    const startEditing = (commentId:number, content:string) => {
+    const startEditing = (commentId: number, content: string) => {
         setEditingCommentId(commentId);
         setEditedContent(content);
     };
@@ -102,34 +132,66 @@ const CommentList = ({ selectedPost, comments, setComments, onDeleteComment}
     useEffect(() => {
         const token = sessionStorage.getItem("login-token");
         if (token) {
-            const decodedToken:any = jwt_decode(token);
+            const decodedToken: any = jwt_decode(token);
             setTokenUserName(decodedToken.username);
             setTokenUserId(decodedToken.userId);
             setTokenUserEmail(decodedToken.sub);
         }
     }, []);
 
-    const finishEditing = (commentId:number) => {
-        commentApi.putComment(commentId, { content: editedContent })
-            .then(response => {
-                alert('댓글이 성공적으로 수정되었습니다.');
-                const updatedComments = comments.map((comment: { id: number; }) =>
-                    comment.id === commentId ? {...comment, content: editedContent} : comment
+    const finishEditing = (commentId: number) => {
+        commentApi
+            .putComment(commentId, { content: editedContent })
+            .then((response) => {
+                alert("댓글이 성공적으로 수정되었습니다.");
+                const updatedComments = comments.map((comment: { id: number }) =>
+                    comment.id === commentId
+                        ? { ...comment, content: editedContent }
+                        : comment
                 );
                 setComments(updatedComments);
                 setEditingCommentId(0);
             })
-            .catch(error => {
-                console.error('Error updating comment:', error);
-                alert('댓글 수정 중 오류가 발생했습니다.');
+            .catch((error) => {
+                console.error("Error updating comment:", error);
+                alert("댓글 수정 중 오류가 발생했습니다.");
             });
     };
     return (
         <>
             <CommentTitle>댓글 {comments.length}</CommentTitle>
-            {comments.map((comment:Comment, index:number) => (
+            {comments.map((comment: Comment, index: number) => (
                 <FormContainer key={index}>
-                    <Author>{comment.userName}</Author>
+                    <ButtonAuthorContainer>
+                        <Author>{comment.userName}</Author>
+
+                        {!comment.isNew && (
+                            <ButtonContainer>
+                                {tokenUserName === comment.userName && (
+                                    <>
+                                        <CommentButton onClick={() => deleteComment(comment.id)}>
+                                            삭제
+                                        </CommentButton>
+                                        {editingCommentId === comment.id ? (
+                                            <CommentButton onClick={() => finishEditing(comment.id)}>
+                                                완료
+                                            </CommentButton>
+                                        ) : (
+                                            <CommentButton
+                                                onClick={() =>
+                                                    startEditing(comment.id, comment.content)
+                                                }
+                                            >
+                                                수정
+                                            </CommentButton>
+                                        )}
+                                    </>
+                                )}
+                            </ButtonContainer>
+                        )}
+
+                    </ButtonAuthorContainer>
+
                     {editingCommentId === comment.id ? (
                         <CommentTextarea
                             value={editedContent}
@@ -138,24 +200,10 @@ const CommentList = ({ selectedPost, comments, setComments, onDeleteComment}
                     ) : (
                         <Content>{comment.content}</Content>
                     )}
-                    <Date>{comment.updatedAt ?
-                        comment.updatedAt.toString() + "(수정됨)"
-                        : ""
-                    }</Date>
-                    {!comment.isNew && (
-                        <ButtonContainer>
-                            {tokenUserName === comment.userName && (
-                                <>
-                                    <CommentButton onClick={() => deleteComment(comment.id)}>삭제</CommentButton>
-                                    {editingCommentId === comment.id ? (
-                                    <CommentButton onClick={() => finishEditing(comment.id)}>완료</CommentButton>
-                                    ) : (
-                                    <CommentButton onClick={() => startEditing(comment.id, comment.content)}>수정</CommentButton>
-                                    )}
-                                </>
-                            )}
-                        </ButtonContainer>
-                    )}
+                    <Date>
+                        {comment.updatedAt ? comment.updatedAt.toString() + "(수정됨)" : ""}
+                    </Date>
+
                 </FormContainer>
             ))}
         </>
