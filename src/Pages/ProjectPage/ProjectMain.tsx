@@ -6,19 +6,17 @@ import styled, { createGlobalStyle } from "styled-components";
 
 const GlobalStyle = createGlobalStyle`
   body {
-    background-color: #fafafa;
+    background-color: white;
     margin: 0;
   }
 `;
 
 const MainBody = styled.div`
-  /* max-width : 1184px; */
-  //이거 가운데로 놓기 ~
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  background-color: #fafafa;
+  background-color: white;
 `;
 
 const Title = styled.text`
@@ -31,12 +29,20 @@ const Wrapper = styled.div`
   align-items: center;
   width: 80%;
   justify-content: space-between;
-  /* max-width: 100%; */
-  flex-wrap: wrap; /* 화면 크기가 작아지면 아래로 내려갈 수 있도록 설정 */
+  flex-wrap: wrap;
 `;
 
 const Container = styled.div`
-  background-color: #fafafa;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  margin-left: 300px;
+  width: calc(100% - 225px);
+
+  @media only screen and (max-width: 70rem){
+    flex-direction:column;
+  }
 `;
 
 const ProjectMain = () => {

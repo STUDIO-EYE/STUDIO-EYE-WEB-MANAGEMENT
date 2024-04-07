@@ -12,6 +12,8 @@ import {
   TextSm,
 } from "../../Components/common/Font";
 import axios from "axios";
+import swal from 'sweetalert';
+
 // import jwt-decode from "jwt-decode";
 
 const LoginContainer = styled.div`
@@ -191,8 +193,8 @@ function LoginPage() {
           "Bearer " + accessToken; // 토큰을 HTTP 헤더에 포함
         sessionStorage.setItem("login-token", accessToken);
 
-        alert("로그인 성공");
-        navigate("/");
+        swal('로그인 성공!', "", 'success')
+        .then(function() { navigate("/"); })
       })
       .catch((error) => {
         alert("로그인 실패");

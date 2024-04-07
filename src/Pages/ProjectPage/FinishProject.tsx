@@ -12,6 +12,7 @@ import {
 } from "../../Components/common/Font";
 import projectApi from "../../api/projectApi";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const AppContainer = styled.div`
   text-align: center;
@@ -23,49 +24,122 @@ const AppContainer = styled.div`
 const Container = styled.div`
   text-align: left;
 `;
+
+const ProjectWrapper = styled.div`
+  width: 400px;
+  background-color: #ffffff;
+  padding: 20px;
+  margin-bottom: 100px;
+  border-radius: 15px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+`;
+
+const ProjectsContainer = styled.div`
+  flex-wrap: wrap;
+  margin-top: 20px;
+  justify-content: flex-start;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const ProjectItemWrapper = styled.div`
+  width: calc(100% - 40px);
+  background-color: white;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  padding: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border-radius: 15px;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.01);
+  }
+`;
+
+const ProjectItemContent = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const ProjectTitle = styled.div`
+  flex: 1;
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 10px;
+  text-align: left;
+`;
+
+const ProjectPeriod = styled.div`
+  margin-bottom: 20px;
+  text-align: left;
+  font-size: 12px;
+`;
+
+const ProjectDescription = styled.div`
+  flex: 1;
+  text-align: left;
+  margin: 10px 0;
+  font-size: 14px;
+`;
+
+const ButtonsContainer = styled.div`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+`;
+
 const StyledTable = styled.table`
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0 16px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: space-between;
 
   th,
   td {
+    width: calc(50% - 8px); /* 2개의 열이 나란히 위치하도록 */
+    margin-bottom: 16px;
+    box-sizing: border-box;
     padding: 15px;
-    text-align: center;
+    text-align: left;
+    word-wrap: break-word; /* 줄바꿈 */
+  }
+
+  th:last-child {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   tbody tr {
+    width: calc(50% - 8px); /* 2개의 열이 나란히 위치하도록 */
     background-color: #ffffff;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
-  }
-  tbody tr td {
-    padding: 20px 64px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
   }
 
-  thead tr th:nth-child(3),
-  thead tr th:nth-child(4) {
-    margin-left: 10px !important;
-  }
-
-  tbody tr:hover {
-    background-color: #f5f5f5;
-  }
-  tbody tr td:nth-child(3),
-  tbody tr td:nth-child(4) {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 150px;
+  tbody tr:nth-child(even) {
+    margin-left: 16px; /* 짝수 행이 오른쪽으로 밀림 */
   }
 `;
+
 const LabelArea = styled.div`
-  width: 128px;
-  background: transparent;
-  border: 2px solid #ff530e;
-  border-radius: 32px;
-  text-align: center;
-  color: #ff530e;
+  width: 100%;
+  text-align: left;
 `;
+
 const DeleteButton = styled.button`
   background-color: white;
   border-radius: 32px;
@@ -106,8 +180,9 @@ function FinishProject() {
   const [projects, setProjects] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const projectsPerPage = 10;
+  
+  const navigate = useNavigate();
 
-  // ...기존 함수들...
 
   const indexOfLastProject = currentPage * projectsPerPage;
   const indexOfFirstProject = indexOfLastProject - projectsPerPage;
@@ -212,45 +287,47 @@ function FinishProject() {
     fetchProjects();
   }, []);
 
+  const handleRowClick = (projectId: number) => {
+    navigate(`/Manage/${projectId}`);
+  };
+
   return (
     <AppContainer>
+      <ProjectWrapper>
       <Container>
         <LabelArea>
-          <TitleSm>완료</TitleSm>
+          <TitleSm>Done</TitleSm>
         </LabelArea>
       </Container>
 
-      <StyledTable>
-        <thead>
-          <tr>
-            <th>번호</th>
-            <th>기한</th>
-            <th>프로젝트명</th>
-            <th>프로젝트 소개</th>
-          </tr>
-        </thead>
-        <tbody>
+      <ProjectsContainer>
           {projects.map((project:any) => (
-            <tr key={project.projectId}>
-              {/*<td>{index + 1}</td>*/}
-              <td>{project.projectId}</td>
-              <td>
-                {project.startDate}~{project.finishDate}
-              </td>
-              <td>{project.name}</td>
-              <td>{project.description}</td>
-              <td>
-                <DeleteButton
-                  onClick={(e) => handleDeleteClick(e, project.projectId)}
+              <ProjectItemWrapper>
+                <ProjectItemContent
+                onClick={() => handleRowClick(project.projectId)}
                 >
-                  <FaTrash />
-                </DeleteButton>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </StyledTable>
+                  <div>
+                    <ProjectTitle>{project.name}</ProjectTitle>
+                    <ProjectPeriod>
+                      {project.startDate.toString()}~{project.finishDate.toString()}
+                    </ProjectPeriod>
+                    <ProjectDescription>{project.description}</ProjectDescription>
+                  </div>
+                  </ProjectItemContent>
+                <ButtonsContainer>
+                  <DeleteButton
+                    onClick={(e) => handleDeleteClick(e, project.projectId)}
+                  >
+                    <FaTrash />
+                  </DeleteButton>
+                </ButtonsContainer>
+              </ProjectItemWrapper>
+            ))
+          }
+        </ProjectsContainer>
+
       <PageNumbers />
+      </ProjectWrapper>
     </AppContainer>
   );
 }

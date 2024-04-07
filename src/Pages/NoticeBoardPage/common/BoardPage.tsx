@@ -13,16 +13,24 @@ import {
     TextLg,
     TextMd,
     TextSm,
+    TableText,
 } from "../../../Components/common/Font";
+import Rectangle from "Components/common/Rectangle_shadow4";
+import CommentPage from "Pages/WritingPage/CommentPage";
+import writeBtnImg from "../../../assets/drawable/WriteButton.svg";
+import Dropdown from "Components/common/Selector";
+import Selector from "Components/common/Selector";
+import DashboardBody from "Components/common/DashboardBody";
 
 
 const MainBody = styled.div`
-  //max-width : 1184px;
+  max-width : 100%;
   display: flex;
-  align-items: center;
+  align-items: left;
   flex-direction: column;
   height: 100vh;
-  margin-top: 4rem;
+  margin-top: 2rem;
+  padding: 0 2rem;
   class:${props=>props.className};
 `;
 
@@ -35,44 +43,36 @@ const DashboardDiv = styled.div`
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
 `;
 
-const BoardTitleDiv = styled.div`
-  display: flex;
-  text-align: center;
-  align-items: center;
-`;
-
 const DashboardBox = styled.div`
   display: flex;
   flex-direction: column;
   padding-top: 1rem;
 `;
-const Title = styled.div`
+const Title =styled(TitleSm)`
+  width:max-content;
   cursor: pointer;
   padding-left: 4px;
   padding-right: 4px;
+  margin-bottom:1rem;
+  display:flex;
 `;
 
 ////////////////버튼/////////////////////
-const WritingButton = styled.button`
-  width: 6rem;
-  height: 2rem;
-  margin: 1%;
-  font-size: 1rem;
-  border-radius: 1rem;
-  background-color: #FF1E1E;
-  color: white;
-  font-weight: bold;
-  border: none;
-  transition: background-color 0.3s;
-
+const WriteButton = styled.button`
+  background-image:url(${writeBtnImg});
+  background-size: cover;
+  border:none;
+  background-color: white;
+  width: 1rem;
+  height: 1rem;
+  margin:0 0.5rem;
   /* 마우스를 가져다 대었을 때의 스타일 */
 
   &:hover {
-    background-color: #FF7C7C;
-    color: white;
+//     background-color: #FF7C7C;
+//     color: white;
     cursor: pointer;
 `;
-
 
 const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postId, category }
     :{subTitle:string,tableData:any,writingButtonContent:string,projectId:number,postId:number,category:string}) => {
@@ -81,7 +81,11 @@ const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postI
     const [showWritingPage, setShowWritingPage] = useState(false);
     const [showViewWritingPage, setShowViewWritingPage] = useState(false);
     const [selectedRowId, setSelectedRowId] = useState(0);
-
+    const SORT_LIST=[
+        '최신순',
+        '오래된 순'];
+        const [selectedSortValue,setSelectedSortValue]=useState('최신순');
+    
     useEffect(() => {
         if (postId) {
             handleRecentClick(postId);
@@ -101,6 +105,11 @@ const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postI
         setShowWritingPage(true);
         setShowViewWritingPage(false);
     };
+    const goToBoardPage = () => {
+        setShowTable(true);
+        setShowWritingPage(false);
+        setShowViewWritingPage(false);
+    };
     const handleRowClick = (rowId:any) => {
         setSelectedRowId(rowId);
         setShowTable(false);
@@ -113,38 +122,62 @@ const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postI
         setShowWritingPage(false);
         setShowViewWritingPage(true);
     };
+    const handleSortValue=(e: React.ChangeEvent<HTMLSelectElement>)=>{
+        setSelectedSortValue(e.target.value)
+    }
 
     // WritingMainPage 컴포넌트가 마운트될 때 goToWritingMainPage 함수를 자동으로 호출
     return (
         /**여기도 주의 class를 classname으로 바꿔봄*/
         <>
+        <DashboardBody>
             <MainBody className="MainBody">
-                <DashboardDiv className="DashboardDiv">
-                    <BoardTitleDiv>
-                        <Title onClick={goToHomePage}>
-                           <TitleSm>HOME</TitleSm>
-                        </Title>
-                        <Title onClick={goToProjectPage}>
-                            <TextMd> Project</TextMd>
-                        </Title>
-                        <Title>
-                            <TextSm> {subTitle}</TextSm>
-                        </Title>
-                    </BoardTitleDiv>
-                    <DashboardBox>
-                        {showTable ? (
+                <Title>
+                    {
+                        showWritingPage?(
+                            <div>글쓰기</div>
+                        ):(
                             <>
-                                <Table tableData={tableData} onRowClick={handleRowClick}/>
-                                <WritingButton onClick={goToWritingPage}>{writingButtonContent}</WritingButton>
+                                <div onClick={goToProjectPage}>프로젝트명&nbsp;</div>
+                                <div onClick={goToBoardPage}>{subTitle} 게시판</div>
                             </>
-                        ) :  showWritingPage ? (
-                            <WritingPage projectId={projectId} category={category} />
-                        ) : showViewWritingPage ? (
-                            <ViewWritingPage selectedRowId = {selectedRowId} projectId={projectId} postId={postId} />
-                        ) : null }
-                    </DashboardBox>
-                </DashboardDiv>
+                        )
+                    }
+                    
+                </Title>
+                <div className="content" style={{display:'flex', flexDirection:'row',justifyContent:'center',flexWrap:'wrap'}}>
+                    <Rectangle className="DashboardDiv" width={!showViewWritingPage?'100%':'60%'} margin="0 0.5rem 0.5rem 0">
+                        <DashboardBox>
+                            {showTable ? (
+                                <>
+                                    <div style={{width:'100%',flexDirection:'row',justifyContent:'center'}}>
+                                        <TableText style={{marginRight:'0.2rem'}}>프로젝트 {subTitle}
+                                            <WriteButton onClick={goToWritingPage}/>
+                                        </TableText>
+                                        <Selector width={'4rem'} onChange={handleSortValue}>
+                                            <option value='최신순'>최신순</option>
+                                            <option value='오래된순'>오래된순</option>
+                                        </Selector>
+                                    </div>
+                                    <Table tableData={tableData} onRowClick={handleRowClick} sortValue={selectedSortValue}/>
+                                </>
+                            ) :  showWritingPage ? (
+                                <WritingPage projectId={projectId} category={category} />
+                            ) : showViewWritingPage ? (
+                                <ViewWritingPage selectedRowId = {selectedRowId} projectId={projectId} postId={postId}/>
+                            ) : null }
+                        </DashboardBox>
+                    </Rectangle>
+                    {
+                    showViewWritingPage?(
+                        <Rectangle className="CommentDiv" width={"30%"}>
+                            <CommentPage selectedRowId={selectedRowId} projectId={projectId} postId={postId}/>
+                        </Rectangle>
+                    ):null
+                }
+                </div>
             </MainBody>
+            </DashboardBody>
         </>
     );
 };

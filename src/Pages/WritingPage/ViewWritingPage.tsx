@@ -8,24 +8,18 @@ import CommentList from "./CommentList"; // Quill Editor의 스타일을 불러�
 import "react-quill/dist/quill.snow.css";
 import boardApi from "../../api/boardApi";
 import commentApi from "../../api/commentApi";
+import HorizontalLine from "Components/common/HorizontalLine"
 // WritingMainPage.js
 
-interface Comment{
-  id:number
-  userName:string
-  content:string
-  createdAt:Date
-  updatedAt:Date
-  isNew:boolean
-}
-interface PostInfo{
-  id:number
-  title:string
-  content:string
-  userName:string
-  startDate:string
-  commentSum:number
-  category:string
+interface PostInfo {
+  id: number
+  title: string
+  content: string
+  userName: string
+  startDate: string
+  commentSum: number
+  category: string,
+  updatedAt: string
 }
 
 /////////제목,내용/////////
@@ -95,64 +89,57 @@ const ViewTitleInput = styled.div`
   display: flex;
   flex-direction: column;
   margin-bottom: 0.1rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
   padding-right: 1rem;
   padding-left: 1rem;
 `;
 
-const Title = styled.h2`
-  font-size: 1.2rem;
-  margin-bottom: 0rem;
+const Title = styled.span`
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0.5rem 0 0.5rem 0;
 `;
 
-const AuthorAndDate = styled.p`
-  font-size: 0.8rem;
-  color: gray;
+const AuthorAndDate = styled.span`
+  font-size: 0.7rem;
+  color: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
-`;
-
-const Dot = styled.span`
-  font-size: 1rem;
-  color: gray;
-  margin: 0 0.2rem;
-`;
-const ReplyCount = styled.span`
-  font-size: 0.8rem;
-  color: gray;
+  align-items: top;
 `;
 //////내용부분/////////////
 const Content = styled.div`
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 1rem;
+  padding-right: 1rem;
+  padding-left: 1rem;
   margin-top: 0.1rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.1rem;
   min-height: 10rem;
   .ql-font-serif {
     font-family: Georgia, Times New Roman, serif, "Courier New", Courier,
       monospace;
   }
-
   .ql-size-huge {
     font-size: 2.5em;
   }
-
   .ql-size-large {
     font-size: 1.5em;
   }
-
   .ql-size-small {
     font-size: 0.75em;
   }
 `;
-const CommentContainer = styled.div`
-  background-color: #eeeeee;
-  min-height: 13rem;
-`;
+
+interface PostData {
+  commentId: number,
+  title: string,
+  content: string,
+  author: string,
+  date: string,
+  commentCount: number,
+  category: string,
+  updatedAt: string
+}
+
 const ViewWritingPage = ({ selectedRowId, projectId, postId }
-  :{selectedRowId:number,projectId:number,postId:number}) => {
+  : { selectedRowId: number, projectId: number, postId: number }) => {
   const [editorHtml, setEditorHtml] = useState(""); // Quill Editor의 HTML 내용을 저장하는 상태
   const [title, setTitle] = useState(""); // 제목을 저장하는 상태
   const [showViewWriting, setShowViewWriting] = useState(true);
@@ -165,8 +152,8 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     date: "",
     commentCount: 0,
     category: "",
+    updatedAt: ""
   });
-  const [comments, setComments] = useState<Comment[]>([]);
   const navigate = useNavigate();
 
   const goToPreviousPage = () => {
@@ -195,6 +182,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
       title: title,
       content: editorHtml,
       category: selectedPost.category, // 이미 저장된 category 정보 사용
+      updatedAt: selectedPost.updatedAt,
     };
 
     // axios를 사용하여 PUT 요청 보내기
@@ -217,17 +205,26 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
         alert("게시글 업데이트 중 오류가 발생했습니다.");
       });
   };
+
+  //게시글 삭제 함수
   const deletePost = () => {
+    const token = sessionStorage.getItem('login-token');
+    console.log(token);
+
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
     boardApi
       .deleteBoard({
         data: {
           projectId: projectId,
-          postId: selectedRowId,
-        },
+          postId: selectedRowId
+        }
       })
       .then(() => {
         alert("게시글이 성공적으로 삭제되었습니다.");
-        // 게시글 삭제 후 페이지를 새로고침하거나 다른 페이지로 리다이렉트
         if (postId) {
           goToHome();
         } else {
@@ -248,31 +245,17 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     setShowPutWriting(true);
   };
   // 게시글 내용을 담을 객체 나중에 DB연결하면 내용 set해주기
-  const handleAddComment = (newComment:any) => {
-    setComments((prevComments) => [...prevComments, newComment]); //댓글 최신게 나중에 보여주기
-    setSelectedPost((prevPost) => ({
-      ...prevPost,
-      commentCount: prevPost.commentCount + 1,
-    }));
-  };
-  const handleDeleteComment = () => {
-    setSelectedPost((prevPost) => ({
-      ...prevPost,
-      commentCount: prevPost.commentCount - 1,
-    }));
-  };
 
   useEffect(() => {
     // 병렬로 API 호출을 수행하는 함수
     const fetchData = async () => {
       try {
-        const [postResponse, commentsResponse] = await Promise.all([
+        const [postResponse] = await Promise.all([
           boardApi.getBoard({ projectId: projectId, postId: selectedRowId }),
-          commentApi.getCommentList(selectedRowId),
         ]);
         // postResponse 처리
 
-        const postInfo:PostInfo = postResponse.data.data;
+        const postInfo: PostInfo = postResponse.data.data;
         setSelectedPost({
           commentId: postInfo.id,
           title: postInfo.title,
@@ -281,11 +264,8 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
           date: postInfo.startDate,
           commentCount: postInfo.commentSum,
           category: postInfo.category,
+          updatedAt: postInfo.updatedAt,
         });
-
-        if (commentsResponse.data.success) {
-          setComments(commentsResponse.data.data);
-        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -293,6 +273,15 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
 
     fetchData();
   }, [selectedRowId, projectId]);
+
+  const checktoken = () => {
+    console.log(sessionStorage.getItem('login-token'))
+  }
+
+  // 수정 시간
+  const updatedAtDate = new Date(selectedPost.updatedAt);
+  const formattedUpdatedAt = `${updatedAtDate.getFullYear()}년 ${String(updatedAtDate.getMonth() + 1).padStart(2, '0')}월 ${String(updatedAtDate.getDate()).padStart(2, '0')}일 ${String(updatedAtDate.getHours()).padStart(2, '0')}:${String(updatedAtDate.getMinutes()).padStart(2, '0')}:${String(updatedAtDate.getSeconds()).padStart(2, '0')}`;
+
   //조회하면 showViewWriting + 수정화면 showPutWriting
   return (
     <>
@@ -302,27 +291,16 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
             <ViewTitleInput>
               <Title>{selectedPost.title}</Title>
               <AuthorAndDate>
-                {selectedPost.author}
-                <Dot>·</Dot>
-                {selectedPost.date}
+                작성자: {selectedPost.author} | 작성일시: {selectedPost.date}
+              </AuthorAndDate>
+              <AuthorAndDate>
+                <span>마지막 수정 시간: {formattedUpdatedAt}</span>
               </AuthorAndDate>
             </ViewTitleInput>
+            <HorizontalLine />
             <Content
               dangerouslySetInnerHTML={{ __html: selectedPost.content }}
             />
-            <CommentContainer>
-              <CommentForm
-                postId={selectedRowId}
-                onAddComment={handleAddComment}
-                selectedPost={selectedPost}
-              />
-              <CommentList
-                comments={comments}
-                selectedPost={selectedPost}
-                setComments={setComments}
-                onDeleteComment={handleDeleteComment}
-              />
-            </CommentContainer>
           </FormContainer>
           <PostsButtonContainer>
             <PostsButton onClick={changePutView}>수정</PostsButton>
