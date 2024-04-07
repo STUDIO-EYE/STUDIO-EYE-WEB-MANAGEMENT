@@ -93,7 +93,7 @@ const ProjectDescription = styled.div`
 
 const ButtonsContainer = styled.div`
   position: absolute;
-  top: 10px;
+  top: 15px;
   right: 10px;
   display: flex;
   align-items: center;
@@ -101,7 +101,7 @@ const ButtonsContainer = styled.div`
 
 const DropdownMenu = styled.div`
   position: absolute;
-  top: 10px;
+  top: 15px;
   right: 10px;
   display: flex;
   flex-direction: column;
@@ -295,29 +295,43 @@ function OngoingProject() {
           (item: any) => item.isFinished === false
         );
         setProjects(checkedProjects.reverse());
-
+  
         // 각 프로젝트에 대한 정보를 가져와서 저장
         const projectDetails: any[] = await Promise.all(
           checkedProjects.map((project: Project) =>
             projectApi.getProjectDetails(project.projectId)
           )
         );
-
+  
         const token = sessionStorage.getItem("login-token");
         if (token) {
           const decodedToken: any = jwt_decode(token);
           setTokenUserId(decodedToken.userId);
-
-          
+  
+          // 사용자가 각 프로젝트의 멤버인지 확인
+          const isUserInProjects = projectDetails.map((projectDetail: any) => {
+            if (
+              projectDetail.data &&
+              projectDetail.data.data &&
+              projectDetail.data.data.leaderAndMemberList
+            ) {
+              return projectDetail.data.data.leaderAndMemberList.some(
+                (member: any) => member.userId === decodedToken.userId
+              );
+            }
+            return false;
+          });
+          setUserInProjects(isUserInProjects);
         }
         setCurrentDetailsProjects(projectDetails);
       } catch (error) {
         console.error("Error fetching the projects:", error);
       }
     };
-
+  
     fetchProjects();
   }, []);
+  
 
   const isTeamLeader = (projectDetails: any) => {
     if (!projectDetails || !projectDetails.data || !projectDetails.data.success) {
@@ -419,10 +433,6 @@ function OngoingProject() {
   function handleModifyClick(projectId: number): void {
     navigate(`/modify/${projectId}`);
   }
-
- 
-
-
   return (
     <AppContainer>
       <ProjectWrapper>
@@ -439,7 +449,7 @@ function OngoingProject() {
             currentProjects.map((project: Project, index) => (
               <ProjectItemWrapper key={project.projectId}>
 
-                {/* 임시 추가 */}
+                {/* 임시 추가: 팀장이면 왕관 표시 뜸 */}
                 {isTeamLeader(currentDetailsProjects[index]) && (
                   <div style={{ position: 'absolute', top: '5px', left: '20px' }}>
                     <FaCrown color="#ffa900" size={15} />
@@ -481,6 +491,16 @@ function OngoingProject() {
                     )}
                   </DropdownMenu>
                 )}
+
+                {/* 사용자가 프로젝트의 멤버 ㅇ -> 초록, ㄴ -> 빨강 */}
+                <div style={{ position: 'absolute', top: '15px', right: '40px' }}>
+                  {userInProjects[index] ? (
+                    <FaUser style={{ color: 'green' }} />
+                  ) : (
+                    <FaUserSlash style={{ color: 'red' }} />
+                  )}
+                </div>
+
               </ProjectItemWrapper>
             ))
           )}
