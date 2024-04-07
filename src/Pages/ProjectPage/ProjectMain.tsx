@@ -39,6 +39,10 @@ const Container = styled.div`
   position: relative;
   margin-left: 300px;
   width: calc(100% - 225px);
+
+  @media only screen and (max-width: 70rem){
+    flex-direction:column;
+  }
 `;
 
 const ProjectMain = () => {

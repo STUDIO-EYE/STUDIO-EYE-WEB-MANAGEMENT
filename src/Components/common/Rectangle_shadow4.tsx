@@ -12,7 +12,7 @@ const StyledRectangle=styled.div<rectangleProps>`
     padding: 0.2rem 1rem;
     flex-direction: column;
 
-    @media only screen and (max-width:50rem){\
+    @media only screen and (max-width:70rem){\
         width:100%;
     }
 `

@@ -12,6 +12,7 @@ import {
 } from "../../Components/common/Font";
 import projectApi from "../../api/projectApi";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const AppContainer = styled.div`
   text-align: center;
@@ -179,6 +180,8 @@ function FinishProject() {
   const [projects, setProjects] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const projectsPerPage = 10;
+  
+  const navigate = useNavigate();
 
 
   const indexOfLastProject = currentPage * projectsPerPage;
@@ -284,6 +287,10 @@ function FinishProject() {
     fetchProjects();
   }, []);
 
+  const handleRowClick = (projectId: number) => {
+    navigate(`/Manage/${projectId}`);
+  };
+
   return (
     <AppContainer>
       <ProjectWrapper>
@@ -296,7 +303,9 @@ function FinishProject() {
       <ProjectsContainer>
           {projects.map((project:any) => (
               <ProjectItemWrapper>
-                <ProjectItemContent>
+                <ProjectItemContent
+                onClick={() => handleRowClick(project.projectId)}
+                >
                   <div>
                     <ProjectTitle>{project.name}</ProjectTitle>
                     <ProjectPeriod>

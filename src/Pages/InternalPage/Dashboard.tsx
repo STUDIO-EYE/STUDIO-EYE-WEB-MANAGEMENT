@@ -4,6 +4,7 @@ import WeekCalendar from "./Dashboard/WeekCalendar";
 import Today from "./Dashboard/Today";
 import CheckList from "./Dashboard/CheckList";
 import RightDashboard from "./Dashboard/RightDashboard";
+import DashboardBody from "Components/common/DashboardBody";
 
 const DashboardBox = styled.div`
   display: flex;
@@ -16,16 +17,6 @@ const Title = styled.div`
   font-weight: bold;
   font-size: 24px;
   margin-bottom: 12px;
-`;
-
-const DashboardBody = styled.div`
-  width: 90%;
-  margin-left: 225px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  transition: height 0.3s ease-in-out;
-  position: relative; /* 상대 위치 설정 */
 `;
 
 const Panel = styled.div<{ expanded: boolean }>`
@@ -113,7 +104,7 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
     setExpanded(!expanded);
   };
 
-  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
+  const handleScroll = (event:React.UIEvent<HTMLDivElement>) => {
     const { scrollTop } = event.currentTarget;
     setScrolled(scrollTop > 0); /* 스크롤이 위로 올라가면 true, 아니면 false */
   };
@@ -123,7 +114,7 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
       <Arc scrolled={scrolled}> {/* scrolled prop 전달 */}
         <Title>{projectId}번 프로젝트</Title>
       </Arc>
-      <DashboardBody onScroll={handleScroll}> {/* 스크롤 이벤트 핸들러 추가 */}
+      <DashboardBody onScroll={()=>handleScroll}> {/* 스크롤 이벤트 핸들러 추가 */}
         <Panel expanded={expanded}>
           <Left expanded={expanded}>
             <LeftComponent>
