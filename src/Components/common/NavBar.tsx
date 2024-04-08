@@ -115,11 +115,11 @@ const NavBar = () => {
             <NavigationLink href="/">
               <FaBriefcase style={{ marginRight: '10px' }} /> Project
             </NavigationLink>
-            <NavigationLink href="/dashboard">
-              <FaChartLine style={{ marginRight: '10px' }} /> Manage
+            <NavigationLink href="/mypage">
+              <FaUser style={{ marginRight: '10px' }} /> My Page
             </NavigationLink>
             <NavigationLink href="#">
-              <FaUser style={{ marginRight: '10px' }} /> Auth
+              <FaChartLine style={{ marginRight: '10px' }} /> Auth
             </NavigationLink>
           </NavigationContent>
         </NavigationWrapper>
