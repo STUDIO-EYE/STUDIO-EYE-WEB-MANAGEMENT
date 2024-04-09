@@ -16,7 +16,6 @@ const DashboardBox = styled.div`
 const Title = styled.div`
   font-weight: bold;
   font-size: 24px;
-  margin-bottom: 12px;
 `;
 
 const Panel = styled.div<{ expanded: boolean }>`
@@ -71,15 +70,10 @@ const Button = styled.button`
   background-color: white;
 `;
 
-const Arc = styled.div<{ scrolled: boolean }>` /* 스크롤 여부에 따라 스타일 변경 */
+const Arc = styled.div<{ scrolled: boolean }>` /* 스크롤 여부에 따라 스타일 변경 하려고 했는데 안 됨 */
   margin-left: 225px;
   margin-bottom: 30px;
   display: flex;
-  position: absolute; /* 절대 위치 설정 */
-  transition: background-color 0.3s ease; /* 배경색 변경에 transition 적용 */
-  ${(props) =>
-    props.scrolled &&
-    "background-color: rgba(255, 255, 255, 0.8);"} /* 스크롤 시 반투명하게 설정 */
 `;
 
 const NewPanel = styled.button`
