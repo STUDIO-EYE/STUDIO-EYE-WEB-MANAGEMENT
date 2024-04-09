@@ -196,7 +196,7 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectId }) => {
         </BoardTitleDiv>
         <BoardContentDiv>
           {planData.length === 0 ? (
-            <div>게시글 내용이 없습니다</div>
+            <div style={{ color: "grey" }}>게시글이 없습니다.</div>
           ) : (
             planData.map((plan) => (
               <ContentDiv
@@ -216,7 +216,7 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectId }) => {
         </BoardTitleDiv>
         <BoardContentDiv>
           {productionDate.length === 0 ? (
-            <div>게시글 내용이 없습니다</div>
+            <div style={{ color: "grey" }}>게시글이 없습니다.</div>
           ) : (
             productionDate.map((production) => (
               <ContentDiv
@@ -236,7 +236,7 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectId }) => {
         </BoardTitleDiv>
         <BoardContentDiv>
           {editData.length === 0 ? (
-            <div>게시글 내용이 없습니다</div>
+            <div style={{ color: "grey" }}>게시글이 없습니다.</div>
           ) : (
             editData.map((edit) => (
               <ContentDiv
