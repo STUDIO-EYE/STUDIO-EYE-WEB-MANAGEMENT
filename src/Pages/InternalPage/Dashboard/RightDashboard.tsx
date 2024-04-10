@@ -16,6 +16,7 @@ interface RightBoardProps {
 }
 
 interface DashboardProps {
+  projectData: any;
   projectId: number;
 }
 
@@ -99,22 +100,22 @@ const GoButton = styled.div`
   margin-left: auto;
 `;
 
-const RightDashboard: React.FC<DashboardProps> = ({ projectId }) => {
+const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId }) => {
   const navigate = useNavigate();
   const [planData, setPlanData] = useState<Post[]>([]);
   const [productionDate, setProductionDate] = useState<Post[]>([]);
   const [editData, setEditData] = useState<Post[]>([]);
 
   const goToPlanPage = () => {
-    navigate(`/PlanMain/${projectId}`);
+    navigate(`/PlanMain/${projectId}`,{state:{name:projectData.name}});
   };
 
   const goToMakingPage = () => {
-    navigate(`/MakingMain/${projectId}`);
+    navigate(`/MakingMain/${projectId}`,{state:{name:projectData.name}});
   };
 
   const goToEditPage = () => {
-    navigate(`/EditMain/${projectId}`);
+    navigate(`/EditMain/${projectId}`,{state:{name:projectData.name}});
   };
 
   useEffect(() => {

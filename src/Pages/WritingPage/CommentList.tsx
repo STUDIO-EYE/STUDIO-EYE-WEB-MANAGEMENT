@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import commentApi from "../../api/commentApi";
 import jwt_decode from "jwt-decode";
+import { theme } from "LightTheme";
 
 interface Comment {
     id: number;
@@ -22,10 +23,10 @@ const FormContainer = styled.div`
 `;
 
 const Author = styled.div`
-  font-weight: bold;
-  margin-bottom: 0.07rem;
+  font-weight: 500;
   font-size: 1rem;
-  background-color: #d79278;
+  margin-bottom: 0.07rem;
+  background-color: ${theme.color.orange};
   border-radius: 15px;
   padding: 0.1rem 0.3rem;
   display: inline-block;
@@ -201,7 +202,8 @@ const CommentList = ({
                         <Content>{comment.content}</Content>
                     )}
                     <Date>
-                        {comment.updatedAt ? comment.updatedAt.toString() + "(수정됨)" : ""}
+                        {comment.updatedAt ? comment.updatedAt.toString() + "(수정됨)"
+                        : comment.createdAt.toString()}
                     </Date>
 
                 </FormContainer>

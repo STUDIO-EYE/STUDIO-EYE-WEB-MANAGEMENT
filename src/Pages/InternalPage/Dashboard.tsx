@@ -5,6 +5,7 @@ import Today from "./Dashboard/Today";
 import CheckList from "./Dashboard/CheckList";
 import RightDashboard from "./Dashboard/RightDashboard";
 import DashboardBody from "Components/common/DashboardBody";
+import { useLocation } from "react-router-dom";
 
 const DashboardBox = styled.div`
   display: flex;
@@ -99,6 +100,8 @@ const TodayChecklistContainer = styled.div`
 const Dashboard = ({ projectId }: { projectId: number }) => {
   const [expanded, setExpanded] = useState(false);
   const [scrolled, setScrolled] = useState(false); /* 스크롤 여부 상태 추가 */
+  const location=useLocation();
+  const projectInfo={...location.state}
 
   const toggleExpansion = () => {
     setExpanded(!expanded);
@@ -133,7 +136,7 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
               </LeftComponent>
             </TodayChecklistContainer>
           </Left>
-          <RightDashboard projectId={projectId} />
+          <RightDashboard projectData={projectInfo} projectId={projectId} />
         </Panel>
         {expanded && <NewPanel />}
       </DashboardBody>
