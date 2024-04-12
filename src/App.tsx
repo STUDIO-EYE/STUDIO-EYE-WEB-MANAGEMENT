@@ -4,6 +4,7 @@ import InternalMainpage from "./Pages/InternalPage/InternalMainpage";
 import EditNoticeMainpage from "./Pages/NoticeBoardPage/EditNoticePage/EditNoticeMainpage";
 import MakingNoticeMainpage from "./Pages/NoticeBoardPage/MakingNoticePage/MakingNoticeMainpage";
 import PlanNoticeMainpage from "./Pages/NoticeBoardPage/PlanNoticePage/PlanNoticeMainpage";
+import FileManagementMain from "./Pages/NoticeBoardPage/FileManagementPage/FileManagementMain";
 import LoginPage from "./Pages/Login/LoginPage";
 import SignInPage from "./Pages/Login/SignInPage";
 import ProjectMain from "./Pages/ProjectPage/ProjectMain";
@@ -17,6 +18,7 @@ function App() {
       <Routes>
         <Route path="/" element={<ProjectMain />} />
         <Route path="/Manage/:projectId" element={<InternalMainpage />} />
+        <Route path="/Manage/:projectId/file" element={<FileManagementMain />} />
         <Route path="/EditMain/:projectId/:postId?" element={<EditNoticeMainpage />} />
         <Route path="/MakingMain/:projectId/:postId?" element={<MakingNoticeMainpage />} />
         <Route path="/PlanMain/:projectId/:postId?" element={<PlanNoticeMainpage />} />
