@@ -138,7 +138,8 @@ const ScheduleItem = styled.p`
 interface Event {
   scheduleId: number;
   content: string;
-  date: string;
+  startDate: string;
+  endDate:string;
 }
 
 interface WeekCalendarProps {
@@ -248,14 +249,14 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
 
     return events.filter((e) => {
       const eventStartDate = new Date(
-        new Date(e.date).getFullYear(),
-        new Date(e.date).getMonth(),
-        new Date(e.date).getDate()
+        new Date(e.startDate).getFullYear(),
+        new Date(e.startDate).getMonth(),
+        new Date(e.startDate).getDate()
       ).getTime();
       const eventEndDate = new Date(
-        new Date(e.date).getFullYear(),
-        new Date(e.date).getMonth(),
-        new Date(e.date).getDate(),
+        new Date(e.endDate).getFullYear(),
+        new Date(e.endDate).getMonth(),
+        new Date(e.endDate).getDate(),
         23,
         59,
         59,
