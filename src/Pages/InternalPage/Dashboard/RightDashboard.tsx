@@ -57,6 +57,19 @@ const RightboardBody = styled.div<RightBoardProps>`
   ${(props) => props.isEditing && "margin-bottom: 100px;"}
 `;
 
+const GoToFilePageButton = styled.div<RightBoardProps>`
+  width: 90%;
+  margin-top: 1rem;
+  margin-left: 2rem;
+  flex-direction: column;
+  background-color: white;
+  overflow: hidden;
+  transition: height 0.3s ease-in-out;
+  flex: 1;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  ${(props) => props.isEditing && "margin-bottom: 100px;"}
+`;
+
 const BoardTitleDiv = styled.div`
   display: flex;
   text-align: center;
@@ -117,6 +130,10 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectId }) => {
     navigate(`/EditMain/${projectId}`);
   };
 
+  const goToFilePage = () => {
+    navigate(`/Manage/${projectId}/file`);
+  };
+
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -130,7 +147,7 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectId }) => {
         }
 
         const productionResponse = await boardApi.getProductionDashboard(
-            projectId
+          projectId
         );
         if (productionResponse.data && productionResponse.data.success) {
           setProductionDate(productionResponse.data.list);
@@ -168,6 +185,10 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectId }) => {
 
   return (
     <RightDashboardBox>
+      <GoToFilePageButton>
+        goToFilePage 버튼
+        <GoButton onClick={goToFilePage}>+</GoButton>
+      </GoToFilePageButton>
       <RightboardBody>
         <BoardTitleDiv>
           <TitleSm>기획</TitleSm>
@@ -175,7 +196,7 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectId }) => {
         </BoardTitleDiv>
         <BoardContentDiv>
           {planData.length === 0 ? (
-            <div>게시글 내용이 없습니다</div>
+            <div style={{ color: "grey" }}>게시글이 없습니다.</div>
           ) : (
             planData.map((plan) => (
               <ContentDiv
@@ -195,7 +216,7 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectId }) => {
         </BoardTitleDiv>
         <BoardContentDiv>
           {productionDate.length === 0 ? (
-            <div>게시글 내용이 없습니다</div>
+            <div style={{ color: "grey" }}>게시글이 없습니다.</div>
           ) : (
             productionDate.map((production) => (
               <ContentDiv
@@ -215,7 +236,7 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectId }) => {
         </BoardTitleDiv>
         <BoardContentDiv>
           {editData.length === 0 ? (
-            <div>게시글 내용이 없습니다</div>
+            <div style={{ color: "grey" }}>게시글이 없습니다.</div>
           ) : (
             editData.map((edit) => (
               <ContentDiv

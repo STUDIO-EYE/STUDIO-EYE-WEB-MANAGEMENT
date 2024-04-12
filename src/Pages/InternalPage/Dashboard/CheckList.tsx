@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
-import { FaPen } from "react-icons/fa";
+import { FaPen, FaTrash } from "react-icons/fa";
 import checkTodoApi from "../../../api/checkTodoApi";
-import { TitleSm } from "Components/common/Font";
+import { TextSm, TitleSm } from "Components/common/Font";
 
 interface TodoItem {
   todoIndex: number;
@@ -13,7 +13,183 @@ interface TodoItem {
   checked: boolean;
 }
 
-function CheckList({ projectId }: { projectId: number }) {
+const Container = styled.div`
+  max-width: 200px;
+  min-height: 150px; /* 기본 높이 설정 */
+  background-color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 20px auto;
+  border-radius: 15px;
+`;
+
+const List = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: -20px;
+`;
+
+const AddButton = styled.button`
+  background-color: transparent;
+  color: #a9a9a9;
+  border: none;
+  padding: 8px 16px;
+  font-size: 10px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+  }
+`;
+
+const ItemsList = styled.ul`
+  list-style-type: none;
+  padding: 0;
+  margin-top: 24px;
+`;
+
+const ItemContent = styled.span`
+  cursor: pointer;
+`;
+
+const Item = styled.li<{ completed: boolean }>`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 10px;
+  border-radius: 5px;
+  margin: 10px 0 10px 0;
+  background-color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  text-decoration: ${(props) => (props.completed ? "line-through" : "none")};
+  overflow-x: auto;
+  white-space: nowrap;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.08) white;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+  }
+`;
+
+const Checkbox = styled.input.attrs({ type: "checkbox" })``;
+
+const AddModal = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #ffffff;
+  padding: 20px;
+  width: 80%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  z-index: 1000;
+  text-align: center;
+
+  h3 {
+    margin-top: 0;
+  }
+  input {
+    font-family: 'Pretendard';
+    font-weight: 400;
+    border-color: rgba(0, 0, 0, 0.08);
+    font-size: 1rem;
+    border-radius: 5px;
+    &:focus {
+      border-color: #ffa900;
+      outline: none;
+    }
+  }
+`;
+
+const EditModal = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #ffffff;
+  padding: 20px;
+  width: 80%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  z-index: 1000;
+  text-align: center;
+
+  h3 {
+    margin-top: 0;
+  }
+  input {
+    font-family: 'Pretendard';
+    font-weight: 400;
+    border-color: rgba(0, 0, 0, 0.08);
+    font-size: 1rem;
+    border-radius: 5px;
+    &:focus {
+      border-color: #ffa900;
+      outline: none;
+    }
+  }
+`;
+
+const UrgencyLabel = styled.span`
+  margin-right: 5px;
+  font-weight: bold;
+  color: #ffa900;
+  white-space: nowrap;
+`;
+
+const DeleteButton = styled.button`
+  background-color: transparent;
+  border: none;
+  color: #ffa900;
+  cursor: pointer;
+  margin-left: auto;
+
+  &:hover {
+    color: rgba(0, 0, 0, 0.08);
+  }
+`;
+
+const AddModalButton = styled.button`
+  background-color: #ffa900;
+  color: white;
+  padding: 5px 15px;
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  margin: 10px 10px 0 10px;
+
+  &:hover {
+    background-color: white;
+    color: #ffa900;
+  }
+`;
+
+const EditModalButton = styled.button`
+  background-color: #ffa900;
+  color: white;
+  padding: 5px 15px;
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  margin: 10px 10px 0 10px;
+
+  &:hover {
+    background-color: white;
+    color: #ffa900;
+  }
+`;
+
+
+function CheckList({ projectId, updateProgress }: { projectId: number, updateProgress: (completed: number, total: number) => void }) {
   const [items, setItems] = useState<TodoItem[]>([]);
   const [message, setMessage] = useState<string>("");
   const navigate = useNavigate();
@@ -147,6 +323,15 @@ function CheckList({ projectId }: { projectId: number }) {
     return 0;
   });
 
+  // 완료된 항목 수 계산
+  const completedCount = sortedItems.filter(item => item.checked).length;
+  // 전체 항목 수
+  const totalCount = sortedItems.length;
+
+  useEffect(() => {
+    updateProgress(completedCount, totalCount);
+  }, [completedCount, totalCount, updateProgress]);
+
   return (
     <Container>
       <List>
@@ -166,7 +351,7 @@ function CheckList({ projectId }: { projectId: number }) {
             {item.todoEmergency ? <UrgencyLabel>[긴급]</UrgencyLabel> : null}
             <ItemContent onClick={() => { setEditIndex(item.todoIndex); setEditText(item.todoContent); setEditModal(true); }}>{item.todoContent}</ItemContent>
             <DeleteButton onClick={() => handleDelete(item.todoIndex)}>
-              x
+              <FaTrash />
             </DeleteButton>
           </Item>
         ))}
@@ -175,7 +360,7 @@ function CheckList({ projectId }: { projectId: number }) {
       </ItemsList>
       {showModal && (
         <AddModal>
-          <h2>Add Item</h2>
+          <h3>ToDo 추가</h3>
           <input
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
@@ -190,17 +375,20 @@ function CheckList({ projectId }: { projectId: number }) {
               긴급
             </label>
           </div>
-          <AddModalButton onClick={handleAdd}>Add</AddModalButton>
-          <AddModalButton onClick={() => setShowModal(false)}>Cancel</AddModalButton>
+          <AddModalButton onClick={handleAdd}>추가</AddModalButton>
+          <AddModalButton onClick={() => setShowModal(false)}>취소</AddModalButton>
         </AddModal>
       )}
       {showEditModal && (
         <EditModal>
-          <h2>Edit Item</h2>
+          <h3>ToDo 수정</h3>
           <input
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
           />
+          <div>
+
+          </div>
           <EditModalButton onClick={() => handleEdit(editIndex, editText)}>Save</EditModalButton>
           <EditModalButton onClick={() => setEditModal(false)}>Cancel</EditModalButton>
         </EditModal>
@@ -209,164 +397,5 @@ function CheckList({ projectId }: { projectId: number }) {
     </Container>
   );
 }
-const ItemContent = styled.span`
-  cursor: pointer;
-`;
-
-const Container = styled.div`
-  max-width: 225px;
-  min-height: 150px; /* 기본 높이 설정 */
-  background-color: #ffffff;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin: 20px auto;
-  border-radius: 15px;
-`;
-
-const List = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: -20px;
-`;
-
-const AddButton = styled.button`
-  background-color: transparent;
-  color: #a9a9a9;
-  border: none;
-  padding: 8px 16px;
-  font-size: 10px;
-  text-align: left;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background-color 0.3s;
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.08);
-  }
-`;
-
-const ItemsList = styled.ul`
-  list-style-type: none;
-  padding: 0;
-  margin-top: 24px;
-`;
-
-const Item = styled.li<{ completed: boolean }>`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  padding: 10px;
-  border-radius: 5px;
-  margin: 10px 0 10px 0;
-  background-color: #ffffff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  text-decoration: ${(props) => (props.completed ? "line-through" : "none")};
-  overflow-x: auto;
-
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.08) white;
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.08);
-  }
-`;
-
-const Checkbox = styled.input.attrs({ type: "checkbox" })``;
-
-const UrgencyLabel = styled.span`
-  margin-right: 5px;
-  font-weight: bold;
-  color: red;
-  white-space: nowrap;
-`;
-
-const DeleteButton = styled.button`
-  background-color: transparent;
-  color: red;
-  border-color: red;
-  padding: 5px 10px;
-  cursor: pointer;
-  border-radius: 15px;
-  margin-left: auto;
-  text-decoration: none;
-
-  &:hover {
-    background-color: red;
-    color: white;
-  }
-`;
-
-const AddModal = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #ffffff;
-  padding: 20px;
-  width: 80%;
-  max-width: 400px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-  z-index: 1000;
-  text-align: center;
-
-  h2 {
-    margin-top: 0;
-  }
-  input {
-    font-size: 1.3rem;
-  }
-`;
-
-const EditModal = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #ffffff;
-  padding: 20px;
-  width: 80%;
-  max-width: 400px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-  z-index: 1000;
-  text-align: center;
-
-  h2 {
-    margin-top: 0;
-  }
-  input {
-    font-size: 1.3rem;
-  }
-`;
-
-const AddModalButton = styled.button`
-  background-color: white;
-  color: #ff5722;
-  border-color: #ff5722;
-  padding: 5px 10px;
-  cursor: pointer;
-  border-radius: 16px;
-
-  &:hover {
-    background-color: #e64a19;
-    color: white;
-  }
-`;
-
-const EditModalButton = styled.button`
-  background-color: white;
-  color: #ff5722;
-  border-color: #ff5722;
-  padding: 5px 10px;
-  cursor: pointer;
-  border-radius: 16px;
-
-  &:hover {
-    background-color: #e64a19;
-    color: white;
-  }
-`;
 
 export default CheckList;

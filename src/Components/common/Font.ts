@@ -66,7 +66,7 @@ export const TextMd = styled.span`
 
 export const TextSm = styled.span`
   font-size: 0.875rem;
-  font-weight: normal;
+  font-weight: bold;
   @media ${media.mobile} {
     font-size: 1rem;
     font-weight: normal;

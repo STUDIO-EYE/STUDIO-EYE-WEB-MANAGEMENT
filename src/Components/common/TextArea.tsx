@@ -16,7 +16,7 @@ const StyledTextArea = styled.textarea<InputTextProps>`
   font-size: 1rem;
   vertical-align: middle;
 
-  @media only screen and (max-width:50rem){\
+  @media only screen and (max-width:50rem){
     width:97%;
 }
 
