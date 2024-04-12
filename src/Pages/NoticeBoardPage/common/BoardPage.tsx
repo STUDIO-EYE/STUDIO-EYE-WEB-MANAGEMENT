@@ -1,7 +1,7 @@
 // BoardPage.js
 import React, {useState, useEffect} from "react";
 import styled from "styled-components";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import Table from "./Table";
 import WritingPage from "../../WritingPage/WritingPage";
 import ViewWritingPage from "../../WritingPage/ViewWritingPage";
@@ -77,6 +77,9 @@ const WriteButton = styled.button`
 const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postId, category }
     :{subTitle:string,tableData:any,writingButtonContent:string,projectId:number,postId:number,category:string}) => {
     const navigate = useNavigate();
+    const location=useLocation();
+    const projectInfo={...location.state};
+
     const [showTable, setShowTable] = useState(true);
     const [showWritingPage, setShowWritingPage] = useState(false);
     const [showViewWritingPage, setShowViewWritingPage] = useState(false);
@@ -97,7 +100,7 @@ const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postI
     };
 
     const goToProjectPage = () => {
-        navigate(`/manage/${projectId}`);
+        navigate(`/manage/${projectId}`,{state:{name:projectInfo.name}});
     };
 
     const goToWritingPage = () => {
@@ -138,7 +141,7 @@ const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postI
                             <div>글쓰기</div>
                         ):(
                             <>
-                                <div onClick={goToProjectPage}>프로젝트명&nbsp;</div>
+                                <div onClick={goToProjectPage}>{projectInfo.name}&nbsp;</div>
                                 <div onClick={goToBoardPage}>{subTitle} 게시판</div>
                             </>
                         )

@@ -351,8 +351,8 @@ function OngoingProject() {
     navigate("/Project");
   };
 
-  const handleRowClick = (projectId: number) => {
-    navigate(`/Manage/${projectId}`);
+  const handleRowClick = (projectId: number,projectName:string) => {
+    navigate(`/Manage/${projectId}`,{state:{name:projectName}});
   };
 
   const goToHome = () => {
@@ -455,7 +455,7 @@ function OngoingProject() {
                     <FaCrown color="#ffa900" size={15} />
                   </div>
                 )}
-                <ProjectItemContent onClick={() => handleRowClick(project.projectId)}>
+                <ProjectItemContent onClick={() => handleRowClick(project.projectId,project.name)}>
                   <div>
                     <ProjectTitle>{project.name}</ProjectTitle>
                     <ProjectPeriod>

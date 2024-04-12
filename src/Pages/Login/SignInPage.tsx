@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ReactElement, ChangeEvent } from "react";
 import styled from "styled-components";
+import LoginIMG from "../../assets/logo/studioeye.png";
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import { media, TitleLg, TitleMd, TitleSm, TextLg, TextMd, TextSm } from '../../Components/common/Font';
+import InputText from "Components/common/InputText";
+import NewButton from "Components/common/NewButton";
+import { theme } from "LightTheme";
+import swal from 'sweetalert';
 
 const SignInContainer = styled.div`
   background: #FAFAFA;
@@ -18,23 +23,45 @@ const SignInContainer = styled.div`
   }
 `;
 
-const SignInBox = styled.div`
-  display: flex;
-  align-items: center;
-  background-color: #ffffff;
-  margin: 10px;
-  width: 70%;
-
-  @media ${media.mobile} {
-    padding: 20px;
-    display: inherit;
-    width: auto;
-  }
+const WhiteBoxContainer = styled.div`
+    // padding: 32px 256px 32px 256px;
+    height:100vh;
+    margin:0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
 `;
 
 const TitleCenterBox = styled.div`
   display: flex;
+  flex-direction:column;
   justify-content: center;
+  align-items: center;
+  max-width: 512px;
+`;
+const LoginImage = styled.img`
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 0.3rem;
+  opacity: 1;
+  transition: opacity 1s ease;
+`;
+
+const SignInBox = styled.div`
+  display: flex;
+  flex-direction:column;
+  align-items: center;
+  justify-content:center;
+  background-color: #ffffff;
+  margin: 10px;
+  width: 40vw;
+
+  @media ${media.half} {
+    width: 50vw;
+    padding: 20px;
+  }
 `;
 
 const SignInForm = styled.div`
@@ -45,23 +72,9 @@ const SignInForm = styled.div`
 `;
 
 const SubInputForm = styled.div`
+  width:100%;
   align-items: flex-start;
   padding: 0.5rem;
-`;
-
-const SubInputFormWithButton = styled.div`
-  display: flex;
-  width: auto;
-`;
-
-const Margin16px = styled.div`
-  margin: 1rem;
-`;
-
-const HorizontalLine = styled.div`
-  border-top: 1px solid #ccc; /* 가로 선 스타일 */
-  margin: 0.5rem 0; /* 원하는 간격 설정 */
-  width: 100%;
 `;
 
 const InputSize = styled.input`
@@ -118,20 +131,6 @@ const BtnWithInput = styled.button`
   }
 `;
 
-const WhiteBoxContainer = styled.div`
-    padding: 32px 256px 32px 256px; 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: #ffffff;
-    box-shadow: 0px 2px 4px 2px #E9E9E9;
-  
-    @media ${media.mobile}{
-      box-shadow: none;
-    }
-`;
-
 const HorizontalBox = styled.div`
   display: flex;
   justify-content: space-between;
@@ -149,6 +148,7 @@ function SignInPage() {
         verificationCode: "",
         role: "USER"
     });
+    const [pwcheck,setpwcheck]=useState("")
 
     const formatPhoneNumber = (value: string) => {
         const numericValue = value.replace(/\D/g, ''); // 숫자 이외의 문자 제거
@@ -168,24 +168,26 @@ function SignInPage() {
         return parts.join('-');
     };
 
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-
-        // phoneNumber 필드만 형식을 맞추고 나머지 필드는 그대로 유지
-        if (name === 'phoneNumber') {
+    const handleChange = (e:ChangeEvent<HTMLInputElement>) => {
+        if(e.target.name=="phoneNumber"){
             setFormData((prevData) => ({
                 ...prevData,
-                [name]: formatPhoneNumber(value),
+                ["phoneNumber"]: formatPhoneNumber(e.target.value),
             }));
-        } else {
+        }else{
             setFormData((prevData) => ({
                 ...prevData,
-                [name]: value,
+                [e.target.name]: e.target.value,
             }));
         }
     };
+    const handlePwCheck=(e:ChangeEvent<HTMLInputElement>)=>{
+        setpwcheck(e.target.value)
+    };
     const handleSubmit = () => {
+        if(formData.pwd!=pwcheck){
+            swal('비밀번호가 일치하지 않습니다.', "", 'error')
+        }
         // Send a POST request to your endpoint with formData.
         axios.post('/user-service/register', formData)
             .then((response) => {
@@ -280,86 +282,100 @@ function SignInPage() {
     //-----------------------------phoneNum--------------------------
 
     return (
-        <SignInContainer>
-            <WhiteBoxContainer className="WhiteBoxContainer">
-                <TitleCenterBox className="TitleCenterBox">
-                    <Margin16px><TitleLg>Sign In</TitleLg></Margin16px>
-                </TitleCenterBox>
-                <SignInBox className="SignInBox">
-                    <SubInputForm className="SubInputForm">
-                        <TextMd>Role</TextMd>
-                        <select
-                            name="role"
-                            value={formData.role}
-                            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                        >
-                            <option value="USER">사용자</option>
-                            <option value="ADMIN">관리자</option>
-                        </select>
+        <WhiteBoxContainer className="WhiteBoxContainer">
+
+            <TitleCenterBox>
+              <LoginImage src={LoginIMG} />
+              <TitleLg>MANAGEMENT PAGE</TitleLg>
+            </TitleCenterBox>
+
+            <TextMd>Role</TextMd>
+                <select
+                    name="role"
+                    value={formData.role}
+                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                >
+                    <option value="USER">사용자</option>
+                    <option value="ADMIN">관리자</option>
+                </select>
+
+            <SignInBox className="SignInBox">
+                    <SubInputForm className="SubInputFormWithButton">
+                        <TextMd>EMAIL</TextMd>
+                        <HorizontalBox>
+                            <InputText
+                                width={"100%"} height={""}
+                                name="email" value={formData.email}
+                                placeholder={"이메일을 입력하세요."}
+                                onChange={handleChange} data={formData}></InputText>
+                            <div style={{width:'1rem'}}/>
+                            <NewButton backcolor={theme.color.orange}
+                                textcolor={""} width={"10rem"} height={"2.2rem"}
+                                smallWidth={"5rem"} onClick={handleSendCode}>인증</NewButton>
+                        </HorizontalBox>
                     </SubInputForm>
 
-                    <SignInForm className="SignInForm">
-                        <SubInputForm className="SubInputFormWithButton">
-                            <TextMd>Email</TextMd>
+                    {isCodeSent && (
+                        <SubInputForm>
                             <HorizontalBox>
-                                <InputSizeWithBtn name="email"
-                                    value={formData.email}
-                                    onChange={handleChange} />
-                                <BtnWithInput onClick={handleSendCode}>Send</BtnWithInput>
+                                <TextMd>Email Verification Code</TextMd>
+                                {isTimerRunning && !isVerified && (
+                                    <TextMd>
+                                        {Math.floor(timeLeft / 60)}:
+                                        {timeLeft % 60 < 10 ? "0" + (timeLeft % 60).toString() : (timeLeft % 60).toString()}
+                                    </TextMd>
+                                )}
                             </HorizontalBox>
+                            <HorizontalBox>
+                            <InputText
+                                width={"100%"} height={""}
+                                name="verificationCode" value={formData.verificationCode}
+                                placeholder={"인증 코드를 입력하세요."}
+                                onChange={handleChange}/>
+                            <div style={{width:'1rem'}}/>
+                            <NewButton onClick={handleVerifiyCode}
+                                backcolor={theme.color.orange} width={"10rem"}
+                                height={"2.2rem"} smallWidth={"5rem"} >확인</NewButton>
+                            </HorizontalBox>
+                        </SubInputForm>
+                    )}
+                    <SubInputForm className="SubInputForm">
+                        <TextMd>Password</TextMd>
+                        <InputText
+                                width={"100%"} height={""}
+                                name="pwd" value={formData.pwd}
+                                placeholder={"비밀번호를 입력하세요."}
+                                onChange={handleChange} type="password"/>
+                    </SubInputForm>
+                    <SubInputForm className="SubInputForm">
+                        <TextMd>Confirm Password</TextMd>
+                        <InputText width={"100%"} height={""}
+                                name="pwdcheck" value={pwcheck}
+                                placeholder={"동일한 비밀번호를 입력하세요."}
+                                onChange={handlePwCheck} type="password"/>
+                    </SubInputForm>
+                    
+                    <SubInputForm className="SubInputForm">
+                        <TextMd>Name</TextMd>
+                        <InputText
+                                width={"100%"} height={""}
+                                name="name" value={formData.name}
+                                placeholder={"이름을 입력하세요."}
+                                onChange={handleChange}/>
+                    </SubInputForm>
+                    <SubInputForm className="SubInputForm">
+                        <TextMd>Phone</TextMd>
+                        <InputText
+                                width={"100%"} height={""}
+                                name="phoneNumber" value={formData.phoneNumber}
+                                placeholder={"010-0000-0000"}
+                                onChange={handleChange} type="tel"/>
+                    </SubInputForm>
+                    <NewButton backcolor={theme.color.orange}
+                    width={"100%"} height={"2.2rem"} onClick={handleSubmit}>제출</NewButton>
+            </SignInBox>
 
-                        </SubInputForm>
-                        {isCodeSent && (
-                            <SubInputForm>
-                                <HorizontalBox>
-                                    <TextMd>Email Verification Code</TextMd>
-                                    {isTimerRunning && !isVerified && (
-                                        <TextMd>
-                                            {Math.floor(timeLeft / 60)}:
-                                            {timeLeft % 60 < 10 ? "0" + (timeLeft % 60).toString() : (timeLeft % 60).toString()}
-                                        </TextMd>
-                                    )}
-                                </HorizontalBox>
-                                <InputSizeWithBtn name="verificationCode"
-                                    value={formData.verificationCode}
-                                    onChange={handleChange} />
-                                <BtnWithInput onClick={handleVerifiyCode}>Verify</BtnWithInput>
-                            </SubInputForm>
-                        )}
-                        <SubInputForm className="SubInputForm">
-                            <TextMd>Password</TextMd>
-                            <InputSize name="pwd"
-                                value={formData.pwd}
-                                onChange={handleChange}
-                                type="password"
-                            />
-                        </SubInputForm>
-                        <SubInputForm className="SubInputForm">
-                            <TextMd>Confirm Password</TextMd>
-                            <InputSize type="password" />
-                        </SubInputForm>
-                        <SubInputForm className="SubInputForm">
-                            <TextMd>Name</TextMd>
-                            <InputSize name="name"
-                                value={formData.name}
-                                onChange={handleChange}
-                            />
-                        </SubInputForm>
-                        <SubInputForm className="SubInputForm">
-                            <TextMd>Phone</TextMd>
-                            <InputSize name="phoneNumber"
-                                value={formData.phoneNumber}
-                                onChange={handleChange}
-                                type="tel"
-                                placeholder="010-1234-5678"
-                            />
-                        </SubInputForm>
-                        <SignInPageButton onClick={() => handleSubmit()}>Sign In</SignInPageButton>
-                    </SignInForm>
-                </SignInBox>
-
-            </WhiteBoxContainer>
-        </SignInContainer>
+        </WhiteBoxContainer>
     );
 }
 

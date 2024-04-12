@@ -5,6 +5,7 @@ import Today from "./Dashboard/Today";
 import CheckList from "./Dashboard/CheckList";
 import RightDashboard from "./Dashboard/RightDashboard";
 import DashboardBody from "Components/common/DashboardBody";
+import { useLocation } from "react-router-dom";
 import ProjectProgress from "./Dashboard/ProjectProgress";
 
 const DashboardBox = styled.div`
@@ -93,6 +94,8 @@ const TodayChecklistContainer = styled.div`
 
 const Dashboard = ({ projectId }: { projectId: number }) => {
   const [expanded, setExpanded] = useState(false);
+  const location=useLocation();
+  const projectInfo={...location.state}
   const [scrolled, setScrolled] = useState(false); /* 스크롤 여부 상태 */
 
   const [completedCount, setCompletedCount] = useState<number>(0);
@@ -137,7 +140,7 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
               </LeftComponent>
             </TodayChecklistContainer>
           </Left>
-          <RightDashboard projectId={projectId} />
+          <RightDashboard projectData={projectInfo} projectId={projectId} />
         </Panel>
         {expanded && <NewPanel />}
       </DashboardBody>
