@@ -13,12 +13,8 @@ interface TodoItem {
   checked: boolean;
 }
 
-const ItemContent = styled.span`
-  cursor: pointer;
-`;
-
 const Container = styled.div`
-  max-width: 225px;
+  max-width: 200px;
   min-height: 150px; /* 기본 높이 설정 */
   background-color: #ffffff;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
@@ -56,6 +52,10 @@ const ItemsList = styled.ul`
   margin-top: 24px;
 `;
 
+const ItemContent = styled.span`
+  cursor: pointer;
+`;
+
 const Item = styled.li<{ completed: boolean }>`
   display: flex;
   justify-content: flex-start;
@@ -67,6 +67,7 @@ const Item = styled.li<{ completed: boolean }>`
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   text-decoration: ${(props) => (props.completed ? "line-through" : "none")};
   overflow-x: auto;
+  white-space: nowrap;
 
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.08) white;
@@ -188,7 +189,7 @@ const EditModalButton = styled.button`
 `;
 
 
-function CheckList({ projectId }: { projectId: number }) {
+function CheckList({ projectId, updateProgress }: { projectId: number, updateProgress: (completed: number, total: number) => void }) {
   const [items, setItems] = useState<TodoItem[]>([]);
   const [message, setMessage] = useState<string>("");
   const navigate = useNavigate();
@@ -322,6 +323,15 @@ function CheckList({ projectId }: { projectId: number }) {
     return 0;
   });
 
+  // 완료된 항목 수 계산
+  const completedCount = sortedItems.filter(item => item.checked).length;
+  // 전체 항목 수
+  const totalCount = sortedItems.length;
+
+  useEffect(() => {
+    updateProgress(completedCount, totalCount);
+  }, [completedCount, totalCount, updateProgress]);
+
   return (
     <Container>
       <List>
@@ -377,7 +387,7 @@ function CheckList({ projectId }: { projectId: number }) {
             onChange={(e) => setEditText(e.target.value)}
           />
           <div>
-            
+
           </div>
           <EditModalButton onClick={() => handleEdit(editIndex, editText)}>Save</EditModalButton>
           <EditModalButton onClick={() => setEditModal(false)}>Cancel</EditModalButton>
