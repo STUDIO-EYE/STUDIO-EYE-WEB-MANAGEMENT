@@ -5,11 +5,12 @@ import { FaPen, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import scheduleApi from "../../../api/scheduleApi";
 import axios from "axios";
 import { TitleSm } from "Components/common/Font";
+import { theme } from "LightTheme";
+import NewButton from "Components/common/NewButton";
 
 const Container = styled.div`
   background-color: #ffffff;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
-  padding: 20px;
   margin-bottom: 50px;
   border-radius: 15px;
 `;
@@ -31,24 +32,24 @@ const CalendarHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
+  border-bottom: 0.1rem solid ${theme.color.gray20};
 `;
 
 const ArrowButton = styled.button`
   background-color: transparent;
   border: none;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 12px;
 `;
 
 const Calendar = styled.div`
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, 14%);
   gap: 1px;
-  border: 1px solid #e0e0e0;
+  // border: 1px solid #e0e0e0;
   max-width: 100%;
-  background-color: #f7f7f7;
-  margin-left: auto;
+  // background-color: #f7f7f7;
+  margin-left: 0.1rem;
   margin-right: auto;
 `;
 
@@ -84,13 +85,14 @@ const MoreButton = styled.button`
 `;
 
 const Modal = styled.div`
-  text-align: center;
+  text-align: start;
   position: fixed;
-  top: 50%;
+  top: 40%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-30%, -30%);
+  border-radius:10px;
   background-color: white;
-  padding: 20px;
+  padding: 1rem;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
 `;
@@ -101,7 +103,8 @@ const DayHeader = styled.div<{ isWeekend: boolean }>`
   justify-content: center;
   background-color: #ffffff;
   height: 30px;
-  font-size: 14px;
+  font-size: 12px;
+  font-weight: 500;
   color: ${(props) => (props.isWeekend ? "red" : "black")};
 `;
 
@@ -111,10 +114,11 @@ const Day = styled.div`
   align-items: flex-start;
   justify-content: flex-start;
   background-color: #ffffff;
-  height: 86px;
+  height: 4rem;
   font-size: 12px;
   color: black;
   cursor: pointer;
+  margin:0.1rem;
 
   &:hover {
     background-color: #e0e0e0;
@@ -135,6 +139,14 @@ const ScheduleItem = styled.p`
   cursor: pointer;
 `;
 
+const EventItem=styled.span`
+  cursor:pointer;
+  display:block;
+  font-size:0.9rem;
+  margin-bottom:0.2rem;
+  background-color:${theme.color.gray20};
+`;
+
 interface Event {
   scheduleId: number;
   content: string;
@@ -150,6 +162,9 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [events, setEvents] = useState<Event[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [showEvent,setShowEvent]=useState<{is:boolean;event:Event[]}>({
+    is:false,
+    event:[]});
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [message, setMessage] = useState<string>("");
 
@@ -309,19 +324,23 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
     }
   };
 
-  const days = ["일", "월", "화", "수", "목", "금", "토"];
+  const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
   return (
     <div className="App">
       <Container>
         <CalendarHeader>
-          <ArrowButton onClick={goToPreviousWeek}>
-            <FaArrowLeft />
-          </ArrowButton>
-          <span style={{ cursor: 'pointer' }} onClick={goToNewDate}>{currentDate.toDateString()}</span>
-          <ArrowButton onClick={goToNextWeek}>
-            <FaArrowRight />
-          </ArrowButton>
+          <span style={{cursor: 'pointer',fontSize:'0.8rem',margin:'1rem'}} onClick={goToNewDate}>
+            {currentDate.toLocaleString('en-GB',{month:'long'})+" "+currentDate.getFullYear()}
+          </span>
+          <div>
+            <ArrowButton onClick={goToPreviousWeek}>
+              <FaArrowLeft />
+            </ArrowButton>
+            <ArrowButton onClick={goToNextWeek} style={{margin:'1rem'}}>
+              <FaArrowRight />
+            </ArrowButton>
+          </div>
         </CalendarHeader>
         <Calendar>
           {days.map((day, index) => (
@@ -338,7 +357,8 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
                 key={date.toString()}
                 onClick={() => {
                   if (eventsForDate.length) {
-                    setEditingEvent(eventsForDate[0]);
+                    setShowEvent({is:true,event:eventsForDate});
+                    // setEditingEvent(eventsForDate[0]);
                     setShowModal(true);
                   }
                 }}
@@ -349,7 +369,8 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
                     key={index}
                     title={event.content}
                     onClick={() => {
-                      setEditingEvent(event);
+                      setShowEvent({is:true,event:eventsForDate});
+                      // setEditingEvent(event);
                       setShowModal(true);
                     }}
                     style={{ backgroundColor: getDayColor(date.getDay()) }}
@@ -362,7 +383,8 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
                 {hasMoreEvents && (
                   <MoreButton
                     onClick={() => {
-                      setEditingEvent(eventsForDate[0]);
+                      setShowEvent({is:true,event:eventsForDate});
+                      // setEditingEvent(eventsForDate[0]);
                       setShowModal(true);
                     }}
                   >
@@ -376,6 +398,19 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
 
           {showModal && (
             <Modal>
+              {showEvent.is&&(
+                <>
+                <span style={{fontWeight:'500', marginBottom:'0.5rem',display:'block'}}>이벤트 목록</span>
+                {showEvent.event.map((event)=>{
+                  return (
+                    <EventItem onClick={() => {
+                      setShowEvent({is:false,event:showEvent.event})
+                      setEditingEvent(event);
+                      }}>{event.content}</EventItem>
+                  )
+                })}
+                </>
+              )}
               {editingEvent && (
                 <div>
                   <textarea
@@ -402,7 +437,8 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
                   </button>
                 </div>
               )}
-              <button onClick={() => setShowModal(false)}>닫기</button>
+              <NewButton backcolor={theme.color.orange} width={"100%"} height={"1.2rem"} fontSize="0.8rem" onClick={()=>{setShowModal(false)
+                setEditingEvent(null)}}>닫기</NewButton>
             </Modal>
           )}
         </Calendar>

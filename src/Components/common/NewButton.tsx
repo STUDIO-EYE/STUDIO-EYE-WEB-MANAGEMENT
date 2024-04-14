@@ -13,12 +13,13 @@ interface RectangleProps{
   style?:any,
   onClick?:(event:MouseEvent<HTMLDivElement>)=>void;
   padding?:string;
+  fontSize?:string;
 }
 
 const StyledButton = styled.button<RectangleProps>`
   border: none;
   border-radius: 10px;
-  font-size: 1rem;
+  font-size: ${(prop)=>prop?prop.fontSize:'1rem'};
   padding: ${(prop)=>prop?prop.padding:'0.25rem 0'};
   outline: none;
   cursor: pointer;

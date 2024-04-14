@@ -7,6 +7,7 @@ import RightDashboard from "./Dashboard/RightDashboard";
 import DashboardBody from "Components/common/DashboardBody";
 import { useLocation } from "react-router-dom";
 import ProjectProgress from "./Dashboard/ProjectProgress";
+import { media } from "Components/common/Font";
 
 const DashboardBox = styled.div`
   display: flex;
@@ -26,6 +27,10 @@ const Panel = styled.div<{ expanded: boolean }>`
   flex: 1;
   height: ${(props) => (props.expanded ? "1000px" : "500px")};
   transition: height 0.3s ease-in-out;
+
+  @media ${media.half}{
+    flex-direction:column;
+  }
 `;
 
 const LeftComponent = styled.div`

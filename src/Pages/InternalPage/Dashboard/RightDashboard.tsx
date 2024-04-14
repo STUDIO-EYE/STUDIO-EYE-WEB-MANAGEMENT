@@ -130,6 +130,9 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId }) =>
   const goToEditPage = () => {
     navigate(`/EditMain/${projectId}`,{state:{name:projectData.name}});
   };
+  const goToEditWritingPage=()=>{
+    //edit 글쓰기 페이지로 이동
+  }
 
   const goToFilePage = () => {
     navigate(`/Manage/${projectId}/file`);
@@ -192,7 +195,7 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId }) =>
       </GoToFilePageButton>
       <RightboardBody>
         <BoardTitleDiv>
-          <TitleSm>기획</TitleSm>
+          <TitleSm onClick={goToPlanPage}>기획</TitleSm>
           <GoButton onClick={goToPlanPage}>+</GoButton>
         </BoardTitleDiv>
         <BoardContentDiv>
@@ -212,7 +215,7 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId }) =>
       </RightboardBody>
       <RightboardBody>
         <BoardTitleDiv>
-          <TitleSm>제작</TitleSm>
+          <TitleSm onClick={goToMakingPage}>제작</TitleSm>
           <GoButton onClick={goToMakingPage}>+</GoButton>
         </BoardTitleDiv>
         <BoardContentDiv>
@@ -232,7 +235,7 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId }) =>
       </RightboardBody>
       <RightboardBody isEditing>
         <BoardTitleDiv>
-          <TitleSm>편집</TitleSm>
+          <TitleSm onClick={goToEditPage}>편집</TitleSm>
           <GoButton onClick={goToEditPage}>+</GoButton>
         </BoardTitleDiv>
         <BoardContentDiv>
