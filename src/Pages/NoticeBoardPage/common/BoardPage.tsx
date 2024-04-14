@@ -95,6 +95,16 @@ const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postI
         }
     }, [postId]);
 
+    useEffect(()=>{
+        //처음에만 실행하는 useEffect
+        //writring이 넘어오면 실행
+        if(projectInfo&&projectInfo.writing){
+            setShowTable(false);
+            setShowWritingPage(true);
+            setShowViewWritingPage(false);
+        }
+    },[])
+
     const goToHomePage = () => {
         navigate("/");
     };
@@ -131,7 +141,6 @@ const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postI
 
     // WritingMainPage 컴포넌트가 마운트될 때 goToWritingMainPage 함수를 자동으로 호출
     return (
-        /**여기도 주의 class를 classname으로 바꿔봄*/
         <>
         <DashboardBody>
             <MainBody className="MainBody">
@@ -165,7 +174,7 @@ const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postI
                                     <Table tableData={tableData} onRowClick={handleRowClick} sortValue={selectedSortValue}/>
                                 </>
                             ) :  showWritingPage ? (
-                                <WritingPage projectId={projectId} category={category} />
+                                <WritingPage projectId={projectId} category={category} onBack={goToBoardPage}/>
                             ) : showViewWritingPage ? (
                                 <ViewWritingPage selectedRowId = {selectedRowId} projectId={projectId} postId={postId}/>
                             ) : null }
