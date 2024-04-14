@@ -60,7 +60,7 @@ const SelectedFileLabel = styled.label`
   margin-top: 0.5rem;
 `;
 
-const WritingPage = ({ projectId, category, onBack }: { projectId: number; category: string; onBack:any; }) => {
+const WritingPage = ({ projectId, category, onBack }:{ projectId: number, category: string, onBack:any; }) => {
   const [editorHtml, setEditorHtml] = useState("");
   const [title, setTitle] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -71,7 +71,7 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number; categ
     if (e.target.files && e.target.files.length > 0) {
       setSelectedFile(e.target.files[0]);
     }
-
+  }
   const handleContentChange=(e:React.ChangeEvent<HTMLTextAreaElement>)=>{
     setTitle(e.target.value);
   };
@@ -188,6 +188,5 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number; categ
     </>
   );
 };
-}
 
 export default WritingPage;
