@@ -72,6 +72,18 @@ const WritingPage = ({ projectId, category }: { projectId: number; category: str
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+// e.preventDefault();
+// e.persist();
+
+// const selectedFiles=e.target.files;
+// const fileUrlList=[...selectedFiles]
+// for (let i = 0; i < selectedFiles.length; i++) {
+//   const nowUrl = URL.createObjectURL(selectedFiles[i]);
+//   fileUrlList.push(nowUrl[i]);
+// }
+
+// setSelectedFiles(fileUrlList);
+
     if (e.target.files && e.target.files.length > 0) {
       setSelectedFile(e.target.files[0]);
     }
@@ -88,15 +100,21 @@ const WritingPage = ({ projectId, category }: { projectId: number; category: str
     }
 
     // FormData 생성
+    const data:{[key: string]: string }={
+      projectId:projectId.toString(),
+      title: title,
+      content:strippedHtml,
+      category: category,
+    }
+
     const formData = new FormData();
-    formData.append("projectId", projectId.toString());
-    formData.append("title", title);
-    formData.append("category", category);
-
-    formData.append("content", strippedHtml);
-
+    const json=JSON.stringify(data);
+    const blob=new Blob([json],{type:'application/json'});
+    formData.append("createPostDto",blob);
     if (selectedFile) {
-      formData.append("file", selectedFile);
+      formData.append("files", selectedFile);
+    }else{
+      formData.append("files","");
     }
 
     try {
@@ -142,6 +160,7 @@ const WritingPage = ({ projectId, category }: { projectId: number; category: str
 
   return (
     <>
+    {console.log(sessionStorage.getItem('login-token'))}
       <FormContainer>
         <WritingTitle style={{ margin: "0.5rem 0" }}>제목</WritingTitle>
         <InputText
@@ -171,7 +190,9 @@ const WritingPage = ({ projectId, category }: { projectId: number; category: str
           accept="image/*, application/pdf" // 이미지와 pdf 파일만 허용하는 걸로
         />
         <SelectedFileLabel htmlFor="file">파일 선택</SelectedFileLabel>
-        {selectedFile && <div>{selectedFile.name}</div>}
+        {selectedFile && <div onClick={()=>{
+          console.log(selectedFile)
+        }}>{selectedFile.name}</div>}
       </FormContainer>
       <PostsButtonContainer>
         <NewButton
