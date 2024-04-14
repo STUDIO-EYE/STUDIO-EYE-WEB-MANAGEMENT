@@ -76,6 +76,7 @@ const BoardTitleDiv = styled.div`
   text-align: center;
   margin: 20px;
   height: 20%;
+  cursor:pointer;
 `;
 
 const BoardContentDiv = styled.div`

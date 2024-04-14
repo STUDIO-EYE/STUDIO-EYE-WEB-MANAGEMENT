@@ -56,7 +56,7 @@ const Calendar = styled.div`
 const ManageButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
-  padding: 20px 0;
+  padding: 0 5px 10px 0;
 `;
 
 const ManageButton = styled.button`
@@ -69,7 +69,6 @@ const ManageButton = styled.button`
   align-items: flex-end;
   cursor: pointer;
   border-radius: 5px;
-  margin-top: -20px;
 
   transition: background-color 0.3s;
 
@@ -87,6 +86,9 @@ const MoreButton = styled.button`
 const Modal = styled.div`
   text-align: start;
   position: fixed;
+  width: 30%;
+  height: 20%;
+  overflow-x: hidden;
   top: 40%;
   left: 50%;
   transform: translate(-30%, -30%);
@@ -114,7 +116,7 @@ const Day = styled.div`
   align-items: flex-start;
   justify-content: flex-start;
   background-color: #ffffff;
-  height: 4rem;
+  height: 3rem;
   font-size: 12px;
   color: black;
   cursor: pointer;
@@ -142,9 +144,11 @@ const ScheduleItem = styled.p`
 const EventItem=styled.span`
   cursor:pointer;
   display:block;
-  font-size:0.9rem;
+  font-size:0.85rem;
   margin-bottom:0.2rem;
-  background-color:${theme.color.gray20};
+  padding: 0.2rem;
+  background-color:${theme.color.gray10};
+  border-radius: 5px;
 `;
 
 interface Event {
@@ -351,7 +355,6 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
 
           {currentWeekDates.map((date) => {
             const eventsForDate = findEventsForDate(date);
-            const hasMoreEvents = eventsForDate.length > 3;
             return (
               <Day
                 key={date.toString()}
@@ -364,33 +367,14 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
                 }}
               >
                 <div>{date.getDate()}</div>
-                {eventsForDate.slice(0, 3).map((event, index) => (
-                  <ScheduleItem
-                    key={index}
-                    title={event.content}
-                    onClick={() => {
-                      setShowEvent({is:true,event:eventsForDate});
-                      // setEditingEvent(event);
-                      setShowModal(true);
-                    }}
-                    style={{ backgroundColor: getDayColor(date.getDay()) }}
-                  >
-                    {event.content.length > 5
-                      ? `${event.content.substring(0, 5)}...`
-                      : event.content}
+                <ScheduleItem
+                  onClick={() => {
+                    setShowEvent({is:true,event:eventsForDate});
+                    setShowModal(true);
+                  }}
+                  style={{ backgroundColor: getDayColor(date.getDay()) }}>
+                    {eventsForDate.length!=0?eventsForDate.length:""}
                   </ScheduleItem>
-                ))}
-                {hasMoreEvents && (
-                  <MoreButton
-                    onClick={() => {
-                      setShowEvent({is:true,event:eventsForDate});
-                      // setEditingEvent(eventsForDate[0]);
-                      setShowModal(true);
-                    }}
-                  >
-                    더보기..
-                  </MoreButton>
-                )}
               </Day>
             );
           })}
@@ -406,7 +390,9 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
                     <EventItem onClick={() => {
                       setShowEvent({is:false,event:showEvent.event})
                       setEditingEvent(event);
-                      }}>{event.content}</EventItem>
+                      }}>{
+                        event.content.length>22?event.content.slice(0,22)+"...":
+                        event.content}</EventItem>
                   )
                 })}
                 </>
@@ -414,6 +400,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
               {editingEvent && (
                 <div>
                   <textarea
+                    style={{width:'100%',height:'4rem',marginBottom:'0.5rem'}}
                     value={editingEvent.content}
                     onChange={(e) => {
                       if (editingEvent) {
@@ -425,19 +412,20 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
                       }
                     }}
                   />
-                  <button
+                  <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"30%"} height={""} margin="0 5% 0.3rem 0"
                     onClick={() =>
-                      editingEvent && handleEditEventSave(editingEvent.scheduleId, editingEvent.content)
-                    }
-                  >
-                    수정 저장
-                  </button>
-                  <button onClick={() => editingEvent && handleDeleteEvent(editingEvent.scheduleId)}>
-                    삭제
-                  </button>
+                      editingEvent && handleEditEventSave(editingEvent.scheduleId, editingEvent.content)}>수정</NewButton>
+                  <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"30%"} height={""} margin="0 5% 0 0"
+                    onClick={() =>
+                      editingEvent && handleDeleteEvent(editingEvent.scheduleId)}>삭제</NewButton>
+                  <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"30%"} height={""} margin="0 0 0 0"
+                    onClick={() => {
+                      setEditingEvent(null)
+                      setShowEvent({is:true,event:showEvent.event})
+                    }}>취소</NewButton>
                 </div>
               )}
-              <NewButton backcolor={theme.color.orange} width={"100%"} height={"1.2rem"} fontSize="0.8rem" onClick={()=>{setShowModal(false)
+              <NewButton backcolor={theme.color.orange} width={"100%"} height={"1.2rem"} onClick={()=>{setShowModal(false)
                 setEditingEvent(null)}}>닫기</NewButton>
             </Modal>
           )}

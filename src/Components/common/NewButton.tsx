@@ -14,6 +14,7 @@ interface RectangleProps{
   onClick?:(event:MouseEvent<HTMLDivElement>)=>void;
   padding?:string;
   fontSize?:string;
+  margin?:string;
 }
 
 const StyledButton = styled.button<RectangleProps>`
@@ -27,6 +28,7 @@ const StyledButton = styled.button<RectangleProps>`
   background-color: ${(prop)=>prop.backcolor};
   width: ${(prop)=>prop.width};
   height: ${(prop)=>prop.height};
+  margin: ${(prop)=>prop.margin};
 
   &:hover {
     opacity: 0.6;
