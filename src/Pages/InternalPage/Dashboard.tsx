@@ -5,7 +5,9 @@ import Today from "./Dashboard/Today";
 import CheckList from "./Dashboard/CheckList";
 import RightDashboard from "./Dashboard/RightDashboard";
 import DashboardBody from "Components/common/DashboardBody";
+import { useLocation } from "react-router-dom";
 import ProjectProgress from "./Dashboard/ProjectProgress";
+import { media } from "Components/common/Font";
 
 const DashboardBox = styled.div`
   display: flex;
@@ -25,11 +27,15 @@ const Panel = styled.div<{ expanded: boolean }>`
   flex: 1;
   height: ${(props) => (props.expanded ? "1000px" : "500px")};
   transition: height 0.3s ease-in-out;
+
+  @media ${media.half}{
+    flex-direction:column;
+  }
 `;
 
 const LeftComponent = styled.div`
   height: 33.33%;
-  margin-bottom: 50px;
+  margin-bottom: 20px;
 `;
 
 const Left = styled.div<{ expanded: boolean }>`
@@ -88,6 +94,8 @@ const TodayChecklistContainer = styled.div`
 
 const Dashboard = ({ projectId }: { projectId: number }) => {
   const [expanded, setExpanded] = useState(false);
+  const location=useLocation();
+  const projectInfo={...location.state}
   const [scrolled, setScrolled] = useState(false); /* 스크롤 여부 상태 */
 
   const [completedCount, setCompletedCount] = useState<number>(0);
@@ -132,7 +140,7 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
               </LeftComponent>
             </TodayChecklistContainer>
           </Left>
-          <RightDashboard projectId={projectId} />
+          <RightDashboard projectData={projectInfo} projectId={projectId} />
         </Panel>
         {expanded && <NewPanel />}
       </DashboardBody>

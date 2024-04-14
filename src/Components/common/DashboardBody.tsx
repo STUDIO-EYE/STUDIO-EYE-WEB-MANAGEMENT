@@ -7,7 +7,7 @@ const StyledDashboardBody = styled.div`
   margin-left: 225px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+//   overflow: hidden;
   transition: height 0.3s ease-in-out;
   position: relative; /* 상대 위치 설정 */
 `;

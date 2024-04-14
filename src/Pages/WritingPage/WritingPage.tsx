@@ -67,26 +67,13 @@ const WritingPage = ({ projectId, category }: { projectId: number; category: str
 
   const navigate = useNavigate();
 
-  const handleContentChange = (content: string) => {
-    setTitle(content);
-  };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-// e.preventDefault();
-// e.persist();
-
-// const selectedFiles=e.target.files;
-// const fileUrlList=[...selectedFiles]
-// for (let i = 0; i < selectedFiles.length; i++) {
-//   const nowUrl = URL.createObjectURL(selectedFiles[i]);
-//   fileUrlList.push(nowUrl[i]);
-// }
-
-// setSelectedFiles(fileUrlList);
-
     if (e.target.files && e.target.files.length > 0) {
       setSelectedFile(e.target.files[0]);
     }
+
+  const handleContentChange=(e:React.ChangeEvent<HTMLTextAreaElement>)=>{
+    setTitle(e.target.value);
   };
 
   const addPost = async () => {
@@ -195,28 +182,12 @@ const WritingPage = ({ projectId, category }: { projectId: number; category: str
         }}>{selectedFile.name}</div>}
       </FormContainer>
       <PostsButtonContainer>
-        <NewButton
-          onClick={addPost}
-          textcolor="white"
-          backcolor={theme.color.orange}
-          width={"6rem"}
-          height={"2rem"}
-          style={{ marginLeft: "1rem" }}
-        >
-          등록
-        </NewButton>
-        <NewButton
-          onClick={goToPreviousPage}
-          textcolor="black"
-          backcolor={theme.color.white}
-          width={"6rem"}
-          height={"2rem"}
-        >
-          취소
-        </NewButton>
+        <NewButton onClick={addPost} textcolor="white" backcolor={theme.color.orange} width={"6rem"} height={"2rem"} style={{marginLeft:'1rem'}}>등록</NewButton>
+        <NewButton onClick={onBack} textcolor="black" backcolor={theme.color.white} width={"6rem"} height={"2rem"}>취소</NewButton>
       </PostsButtonContainer>
     </>
   );
 };
+}
 
 export default WritingPage;

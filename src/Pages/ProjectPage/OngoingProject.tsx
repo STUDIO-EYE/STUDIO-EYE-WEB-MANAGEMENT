@@ -379,8 +379,8 @@ function OngoingProject() {
     navigate("/Project");
   };
 
-  const handleRowClick = (projectId: number) => {
-    navigate(`/Manage/${projectId}`);
+  const handleRowClick = (projectId: number,projectName:string) => {
+    navigate(`/Manage/${projectId}`,{state:{name:projectName}});
   };
 
   const goToHome = () => {
@@ -485,7 +485,13 @@ function OngoingProject() {
           {currentDetailsProjects.length > 0 && (
             currentProjects.map((project: Project, index) => (
               <ProjectItemWrapper key={project.projectId}>
-                <ProjectItemContent onClick={() => handleRowClick(project.projectId)}>
+                {/* 임시 추가: 팀장이면 왕관 표시 뜸 */}
+                {isTeamLeader(currentDetailsProjects[index]) && (
+                  <div style={{ position: 'absolute', top: '5px', left: '20px' }}>
+                    <FaCrown color="#ffa900" size={15} />
+                  </div>
+                )}
+                <ProjectItemContent onClick={() => handleRowClick(project.projectId,project.name)}>
                   <div>
                     <ProjectTitle>{project.name}</ProjectTitle>
                     <ProjectPeriod>
