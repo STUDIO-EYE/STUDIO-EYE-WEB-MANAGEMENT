@@ -1,23 +1,10 @@
 import Body from 'Components/common/Body';
-import React, { useState } from 'react';
-import styled, { createGlobalStyle } from "styled-components";
-
-const GlobalStyle = createGlobalStyle`
-  body {
-    font-family: 'Pretandard';
-  }
-`;
+import React from 'react';
+import styled, { createGlobalStyle } from 'styled-components';
+import FileManagementMainContent from './FileManagementMainContent';
 
 
 const FileManagementMain = () => {
-  const FileManagementMainContent = () => {
-    return (
-      <>
-        <GlobalStyle />
-        
-      </>
-    );
-  };
 
   return (
     <Body>
@@ -25,4 +12,5 @@ const FileManagementMain = () => {
     </Body>
   );
 };
+
 export default FileManagementMain;

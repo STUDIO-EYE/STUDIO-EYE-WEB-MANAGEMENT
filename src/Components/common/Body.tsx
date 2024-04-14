@@ -71,9 +71,7 @@ const Body = ({ children }: BodyProps) => {
 
   return (
     <>
-      <HeaderBlock>
-        <NEWheader />
-      </HeaderBlock>
+      
       <NavBarContainer>
         <NavBar />
       </NavBarContainer>
