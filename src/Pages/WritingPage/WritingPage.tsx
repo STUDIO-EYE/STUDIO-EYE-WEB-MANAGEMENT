@@ -60,7 +60,7 @@ const SelectedFileLabel = styled.label`
   margin-top: 0.5rem;
 `;
 
-const WritingPage = ({ projectId, category }: { projectId: number; category: string }) => {
+const WritingPage = ({ projectId, category, onBack }: { projectId: number; category: string; onBack:any; }) => {
   const [editorHtml, setEditorHtml] = useState("");
   const [title, setTitle] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
