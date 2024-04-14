@@ -54,7 +54,7 @@ const PostsButtonContainer = styled.div`
   justify-content: flex-end;
 `;
 
-const WritingPage = ({ projectId, category }:{projectId:number,category:string}) => {
+const WritingPage = ({ projectId, category, onBack }:{projectId:number,category:string,onBack:any}) => {
   const [editorHtml, setEditorHtml] = useState(""); // Quill Editor의 HTML 내용을 저장하는 상태
   const [title, setTitle] = useState(""); // 제목을 저장하는 상태
 
@@ -65,8 +65,8 @@ const WritingPage = ({ projectId, category }:{projectId:number,category:string})
     }, 100);
   };
 
-  const handleContentChange=(content:string)=>{
-    setTitle(content);
+  const handleContentChange=(e:React.ChangeEvent<HTMLTextAreaElement>)=>{
+    setTitle(e.target.value);
   };
 
   const addPost = async () => {
@@ -148,7 +148,7 @@ const WritingPage = ({ projectId, category }:{projectId:number,category:string})
       </FormContainer>
       <PostsButtonContainer>
         <NewButton onClick={addPost} textcolor="white" backcolor={theme.color.orange} width={"6rem"} height={"2rem"} style={{marginLeft:'1rem'}}>등록</NewButton>
-        <NewButton onClick={goToPreviousPage} textcolor="black" backcolor={theme.color.white} width={"6rem"} height={"2rem"}>취소</NewButton>
+        <NewButton onClick={onBack} textcolor="black" backcolor={theme.color.white} width={"6rem"} height={"2rem"}>취소</NewButton>
       </PostsButtonContainer>
     </>
   );
