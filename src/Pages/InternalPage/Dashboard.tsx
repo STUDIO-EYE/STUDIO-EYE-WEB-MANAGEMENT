@@ -72,15 +72,10 @@ const Button = styled.button`
   background-color: white;
 `;
 
-const Arc = styled.div<{ scrolled: boolean }>` /* 스크롤 여부에 따라 스타일 변경 */
+const Arc = styled.div<{ scrolled: boolean }>`
   margin-left: 225px;
   margin-bottom: 30px;
   display: flex;
-  position: absolute; /* 절대 위치 설정 */
-  transition: background-color 0.3s ease; /* 배경색 변경에 transition 적용 */
-  ${(props) =>
-    props.scrolled &&
-    "background-color: rgba(255, 255, 255, 0.8);"} /* 스크롤 시 반투명하게 설정 */
 `;
 
 const NewPanel = styled.button`
@@ -93,7 +88,7 @@ const NewPanel = styled.button`
 
 const TodayChecklistContainer = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr; /* 두 칸으로 분할 */
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
 `;
 

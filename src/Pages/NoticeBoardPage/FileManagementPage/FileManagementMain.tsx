@@ -1,28 +1,15 @@
 import Body from 'Components/common/Body';
-import React, { useState } from 'react';
-import styled, { createGlobalStyle } from "styled-components";
-
-const GlobalStyle = createGlobalStyle`
-  body {
-    font-family: 'Pretandard';
-  }
-`;
-
+import React from 'react';
+import FileManagementMainContent from './FileManagementMainContent';
 
 const FileManagementMain = () => {
-  const FileManagementMainContent = () => {
-    return (
-      <>
-        <GlobalStyle />
-        
-      </>
-    );
-  };
+  const projectId = 2; // projectId를 숫자 2로 고정
 
   return (
     <Body>
-      <FileManagementMainContent />
+      <FileManagementMainContent projectId={projectId} />
     </Body>
   );
 };
+
 export default FileManagementMain;

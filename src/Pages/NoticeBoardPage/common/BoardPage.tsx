@@ -72,6 +72,7 @@ const WriteButton = styled.button`
 //     background-color: #FF7C7C;
 //     color: white;
     cursor: pointer;
+  }
 `;
 
 const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postId, category }
