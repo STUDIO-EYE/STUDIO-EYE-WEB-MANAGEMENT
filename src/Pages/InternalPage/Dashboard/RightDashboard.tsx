@@ -16,6 +16,7 @@ interface RightBoardProps {
 }
 
 interface DashboardProps {
+  projectData: any;
   projectId: number;
 }
 
@@ -110,25 +111,45 @@ const GoButton = styled.div`
   font-weight: 600;
   font-size: 1.5rem;
   margin-left: auto;
+  
+  &:hover{
+    opacity:0.5;
+  }
 `;
 
-const RightDashboard: React.FC<DashboardProps> = ({ projectId }) => {
+const BoardTitleText=styled.div`
+cursor:pointer;
+&:hover{
+  opacity:0.5;
+}
+`;
+
+const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId }) => {
   const navigate = useNavigate();
   const [planData, setPlanData] = useState<Post[]>([]);
   const [productionDate, setProductionDate] = useState<Post[]>([]);
   const [editData, setEditData] = useState<Post[]>([]);
 
   const goToPlanPage = () => {
-    navigate(`/PlanMain/${projectId}`);
+    navigate(`/PlanMain/${projectId}`,{state:{name:projectData.name}});
   };
+  const goToPlanWritingPage=()=>{//plan 글쓰기 페이지로 이동
+    navigate(`/PlanMain/${projectId}`,{state:{name:projectData.name, writing:true}})
+  }
 
   const goToMakingPage = () => {
-    navigate(`/MakingMain/${projectId}`);
+    navigate(`/MakingMain/${projectId}`,{state:{name:projectData.name}});
   };
+  const goToMakingWritingPage=()=>{//making 글쓰기 페이지로 이동
+    navigate(`/MakingMain/${projectId}`,{state:{name:projectData.name, writing:true}})
+  }
 
   const goToEditPage = () => {
-    navigate(`/EditMain/${projectId}`);
+    navigate(`/EditMain/${projectId}`,{state:{name:projectData.name}});
   };
+  const goToEditWritingPage=()=>{//edit 글쓰기 페이지로 이동
+    navigate(`/EditMain/${projectId}`,{state:{name:projectData.name, writing:true}})
+  }
 
   const goToFilePage = () => {
     navigate(`/Manage/${projectId}/files`);
@@ -191,8 +212,8 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectId }) => {
       </GoToFilePageButton>
       <RightboardBody>
         <BoardTitleDiv>
-          <TitleSm>기획</TitleSm>
-          <GoButton onClick={goToPlanPage}>+</GoButton>
+          <BoardTitleText><TitleSm onClick={goToPlanPage}>기획</TitleSm></BoardTitleText>
+          <GoButton onClick={goToPlanWritingPage}>+</GoButton>
         </BoardTitleDiv>
         <BoardContentDiv>
           {planData.length === 0 ? (
@@ -211,8 +232,8 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectId }) => {
       </RightboardBody>
       <RightboardBody>
         <BoardTitleDiv>
-          <TitleSm>제작</TitleSm>
-          <GoButton onClick={goToMakingPage}>+</GoButton>
+          <TitleSm onClick={goToMakingPage}>제작</TitleSm>
+          <GoButton onClick={goToMakingWritingPage}>+</GoButton>
         </BoardTitleDiv>
         <BoardContentDiv>
           {productionDate.length === 0 ? (
@@ -231,8 +252,8 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectId }) => {
       </RightboardBody>
       <RightboardBody isEditing>
         <BoardTitleDiv>
-          <TitleSm>편집</TitleSm>
-          <GoButton onClick={goToEditPage}>+</GoButton>
+          <TitleSm onClick={goToEditPage}>편집</TitleSm>
+          <GoButton onClick={goToEditWritingPage}>+</GoButton>
         </BoardTitleDiv>
         <BoardContentDiv>
           {editData.length === 0 ? (
