@@ -160,8 +160,10 @@ const UploadedFilesComponent: React.FC = () => {
     const [files, setFiles] = useState<File[]>([]);
     const { projectId } = useParams<{ projectId: string }>(); // URL에서 projectId 추출
     const [searchKeyword, setSearchKeyword] = useState<string>('');
-    const [searchResults, setSearchResults] = useState<{ id: number; title: string; }[]>([]);
-    const [recentSearches, setRecentSearches] = useState<string[]>([]);
+    const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+        const savedSearches = localStorage.getItem("recentSearches");
+        return savedSearches ? JSON.parse(savedSearches) : [];
+    });
 
     const MAX_RECENT_SEARCHES = 10;
 
@@ -192,16 +194,13 @@ const UploadedFilesComponent: React.FC = () => {
         // 검색어에 해당하는 파일만 필터링해서 보여줌
         const results = files.filter(file => file.fileName.includes(searchKeyword));
         setFiles(results);
-    };
 
+        // 최근 검색어에 추가
+        const newRecentSearches = [searchKeyword, ...recentSearches.slice(0, MAX_RECENT_SEARCHES - 1)];
+        setRecentSearches(newRecentSearches);
 
-    const someFunctionToGetSearchResults = (keyword: string) => {
-        const mockResults = [
-            { id: 1, title: '검색 결과 1' },
-            { id: 2, title: '검색 결과 2' },
-            { id: 3, title: '검색 결과 3' },
-        ];
-        return mockResults.filter(result => result.title.includes(keyword));
+        // 로컬 스토리지에 최근 검색어 저장
+        localStorage.setItem("recentSearches", JSON.stringify(newRecentSearches));
     };
 
     const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -214,6 +213,9 @@ const UploadedFilesComponent: React.FC = () => {
         const updatedRecentSearches = [...recentSearches];
         updatedRecentSearches.splice(index, 1);
         setRecentSearches(updatedRecentSearches);
+
+        // 로컬 스토리지에서 최근 검색어 제거
+        localStorage.setItem("recentSearches", JSON.stringify(updatedRecentSearches));
     };
 
     return (
@@ -253,7 +255,6 @@ const UploadedFilesComponent: React.FC = () => {
                 ))}
             </FileContainer>
         </Container>
-
     );
 };
 
