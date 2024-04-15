@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Body from "../../Components/common/Body";
 import styled from "styled-components";
 import ReactQuill from "react-quill";
@@ -12,6 +12,7 @@ import Button from "Components/common/Button";
 import NewButton from "Components/common/NewButton";
 import { theme } from "LightTheme";
 import { left } from "@popperjs/core";
+import FileManagementMainContent from "Pages/NoticeBoardPage/FileManagementPage/FileManagementMainContent";
 
 const FormContainer = styled.div`
   display: flex;
@@ -60,21 +61,20 @@ const SelectedFileLabel = styled.label`
   margin-top: 0.5rem;
 `;
 
-const WritingPage = ({ projectId, category }: { projectId: number; category: string }) => {
+const WritingPage = ({ projectId, category, onBack }: { projectId: number, category: string, onBack: any; }) => {
   const [editorHtml, setEditorHtml] = useState("");
   const [title, setTitle] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const navigate = useNavigate();
 
-  const handleContentChange = (content: string) => {
-    setTitle(content);
-  };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setSelectedFile(e.target.files[0]);
     }
+  }
+  const handleContentChange = (value: string) => {
+    setTitle(value);
   };
 
   const addPost = async () => {
@@ -88,15 +88,21 @@ const WritingPage = ({ projectId, category }: { projectId: number; category: str
     }
 
     // FormData 생성
+    const data: { [key: string]: string } = {
+      projectId: projectId.toString(),
+      title: title,
+      content: strippedHtml,
+      category: category,
+    }
+
     const formData = new FormData();
-    formData.append("projectId", projectId.toString());
-    formData.append("title", title);
-    formData.append("category", category);
-
-    formData.append("content", strippedHtml);
-
+    const json = JSON.stringify(data);
+    const blob = new Blob([json], { type: 'application/json' });
+    formData.append("createPostDto", blob);
     if (selectedFile) {
-      formData.append("file", selectedFile);
+      formData.append("files", selectedFile);
+    } else {
+      formData.append("files", "");
     }
 
     try {
@@ -171,28 +177,13 @@ const WritingPage = ({ projectId, category }: { projectId: number; category: str
           accept="image/*, application/pdf" // 이미지와 pdf 파일만 허용하는 걸로
         />
         <SelectedFileLabel htmlFor="file">파일 선택</SelectedFileLabel>
-        {selectedFile && <div>{selectedFile.name}</div>}
+        {selectedFile && <div onClick={() => {
+          console.log(selectedFile)
+        }}>{selectedFile.name}</div>}
       </FormContainer>
       <PostsButtonContainer>
-        <NewButton
-          onClick={addPost}
-          textcolor="white"
-          backcolor={theme.color.orange}
-          width={"6rem"}
-          height={"2rem"}
-          style={{ marginLeft: "1rem" }}
-        >
-          등록
-        </NewButton>
-        <NewButton
-          onClick={goToPreviousPage}
-          textcolor="black"
-          backcolor={theme.color.white}
-          width={"6rem"}
-          height={"2rem"}
-        >
-          취소
-        </NewButton>
+        <NewButton onClick={addPost} textcolor="white" backcolor={theme.color.orange} width={"6rem"} height={"2rem"} style={{ marginLeft: '1rem' }}>등록</NewButton>
+        <NewButton onClick={onBack} textcolor="black" backcolor={theme.color.white} width={"6rem"} height={"2rem"}>취소</NewButton>
       </PostsButtonContainer>
     </>
   );

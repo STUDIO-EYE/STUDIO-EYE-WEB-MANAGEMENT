@@ -12,13 +12,14 @@ import Project from "./Pages/ProjectPage/Project";
 import Manage from "./Pages/InternalPage/Dashboard/Manage";
 import ModifyProject from "./Pages/ProjectPage/ModifyProject";
 import { Routes, Route } from "react-router-dom";
+import UploadedFilesComponent from 'Pages/NoticeBoardPage/FileManagementPage/UploadedFilesComponent';
 
 function App() {
   return (
       <Routes>
         <Route path="/" element={<ProjectMain />} />
         <Route path="/Manage/:projectId" element={<InternalMainpage />} />
-        <Route path="/Manage/:projectId/file" element={<FileManagementMain />} />
+        <Route path="/Manage/:projectId/files" element={<UploadedFilesComponent />} />
         <Route path="/EditMain/:projectId/:postId?" element={<EditNoticeMainpage />} />
         <Route path="/MakingMain/:projectId/:postId?" element={<MakingNoticeMainpage />} />
         <Route path="/PlanMain/:projectId/:postId?" element={<PlanNoticeMainpage />} />

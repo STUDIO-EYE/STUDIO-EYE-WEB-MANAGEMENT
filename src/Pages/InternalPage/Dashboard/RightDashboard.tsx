@@ -131,7 +131,7 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectId }) => {
   };
 
   const goToFilePage = () => {
-    navigate(`/Manage/${projectId}/file`);
+    navigate(`/Manage/${projectId}/files`);
   };
 
   useEffect(() => {

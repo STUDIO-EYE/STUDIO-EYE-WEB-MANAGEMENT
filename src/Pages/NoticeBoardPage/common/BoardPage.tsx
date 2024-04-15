@@ -1,7 +1,7 @@
 // BoardPage.js
 import React, {useState, useEffect} from "react";
 import styled from "styled-components";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import Table from "./Table";
 import WritingPage from "../../WritingPage/WritingPage";
 import ViewWritingPage from "../../WritingPage/ViewWritingPage";
@@ -72,11 +72,15 @@ const WriteButton = styled.button`
 //     background-color: #FF7C7C;
 //     color: white;
     cursor: pointer;
+  }
 `;
 
 const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postId, category }
     :{subTitle:string,tableData:any,writingButtonContent:string,projectId:number,postId:number,category:string}) => {
     const navigate = useNavigate();
+    const location=useLocation();
+    const projectInfo={...location.state};
+
     const [showTable, setShowTable] = useState(true);
     const [showWritingPage, setShowWritingPage] = useState(false);
     const [showViewWritingPage, setShowViewWritingPage] = useState(false);
@@ -92,12 +96,22 @@ const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postI
         }
     }, [postId]);
 
+    useEffect(()=>{
+        //처음에만 실행하는 useEffect
+        //writring이 넘어오면 실행
+        if(projectInfo&&projectInfo.writing){
+            setShowTable(false);
+            setShowWritingPage(true);
+            setShowViewWritingPage(false);
+        }
+    },[])
+
     const goToHomePage = () => {
         navigate("/");
     };
 
     const goToProjectPage = () => {
-        navigate(`/manage/${projectId}`);
+        navigate(`/manage/${projectId}`,{state:{name:projectInfo.name}});
     };
 
     const goToWritingPage = () => {
@@ -128,7 +142,6 @@ const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postI
 
     // WritingMainPage 컴포넌트가 마운트될 때 goToWritingMainPage 함수를 자동으로 호출
     return (
-        /**여기도 주의 class를 classname으로 바꿔봄*/
         <>
         <DashboardBody>
             <MainBody className="MainBody">
@@ -138,7 +151,7 @@ const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postI
                             <div>글쓰기</div>
                         ):(
                             <>
-                                <div onClick={goToProjectPage}>프로젝트명&nbsp;</div>
+                                <div onClick={goToProjectPage}>{projectInfo.name}&nbsp;</div>
                                 <div onClick={goToBoardPage}>{subTitle} 게시판</div>
                             </>
                         )
@@ -162,7 +175,7 @@ const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postI
                                     <Table tableData={tableData} onRowClick={handleRowClick} sortValue={selectedSortValue}/>
                                 </>
                             ) :  showWritingPage ? (
-                                <WritingPage projectId={projectId} category={category} />
+                                <WritingPage projectId={projectId} category={category} onBack={goToBoardPage}/>
                             ) : showViewWritingPage ? (
                                 <ViewWritingPage selectedRowId = {selectedRowId} projectId={projectId} postId={postId}/>
                             ) : null }
