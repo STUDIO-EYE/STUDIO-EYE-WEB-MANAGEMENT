@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import {TextLg, TextMd, TextSm, TableText} from "../../../Components/common/Font";
 
@@ -50,8 +50,11 @@ const TableCellCenter = styled.td`
 `;
 
 
-const Table = ({  tableData, onRowClick, sortValue }
-  :{tableData:any,onRowClick:any, sortValue:string}) => {
+const Table = ({  tableData, fetchTable, onRowClick, sortValue }
+  :{tableData:any, fetchTable: any,onRowClick:any, sortValue:string}) => {
+    useEffect(()=>{
+      fetchTable()
+    },[])
 
     // Table의 열을 클릭했을 때 호출될 함수
     const sendDataBoard = (rowId:number) => {
@@ -63,12 +66,18 @@ const Table = ({  tableData, onRowClick, sortValue }
       let datestrings:string[]=date.split(" ")
       return datestrings[0]+"-"+datestrings[1]+"-"+datestrings[2]
     };
+    const changeSortDate=(date: string) :string=>{
+      date=date.replaceAll(/년|월|일/gi,"")
+      let datestrings:string[]=date.split(" ")
+      return datestrings[0]+"-"+datestrings[1]+"-"+datestrings[2]+" "+datestrings[3]
+    };
     //게시글 정렬 함수(최신순, 오래된순)
     const sortData=()=>{
+      console.log(tableData)
       const sortedData=[...tableData];
       sortedData.sort((a:any,b:any)=>{
-        const dateA = new Date(changeDate(a.startDate));
-        const dateB = new Date(changeDate(b.startDate));
+        const dateA = new Date(changeSortDate(a.startDate));
+        const dateB = new Date(changeSortDate(b.startDate));
 
         switch(sortValue){
           case '최신순':return dateB.getTime() - dateA.getTime();

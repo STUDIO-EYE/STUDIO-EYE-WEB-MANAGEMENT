@@ -54,6 +54,7 @@ const PlanNoticeManinpage = () => {
         <Body>
                 <BoardPage subTitle={subTitle}
                            tableData={tableData}
+                           fetchTable={fetchData}
                            writingButtonContent={writingButtonContent}
                            projectId={projectId}
                            postId={postId}
