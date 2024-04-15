@@ -19,7 +19,7 @@ function App() {
       <Routes>
         <Route path="/" element={<ProjectMain />} />
         <Route path="/Manage/:projectId" element={<InternalMainpage />} />
-        <Route path="/Manage/:projectId/files" element={<UploadedFilesComponent />} />
+        <Route path="/Manage/:projectId/files" element={<FileManagementMain />} />
         <Route path="/EditMain/:projectId/:postId?" element={<EditNoticeMainpage />} />
         <Route path="/MakingMain/:projectId/:postId?" element={<MakingNoticeMainpage />} />
         <Route path="/PlanMain/:projectId/:postId?" element={<PlanNoticeMainpage />} />

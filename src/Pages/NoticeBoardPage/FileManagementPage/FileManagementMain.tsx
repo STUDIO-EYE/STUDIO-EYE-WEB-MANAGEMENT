@@ -1,13 +1,13 @@
 import Body from 'Components/common/Body';
 import React from 'react';
 import FileManagementMainContent from './FileManagementMainContent';
+import UploadedFilesComponent from './UploadedFilesComponent';
 
 const FileManagementMain = () => {
-  const projectId = 2; // projectId를 숫자 2로 고정
 
   return (
     <Body>
-      <FileManagementMainContent projectId={projectId} />
+      <UploadedFilesComponent />
     </Body>
   );
 };
