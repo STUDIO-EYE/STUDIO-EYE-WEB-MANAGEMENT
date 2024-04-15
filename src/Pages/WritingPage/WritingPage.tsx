@@ -74,8 +74,8 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
       setSelectedFile(e.target.files[0]);
     }
   }
-  const handleContentChange = (value: string) => {
-    setTitle(value);
+  const handleContentChange = (e:React.ChangeEvent<HTMLTextAreaElement>) => {
+    setTitle(e.target.value);
   };
 
   const addPost = async () => {
@@ -112,9 +112,10 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
       const response = await boardApi.postBoard(formData);
       if (response.data.success) {
         alert("게시글이 성공적으로 작성되었습니다.");
-        setTimeout(function () {
-          window.location.reload();
-        }, 100);
+        onBack()
+        // setTimeout(function () {
+        //   window.location.reload();
+        // }, 100);
 
         setTitle("");
         setEditorHtml("");
@@ -150,7 +151,6 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
 
   return (
     <>
-    {console.log(sessionStorage.getItem('login-token'))}
       <FormContainer>
         <WritingTitle style={{ margin: "0.5rem 0" }}>제목</WritingTitle>
         <InputText

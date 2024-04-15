@@ -75,8 +75,8 @@ const WriteButton = styled.button`
   }
 `;
 
-const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postId, category }
-    :{subTitle:string,tableData:any,writingButtonContent:string,projectId:number,postId:number,category:string}) => {
+const BoardPage = ({subTitle , tableData, fetchTable , writingButtonContent, projectId,postId, category }
+    :{subTitle:string,tableData:any,fetchTable:any,writingButtonContent:string,projectId:number,postId:number,category:string}) => {
     const navigate = useNavigate();
     const location=useLocation();
     const projectInfo={...location.state};
@@ -172,7 +172,7 @@ const BoardPage = ({subTitle , tableData , writingButtonContent, projectId,postI
                                             <option value='오래된순'>오래된순</option>
                                         </Selector>
                                     </div>
-                                    <Table tableData={tableData} onRowClick={handleRowClick} sortValue={selectedSortValue}/>
+                                    <Table tableData={tableData} fetchTable={fetchTable} onRowClick={handleRowClick} sortValue={selectedSortValue}/>
                                 </>
                             ) :  showWritingPage ? (
                                 <WritingPage projectId={projectId} category={category} onBack={goToBoardPage}/>
