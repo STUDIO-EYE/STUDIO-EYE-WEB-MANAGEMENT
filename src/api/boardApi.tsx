@@ -40,7 +40,11 @@ const boardApi: BoardApi = {
   },
   // 게시글 작성
   postBoard: async (data) => {
-    const response = await axios.post('/api/posts', data);
+    const response = await axios.post('/api/posts', data,{
+      headers:{
+        'Content-Type':'multipart/form-data',
+      }
+    });
     return response;
   },
   // 게시글 수정

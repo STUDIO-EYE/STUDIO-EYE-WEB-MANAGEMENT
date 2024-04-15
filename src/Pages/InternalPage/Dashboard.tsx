@@ -5,6 +5,9 @@ import Today from "./Dashboard/Today";
 import CheckList from "./Dashboard/CheckList";
 import RightDashboard from "./Dashboard/RightDashboard";
 import DashboardBody from "Components/common/DashboardBody";
+import { useLocation } from "react-router-dom";
+import ProjectProgress from "./Dashboard/ProjectProgress";
+import { media } from "Components/common/Font";
 
 const DashboardBox = styled.div`
   display: flex;
@@ -24,11 +27,15 @@ const Panel = styled.div<{ expanded: boolean }>`
   flex: 1;
   height: ${(props) => (props.expanded ? "1000px" : "500px")};
   transition: height 0.3s ease-in-out;
+
+  @media ${media.half}{
+    flex-direction:column;
+  }
 `;
 
 const LeftComponent = styled.div`
   height: 33.33%;
-  margin-bottom: 50px;
+  margin-bottom: 20px;
 `;
 
 const Left = styled.div<{ expanded: boolean }>`
@@ -56,12 +63,6 @@ const Left = styled.div<{ expanded: boolean }>`
   }
 `;
 
-const Temp = styled.div`
-  height: 200px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
-  border-radius: 15px;
-`;
-
 const Line = styled.div`
   height: 80px;
 `;
@@ -71,15 +72,10 @@ const Button = styled.button`
   background-color: white;
 `;
 
-const Arc = styled.div<{ scrolled: boolean }>` /* 스크롤 여부에 따라 스타일 변경 */
+const Arc = styled.div<{ scrolled: boolean }>`
   margin-left: 225px;
   margin-bottom: 30px;
   display: flex;
-  position: absolute; /* 절대 위치 설정 */
-  transition: background-color 0.3s ease; /* 배경색 변경에 transition 적용 */
-  ${(props) =>
-    props.scrolled &&
-    "background-color: rgba(255, 255, 255, 0.8);"} /* 스크롤 시 반투명하게 설정 */
 `;
 
 const NewPanel = styled.button`
@@ -92,19 +88,30 @@ const NewPanel = styled.button`
 
 const TodayChecklistContainer = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr; /* 두 칸으로 분할 */
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
 `;
 
 const Dashboard = ({ projectId }: { projectId: number }) => {
   const [expanded, setExpanded] = useState(false);
-  const [scrolled, setScrolled] = useState(false); /* 스크롤 여부 상태 추가 */
+  const location=useLocation();
+  const projectInfo={...location.state}
+  const [scrolled, setScrolled] = useState(false); /* 스크롤 여부 상태 */
+
+  const [completedCount, setCompletedCount] = useState<number>(0);
+  const [totalCount, setTotalCount] = useState<number>(0);
+
+  const updateProgress = (completed: number, total: number) => {
+    setCompletedCount(completed);
+    setTotalCount(total);
+    console.log("개수" + completed);
+  };
 
   const toggleExpansion = () => {
     setExpanded(!expanded);
   };
 
-  const handleScroll = (event:React.UIEvent<HTMLDivElement>) => {
+  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop } = event.currentTarget;
     setScrolled(scrollTop > 0); /* 스크롤이 위로 올라가면 true, 아니면 false */
   };
@@ -114,14 +121,14 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
       <Arc scrolled={scrolled}> {/* scrolled prop 전달 */}
         <Title>{projectId}번 프로젝트</Title>
       </Arc>
-      <DashboardBody onScroll={()=>handleScroll}> {/* 스크롤 이벤트 핸들러 추가 */}
+      <DashboardBody onScroll={() => handleScroll}> {/* 스크롤 이벤트 핸들러 추가 */}
         <Panel expanded={expanded}>
           <Left expanded={expanded}>
             <LeftComponent>
-              <Temp />
+              <WeekCalendar projectId={projectId} />
             </LeftComponent>
             <LeftComponent>
-              <WeekCalendar projectId={projectId} />
+              <ProjectProgress completedCount={completedCount} totalCount={totalCount} />
             </LeftComponent>
             {/* Today와 CheckList를 감싸는 컨테이너 추가 */}
             <TodayChecklistContainer>
@@ -129,11 +136,11 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
                 <Today projectId={projectId} />
               </LeftComponent>
               <LeftComponent>
-                <CheckList projectId={projectId} />
+                <CheckList projectId={projectId} updateProgress={updateProgress} />
               </LeftComponent>
             </TodayChecklistContainer>
           </Left>
-          <RightDashboard projectId={projectId} />
+          <RightDashboard projectData={projectInfo} projectId={projectId} />
         </Panel>
         {expanded && <NewPanel />}
       </DashboardBody>

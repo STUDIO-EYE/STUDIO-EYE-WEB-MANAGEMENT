@@ -30,7 +30,7 @@ const Container = styled.div`
 
 const ProjectWrapper = styled.div`
   width: 400px;
-  background-color: #ffffff;
+  background-color: white;
   padding: 20px;
   margin-right: 50px;
   margin-bottom: 100px;
@@ -134,6 +134,7 @@ const DeleteButton = styled.button`
     background-color: rgba(0, 0, 0, 0.08);
   }
 `;
+
 const CompleteButton = styled.button`
   background-color: white;
   border: none;
@@ -146,6 +147,7 @@ const CompleteButton = styled.button`
     background-color: rgba(0, 0, 0, 0.08);
   }
 `;
+
 const ModifyButton = styled.button`
   background-color: transparent;
   border: none;
@@ -196,6 +198,32 @@ const PaginationContainer = styled.div`
   .active .page-link {
     font-weight: bold;
   }
+`;
+
+const MemberInfo = styled.div`
+  display: flex;
+  font-size: 0.8rem;
+`;
+
+const MemberInitials = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  margin-right: 5px;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  background-color: ${props => props.color || "#FFA900"};
+  color: white;
+`;
+
+const CrownIcon = styled(FaCrown)`
+  position: absolute;
+  top: 5px;
+  left: 20px;
+  color: #ffa900;
 `;
 
 function OngoingProject() {
@@ -295,19 +323,19 @@ function OngoingProject() {
           (item: any) => item.isFinished === false
         );
         setProjects(checkedProjects.reverse());
-  
+
         // 각 프로젝트에 대한 정보를 가져와서 저장
         const projectDetails: any[] = await Promise.all(
           checkedProjects.map((project: Project) =>
             projectApi.getProjectDetails(project.projectId)
           )
         );
-  
+
         const token = sessionStorage.getItem("login-token");
         if (token) {
           const decodedToken: any = jwt_decode(token);
           setTokenUserId(decodedToken.userId);
-  
+
           // 사용자가 각 프로젝트의 멤버인지 확인
           const isUserInProjects = projectDetails.map((projectDetail: any) => {
             if (
@@ -328,10 +356,10 @@ function OngoingProject() {
         console.error("Error fetching the projects:", error);
       }
     };
-  
+
     fetchProjects();
   }, []);
-  
+
 
   const isTeamLeader = (projectDetails: any) => {
     if (!projectDetails || !projectDetails.data || !projectDetails.data.success) {
@@ -351,8 +379,8 @@ function OngoingProject() {
     navigate("/Project");
   };
 
-  const handleRowClick = (projectId: number) => {
-    navigate(`/Manage/${projectId}`);
+  const handleRowClick = (projectId: number,projectName:string) => {
+    navigate(`/Manage/${projectId}`,{state:{name:projectName}});
   };
 
   const goToHome = () => {
@@ -427,12 +455,21 @@ function OngoingProject() {
     }));
   };
 
-
   const isDropdownOpen = (projectId: number) => dropdownOpen[projectId] || false;
 
   function handleModifyClick(projectId: number): void {
     navigate(`/modify/${projectId}`);
   }
+
+  const generateRandomColor = () => {
+    const letters = "0123456789ABCDEF";
+    let color = "#";
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  };
+
   return (
     <AppContainer>
       <ProjectWrapper>
@@ -448,27 +485,45 @@ function OngoingProject() {
           {currentDetailsProjects.length > 0 && (
             currentProjects.map((project: Project, index) => (
               <ProjectItemWrapper key={project.projectId}>
-
                 {/* 임시 추가: 팀장이면 왕관 표시 뜸 */}
                 {isTeamLeader(currentDetailsProjects[index]) && (
                   <div style={{ position: 'absolute', top: '5px', left: '20px' }}>
                     <FaCrown color="#ffa900" size={15} />
                   </div>
                 )}
-                <ProjectItemContent onClick={() => handleRowClick(project.projectId)}>
+                <ProjectItemContent onClick={() => handleRowClick(project.projectId,project.name)}>
                   <div>
                     <ProjectTitle>{project.name}</ProjectTitle>
                     <ProjectPeriod>
                       {project.startDate.toString()}~{project.finishDate.toString()}
                     </ProjectPeriod>
                     <ProjectDescription>{project.description}</ProjectDescription>
+                    <MemberInfo>
+                      {userInProjects[index] ? (
+                        <>
+                          {currentDetailsProjects[index]?.data?.data?.leaderAndMemberList
+                            ?.map((member: any, memberIndex: number) => (
+                              <MemberInitials
+                                key={member.userId}
+                                color={`hsl(${(memberIndex * 50) % 360}, 50%, 50%)`} // 랜덤 배정이지만 새로고침해도 고정된 색상이 될 수 있도록
+                              >
+                                {member.name.slice(-2)}
+                              </MemberInitials>
+                            ))}
+                          {isTeamLeader(currentDetailsProjects[index]) && (
+                            <CrownIcon size={15} />
+                          )}
+                        </>
+                      ) : (
+                        <span style={{ color: 'red' }}>해당 프로젝트의 멤버가 아닙니다.</span>
+                      )}
+                    </MemberInfo>
                   </div>
                   <ButtonsContainer>
                     <DropdownButton onClick={(e) => toggleDropdown(e, project.projectId)}>
                       <FaEllipsisH />
                     </DropdownButton>
                   </ButtonsContainer>
-
                 </ProjectItemContent>
                 {isDropdownOpen(project.projectId) && (
                   <DropdownMenu>
@@ -491,16 +546,6 @@ function OngoingProject() {
                     )}
                   </DropdownMenu>
                 )}
-
-                {/* 사용자가 프로젝트의 멤버 ㅇ -> 초록, ㄴ -> 빨강 */}
-                <div style={{ position: 'absolute', top: '15px', right: '40px' }}>
-                  {userInProjects[index] ? (
-                    <FaUser style={{ color: 'green' }} />
-                  ) : (
-                    <FaUserSlash style={{ color: 'red' }} />
-                  )}
-                </div>
-
               </ProjectItemWrapper>
             ))
           )}

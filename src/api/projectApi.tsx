@@ -15,6 +15,7 @@ interface ProjectApi {
   pingTest: () => Promise<any>;
   getProjectDetails: (projectId: number) => Promise<any>;
   getProjectById: (projectId: number) => Promise<any>;
+  getFileList: (projectId: number) => Promise<any>;
 }
 
 const projectApi: ProjectApi = {
@@ -53,7 +54,12 @@ const projectApi: ProjectApi = {
   getProjectById: async (projectId: number) => {
     const response = await axios.get(`/api/projects/${projectId}`);
     return response;
-  }
+  },
+  getFileList: async (projectId: number) => {
+    const response = await axios.get(`/api/projects/${projectId}/files`);
+    return response;
+  },
+
 };
 
 export default projectApi;

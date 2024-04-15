@@ -7,12 +7,12 @@ export const media = {
 };
 
 export const TitleLg = styled.span`
-  font-size: 5rem;
-  font-weight: 900;
+  font-size: 1rem;
+  font-weight: 500;
 
   @media ${media.mobile} {
     font-size: 1.875rem;
-    font-weight: 600;
+    font-weight: 500;
   }
 `;
 
@@ -34,15 +34,6 @@ export const TitleSm = styled.span`
     font-weight: 600;
   }
 `;
-export const TextLg = styled.span`
-  font-size: 1.125rem;
-  font-weight: 600;
-
-  @media ${media.mobile} {
-    font-size: 1.125rem;
-    font-weight: 600;
-  }
-`;
 
 export const TableText=styled.span`
   font-size: 0.9rem;
@@ -51,6 +42,16 @@ export const TableText=styled.span`
 
   @media ${media.half}{
     font-size: 0.8rem;
+  }
+`;
+
+export const TextLg = styled.span`
+  font-size: 1.125rem;
+  font-weight: 600;
+
+  @media ${media.mobile} {
+    font-size: 1.125rem;
+    font-weight: 600;
   }
 `;
 
@@ -66,7 +67,7 @@ export const TextMd = styled.span`
 
 export const TextSm = styled.span`
   font-size: 0.875rem;
-  font-weight: normal;
+  font-weight: bold;
   @media ${media.mobile} {
     font-size: 1rem;
     font-weight: normal;
