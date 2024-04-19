@@ -170,6 +170,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
     is:false,
     event:[]});
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [isChanging,setIsChanging]=useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
 
   const navigate = useNavigate();
@@ -400,7 +401,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
               {editingEvent && (
                 <div>
                   <textarea
-                    style={{width:'100%',height:'4rem',marginBottom:'0.5rem'}}
+                    style={{width:'100%',height:'4rem',marginBottom:'0.5rem',resize:'none',border:'0.001rem solid',borderRadius:'3px'}}
                     value={editingEvent.content}
                     onChange={(e) => {
                       if (editingEvent) {
@@ -409,19 +410,36 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
                           content: e.target.value,
                         };
                         setEditingEvent(updatedEvent);
+                        setIsChanging(true)
                       }
                     }}
                   />
                   <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"30%"} height={""} margin="0 5% 0.3rem 0"
-                    onClick={() =>
-                      editingEvent && handleEditEventSave(editingEvent.scheduleId, editingEvent.content)}>수정</NewButton>
+                    onClick={() =>{
+                      setIsChanging(false)
+                      editingEvent && handleEditEventSave(editingEvent.scheduleId, editingEvent.content)
+                    }}>수정</NewButton>
                   <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"30%"} height={""} margin="0 5% 0 0"
-                    onClick={() =>
-                      editingEvent && handleDeleteEvent(editingEvent.scheduleId)}>삭제</NewButton>
+                    onClick={() =>{
+                      setIsChanging(false)
+                      editingEvent && handleDeleteEvent(editingEvent.scheduleId)
+                    }}>삭제</NewButton>
                   <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"30%"} height={""} margin="0 0 0 0"
                     onClick={() => {
-                      setEditingEvent(null)
-                      setShowEvent({is:true,event:showEvent.event})
+                      if(isChanging){
+                        var confirmFlag=window.confirm("변경 사항이 있습니다. 취소하시겠습니까?")
+                        if(confirmFlag){
+                          setIsChanging(false)
+                          setEditingEvent(null)
+                          setShowEvent({is:true,event:showEvent.event})
+                        }else{
+                          return
+                        }
+                      }else{
+                        setIsChanging(false)
+                        setEditingEvent(null)
+                        setShowEvent({is:true,event:showEvent.event})
+                      }
                     }}>취소</NewButton>
                 </div>
               )}

@@ -47,8 +47,8 @@ const InputText:React.FC<InputTextProps>=(props)=>{
     const handleChange=(e:React.ChangeEvent<HTMLTextAreaElement>)=>{
         props.onChange?.(e);
     }
-    const handleOnKeyDown=(e:React.ChangeEvent<HTMLTextAreaElement>)=>{
-      props.onKeyDown?.(e.target);
+    const handleOnKeyDown=(e:React.KeyboardEvent<HTMLTextAreaElement>)=>{
+      props.onKeyDown?.(e);
   }
 
     return (

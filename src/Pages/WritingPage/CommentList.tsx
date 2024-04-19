@@ -166,7 +166,6 @@ const CommentList = ({
                     <ButtonAuthorContainer>
                         <Author>{comment.userName}</Author>
 
-                        {!comment.isNew && (
                             <ButtonContainer>
                                 {tokenUserName === comment.userName && (
                                     <>
@@ -189,8 +188,6 @@ const CommentList = ({
                                     </>
                                 )}
                             </ButtonContainer>
-                        )}
-
                     </ButtonAuthorContainer>
 
                     {editingCommentId === comment.id ? (
