@@ -6,30 +6,63 @@ if (storedToken) {
 }
 
 interface MyPageApi {
-  getCalendarEventsByUserId: (userId: string) => Promise<AxiosResponse>;
-  getTodoListByUserId: (userId: string) => Promise<AxiosResponse>;
+  getCalendarEvents: () => Promise<AxiosResponse>;
+  getCalendarEventDetail:(userScheduleId:number)=>Promise<AxiosResponse>;
+  deleteCalendarEvent: (userScheduleId: number)=>Promise<AxiosResponse>;
+  postCalendarEvent:(data:any)=>Promise<AxiosResponse>;
+  putCalendarEventByUserId:(userScheduleId:number, data:any)=>Promise<AxiosResponse>;
+
+  getTodoList: () => Promise<AxiosResponse>;
+  deleteTodo: (userTodoId:number)=>Promise<AxiosResponse>;
+  updateToto: (userTodoId:number,data:any)=>Promise<AxiosResponse>;
+  createTodo: (data:any)=>Promise<AxiosResponse>;
+
   getBoardByUserId: (userId: string) => Promise<AxiosResponse>;
-  getTodayByUserId: (userId: string) => Promise<AxiosResponse>;
 }
 
 const myPageApi: MyPageApi = {
-  getCalendarEventsByUserId: async (userId) => {
-    const response = await axios.get(`/api/calendar/user/${userId}`);
+  getCalendarEvents: async () => {
+    const response = await axios.get(`/api/userSchedules`);
     return response;
   },
-  
-  getTodoListByUserId: async (userId) => {
-    const response = await axios.get(`/api/todo/user/${userId}`);
+  getCalendarEventDetail: async (userScheduleId)=>{
+    const response= await axios.get(`/api/userSchedules/${userScheduleId}`);
+    return response;
+  },
+  deleteCalendarEvent: async (userScheduleId)=>{
+    const response= await axios.delete(`/api/userSchedules/${userScheduleId}`);
+    return response;
+  },
+  postCalendarEvent: async (data)=>{
+    const response= await axios.post(`/api/userSchedules`,data);
+    return response;
+  },
+  putCalendarEventByUserId: async (userScheduleId, data)=>{
+    const response= await axios.put(`/api/userSchedules/${userScheduleId}`,data);
+    return response;
+  },
+
+
+  getTodoList: async () => {
+    const response = await axios.get(`/api/userTodo`);
+    return response;
+  },
+  deleteTodo:async(userTodoId:number)=>{
+    const response=await axios.delete(`/api/userTodo/${userTodoId}`)
+    return response;
+  },
+  updateToto: async (userTodoId,data) => {
+    const response = await axios.put(`/api/userTodo/${userTodoId}`,data);
+    return response;
+  },
+  createTodo: async (data) => {
+    console.log(sessionStorage.getItem('login-token'));
+    const response = await axios.post(`/api/userTodo`,data);
     return response;
   },
 
   getBoardByUserId: async (userId) => {
     const response = await axios.get(`/api/board/user/${userId}`);
-    return response;
-  },
-  
-  getTodayByUserId: async (userId) => {
-    const response = await axios.get(`/api/today/user/${userId}`);
     return response;
   },
 };
