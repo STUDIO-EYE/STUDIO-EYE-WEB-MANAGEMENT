@@ -49,7 +49,11 @@ const boardApi: BoardApi = {
   },
   // 게시글 수정
   putBoard: async (data) => {
-    const response = await axios.put('/api/posts', data);
+    const response = await axios.put('/api/posts', data,{
+      headers:{
+        'Content-Type':'multipart/form-data',
+      }
+    });
     return response;
   },
   // 게시글 삭제
