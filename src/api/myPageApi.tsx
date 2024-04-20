@@ -16,6 +16,7 @@ interface MyPageApi {
   deleteTodo: (userTodoId:number)=>Promise<AxiosResponse>;
   updateToto: (userTodoId:number,data:any)=>Promise<AxiosResponse>;
   createTodo: (data:any)=>Promise<AxiosResponse>;
+  checkTodo:(userTodoId:number)=>Promise<AxiosResponse>;
 
   getBoardByUserId: (userId: string) => Promise<AxiosResponse>;
 }
@@ -56,6 +57,11 @@ const myPageApi: MyPageApi = {
     return response;
   },
   createTodo: async (data) => {
+    console.log(sessionStorage.getItem('login-token'));
+    const response = await axios.post(`/api/userTodo`,data);
+    return response;
+  },
+  checkTodo: async (data) => {
     console.log(sessionStorage.getItem('login-token'));
     const response = await axios.post(`/api/userTodo`,data);
     return response;

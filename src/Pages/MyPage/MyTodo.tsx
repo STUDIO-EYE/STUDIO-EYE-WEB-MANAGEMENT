@@ -226,23 +226,23 @@ function MyTodo() {
     fetchData();
   }, [navigate]);
 
-//   const handleCheck = async (id: number) => {
-//     try {
-//       const response = await myPageApi.completeCheckTodo(id);
-//       if (response.status === 200) {
-//         // 상태를 불변하게 유지하며 변경
-//         setItems((prevItems) =>
-//           prevItems.map((item) =>
-//             item.todoIndex === id ? { ...item, checked: !item.checked } : item
-//           )
-//         );
-//       } else {
-//         console.error("Something error");
-//       }
-//     } catch (error) {
-//       console.error("Error updating check status", error);
-//     }
-//   };
+  const handleCheck = async (id: number) => {
+    try {
+      const response = await myPageApi.checkTodo(id);
+      if (response.status === 200) {
+        // 상태를 불변하게 유지하며 변경
+        setItems((prevItems) =>
+          prevItems.map((item) =>
+            item.userTodoId === id ? { ...item, checked: !item.checked } : item
+          )
+        );
+      } else {
+        console.error("Something error");
+      }
+    } catch (error) {
+      console.error("Error updating check status", error);
+    }
+  };
 
   const handleDelete = async (todoIndex: number) => {
     console.log(todoIndex);
@@ -338,7 +338,7 @@ function MyTodo() {
             <Checkbox
               type="checkbox"
               checked={item.checked}
-            //   onChange={() => handleCheck(item.todoIndex)}
+              onChange={() => handleCheck(item.userTodoId)}
             />
             {item.todoEmergency ? <UrgencyLabel>[긴급]</UrgencyLabel> : null}
             <ItemContent onClick={() => { setEditIndex(item.userTodoId); setEditText(item.todoContent); setEditModal(true); }}>{item.todoContent}</ItemContent>
