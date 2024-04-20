@@ -65,16 +65,18 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
 
   const [editorHtml, setEditorHtml] = useState("");
   const [title, setTitle] = useState("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const navigate = useNavigate();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setSelectedFile(e.target.files[0]);
+      const filesToAdd = Array.from(e.target.files);
+      setSelectedFiles((prevFiles) => [...prevFiles, ...filesToAdd]);
     }
-  }
-  const handleContentChange = (e:React.ChangeEvent<HTMLTextAreaElement>) => {
+  };
+
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTitle(e.target.value);
   };
 
@@ -89,22 +91,24 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
     }
 
     // FormData 생성
-    const data:{[key: string]: string }={
-      projectId:projectId.toString(),
+    const data: { [key: string]: string } = {
+      projectId: projectId.toString(),
       title: title,
-      content:strippedHtml,
+      content: strippedHtml,
       category: category,
     }
 
     const formData = new FormData();
 
-    const json=JSON.stringify(data);
-    const blob=new Blob([json],{type:'application/json'});
-    formData.append("createPostDto",blob);
-    if (selectedFile) {
-      formData.append("files", selectedFile);
-    }else{
-      formData.append("files","");
+    const json = JSON.stringify(data);
+    const blob = new Blob([json], { type: 'application/json' });
+    formData.append("createPostDto", blob);
+    if (selectedFiles) {
+      selectedFiles.forEach(file => {
+        formData.append("files", file);
+      })
+    } else {
+      formData.append("files", "");
     }
 
     try {
@@ -119,7 +123,7 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
 
         setTitle("");
         setEditorHtml("");
-        setSelectedFile(null);
+        setSelectedFiles([]);
 
       } else if (response.data.success === false) {
         if (response.data.code === 7000) {
@@ -177,15 +181,18 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
           type="file"
           id="file"
           onChange={handleFileChange}
-          accept="image/*, application/pdf" // 이미지와 pdf 파일만 허용하는 걸로
+          accept="image/*, application/pdf"
+          multiple
         />
         <SelectedFileLabel htmlFor="file">파일 선택</SelectedFileLabel>
-        {selectedFile && <div onClick={()=>{
-          console.log(selectedFile)
-        }}>{selectedFile.name}</div>}
+        {selectedFiles && selectedFiles.map(file => (
+          <div key={file.name} onClick={() => {
+            console.log(file.name)
+          }}>{file.name}</div>
+        ))}
       </FormContainer>
       <PostsButtonContainer>
-        <NewButton onClick={addPost} textcolor="white" backcolor={theme.color.orange} width={"6rem"} height={"2rem"} style={{marginLeft:'1rem'}}>등록</NewButton>
+        <NewButton onClick={addPost} textcolor="white" backcolor={theme.color.orange} width={"6rem"} height={"2rem"} style={{ marginLeft: '1rem' }}>등록</NewButton>
         <NewButton onClick={onBack} textcolor="black" backcolor={theme.color.white} width={"6rem"} height={"2rem"}>취소</NewButton>
       </PostsButtonContainer>
     </>
