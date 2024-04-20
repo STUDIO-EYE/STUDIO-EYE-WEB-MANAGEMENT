@@ -127,6 +127,16 @@ const Content = styled.div`
   }
 `;
 
+const FileInput = styled.input`
+  display: none;
+`;
+
+const SelectedFileLabel = styled.label`
+  display: block;
+  cursor: pointer;
+  margin-top: 0.5rem;
+`;
+
 interface PostData {
   commentId: number,
   title: string,
@@ -144,6 +154,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   const [title, setTitle] = useState(""); // 제목을 저장하는 상태
   const [showViewWriting, setShowViewWriting] = useState(true);
   const [showPutWriting, setShowPutWriting] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedPost, setSelectedPost] = useState({
     commentId: 0,
     title: "",
@@ -169,13 +180,13 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   const putWiring = () => {
     // HTML 태그 제거하기 위한 정규식
     const strippedHtml = editorHtml.replace(/<[^>]+>/g, "");
-
+  
     // 제목 또는 에디터 내용이 비어있는지 확인
     if (!title.trim() || !strippedHtml.trim()) {
       alert("제목과 내용을 모두 입력해주세요.");
       return; // 함수 실행 종료
     }
-
+  
     const updatedPostData = {
       projectId: projectId,
       postId: selectedRowId,
@@ -184,16 +195,28 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
       category: selectedPost.category, // 이미 저장된 category 정보 사용
       updatedAt: selectedPost.updatedAt,
     };
-
+  
+    // 업데이트할 데이터를 JSON 형식으로 변환하고 Blob으로 만들기
+    const json = JSON.stringify(updatedPostData);
+    const blob = new Blob([json], { type: 'application/json' });
+  
+    // FormData 생성
+    const formData = new FormData();
+    formData.append("updatePostRequestDto", blob); // updatePostRequestDto에 Blob 추가
+    if (selectedFile) {
+      formData.append("files", selectedFile); // 선택된 파일이 있다면 FormData에 추가
+    }
+  
     // axios를 사용하여 PUT 요청 보내기
     boardApi
-      .putBoard(updatedPostData)
+      .putBoard(formData)
       .then((response) => {
         console.log(response.data);
         alert("게시글이 성공적으로 업데이트 되었습니다.");
         setTitle(""); // 필드 초기화
         setEditorHtml("");
-
+        setSelectedFile(null); // 선택된 파일 초기화
+  
         if (postId) {
           goToHome();
         } else {
@@ -205,6 +228,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
         alert("게시글 업데이트 중 오류가 발생했습니다.");
       });
   };
+
 
   //게시글 삭제 함수
   const deletePost = () => {
@@ -278,6 +302,12 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     console.log(sessionStorage.getItem('login-token'))
   }
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedFile(e.target.files[0]);
+    }
+  }  
+
   // 수정 시간
   const updatedAtDate = new Date(selectedPost.updatedAt);
   const formattedUpdatedAt = `${updatedAtDate.getFullYear()}년 ${String(updatedAtDate.getMonth() + 1).padStart(2, '0')}월 ${String(updatedAtDate.getDate()).padStart(2, '0')}일 ${String(updatedAtDate.getHours()).padStart(2, '0')}:${String(updatedAtDate.getMinutes()).padStart(2, '0')}:${String(updatedAtDate.getSeconds()).padStart(2, '0')}`;
@@ -335,6 +365,16 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
                 ],
               }}
             />
+            <FileInput
+              type="file"
+              id="file"
+              onChange={handleFileChange}
+              accept="image/*, application/pdf" // 이미지와 pdf 파일만 허용하는 걸로
+            />
+            <SelectedFileLabel htmlFor="file">파일 선택</SelectedFileLabel>
+            {selectedFile && <div onClick={() => {
+              console.log(selectedFile)
+            }}>{selectedFile.name}</div>}
           </FormContainer>
           <PostsButtonContainer>
             <PostsButton onClick={putWiring}>완료</PostsButton>
