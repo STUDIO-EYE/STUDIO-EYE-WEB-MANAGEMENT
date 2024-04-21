@@ -9,6 +9,7 @@ import "react-quill/dist/quill.snow.css";
 import boardApi from "../../api/boardApi";
 import commentApi from "../../api/commentApi";
 import HorizontalLine from "Components/common/HorizontalLine"
+import axios from "axios";
 // WritingMainPage.js
 
 interface PostInfo {
@@ -176,38 +177,36 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   };
 
   // // 글쓰기 수정 함수
-  const putWiring = () => {
+  const putWriting = () => {
     // HTML 태그 제거하기 위한 정규식
     const strippedHtml = editorHtml.replace(/<[^>]+>/g, "");
-
+  
     // 제목 또는 에디터 내용이 비어있는지 확인
     if (!title.trim() || !strippedHtml.trim()) {
       alert("제목과 내용을 모두 입력해주세요.");
       return; // 함수 실행 종료
     }
-
+  
     const updatedPostData = {
       projectId: projectId,
-      postId: selectedRowId,
+      postId: selectedRowId, // postId 추가
       title: title,
       content: editorHtml,
       category: selectedPost.category, // 이미 저장된 category 정보 사용
       updatedAt: selectedPost.updatedAt,
     };
-
-    // 업데이트할 데이터를 JSON 형식으로 변환하고 Blob으로 만들기
+  
     const json = JSON.stringify(updatedPostData);
     const blob = new Blob([json], { type: 'application/json' });
-
-    // FormData 생성
+  
     const formData = new FormData();
-    formData.append("updatePostRequestDto", blob); // updatePostRequestDto에 Blob 추가
+    formData.append("updatePostRequestDto", blob);
     if (selectedFiles) {
       selectedFiles.forEach(file => {
         formData.append("files", file);
       });
     }
-
+  
     // axios를 사용하여 PUT 요청 보내기
     boardApi
       .putBoard(formData)
@@ -217,7 +216,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
         setTitle(""); // 필드 초기화
         setEditorHtml("");
         setSelectedFiles([]);
-
+  
         if (postId) {
           goToHome();
         } else {
@@ -229,8 +228,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
         alert("게시글 업데이트 중 오류가 발생했습니다.");
       });
   };
-
-
+  
   //게시글 삭제 함수
   const deletePost = () => {
     const token = sessionStorage.getItem('login-token');
@@ -299,11 +297,23 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     fetchData();
   }, [selectedRowId, projectId]);
 
-  const checktoken = () => {
-    console.log(sessionStorage.getItem('login-token'))
-  }
+  const [filePaths, setFilePaths] = useState<string[]>([]);
 
-  // 파일 선택 시 배열에 추가
+  useEffect(() => {
+  const fetchFiles = async () => {
+    try {
+      const response = await axios.get(`/api/posts/files?projectId=${projectId}&postId=${postId}`);
+      const files = response.data.list;
+      const paths = files.map((file: any) => file.filePath);
+      setFilePaths(paths);
+    } catch (error) {
+      console.error("Error fetching files:", error);
+    }
+  };
+
+  fetchFiles();
+}, [projectId, selectedRowId]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const filesToAdd = Array.from(e.target.files);
@@ -311,30 +321,8 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     }
   };
 
-  // 파일 삭제
-  const deleteFile = (fileIndex: number) => {
-    setSelectedFiles((prevFiles) => {
-      const updatedFiles = [...prevFiles];
-      updatedFiles.splice(fileIndex, 1);
-      return updatedFiles;
-    });
-  };
-
-  // 파일 삭제 버튼 클릭 시 호출
-  const handleDeleteFile = (fileIndex: number) => {
-    if (window.confirm('정말로 파일을 삭제하시겠습니까?')) {
-      deleteFile(fileIndex);
-    }
-  };
-
-  // 파일 목록 렌더링 함수
-  const renderFileList = () => {
-    return selectedFiles.map((file, index) => (
-      <div key={index}>
-        <span>{file.name}</span>
-        <DeleteFileButton onClick={() => handleDeleteFile(index)}>파일 삭제</DeleteFileButton>
-      </div>
-    ));
+  const handleDeleteFile = (fileNameToDelete: string) => {
+    setSelectedFiles((prevFiles) => prevFiles.filter(file => file.name !== fileNameToDelete));
   };
 
   // 수정 시간
@@ -357,9 +345,20 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
               </AuthorAndDate>
             </ViewTitleInput>
             <HorizontalLine />
-            <Content
-              dangerouslySetInnerHTML={{ __html: selectedPost.content }}
-            />
+            <Content dangerouslySetInnerHTML={{ __html: selectedPost.content }} />
+            {/* 파일 미리보기 */}
+            {filePaths.map((filePath, index) => (
+              <div key={index}>
+                {filePath.endsWith(".png") || filePath.endsWith(".jpg") || filePath.endsWith(".jpeg") ? (
+                  <img src={filePath} alt="파일 미리보기" />
+                ) : (
+                  <div>
+                    파일: <a href={filePath} download>다운로드</a>
+                  </div>
+                )}
+              </div>
+            ))}
+
           </FormContainer>
           <PostsButtonContainer>
             <PostsButton onClick={changePutView}>수정</PostsButton>
@@ -402,14 +401,29 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
               multiple
             />
             <SelectedFileLabel htmlFor="file">파일 선택</SelectedFileLabel>
-            {selectedFiles && selectedFiles.map(file => (
-              <div key={file.name} onClick={() => {
-                console.log(file.name)
-              }}>{file.name}</div>
+            <SelectedFilePreview>
+              {selectedFiles && selectedFiles.map(file => (
+                <div key={file.name}>
+                  {file.name}
+                  <DeleteFileButton onClick={() => handleDeleteFile(file.name)}>삭제</DeleteFileButton>
+                </div>
+              ))}
+            </SelectedFilePreview>
+            {/* 파일 미리보기 */}
+            {filePaths.map((filePath, index) => (
+              <div key={index}>
+                {filePath.endsWith(".png") || filePath.endsWith(".jpg") || filePath.endsWith(".jpeg") ? (
+                  <img src={filePath} alt="파일 미리보기" />
+                ) : (
+                  <div>
+                    파일: <a href={filePath} download>다운로드</a>
+                  </div>
+                )}
+              </div>
             ))}
           </FormContainer>
           <PostsButtonContainer>
-            <PostsButton onClick={putWiring}>완료</PostsButton>
+            <PostsButton onClick={putWriting}>완료</PostsButton>
             <PostsButton onClick={goToPreviousPage}>취소</PostsButton>
           </PostsButtonContainer>
         </>

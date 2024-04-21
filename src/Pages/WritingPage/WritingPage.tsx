@@ -61,6 +61,15 @@ const SelectedFileLabel = styled.label`
   margin-top: 0.5rem;
 `;
 
+const SelectedFilePreview = styled.div`
+  margin-top: 0.5rem;
+`;
+
+const DeleteFileButton = styled.button`
+  margin-top: 0.5rem;
+  color: red;
+`;
+
 const WritingPage = ({ projectId, category, onBack }: { projectId: number, category: string, onBack: any; }) => {
 
   const [editorHtml, setEditorHtml] = useState("");
@@ -153,6 +162,10 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
     }, 100);
   };
 
+  const handleDeleteFile = (fileNameToDelete: string) => {
+    setSelectedFiles((prevFiles) => prevFiles.filter(file => file.name !== fileNameToDelete));
+  };
+
   return (
     <>
       <FormContainer>
@@ -185,11 +198,14 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
           multiple
         />
         <SelectedFileLabel htmlFor="file">파일 선택</SelectedFileLabel>
-        {selectedFiles && selectedFiles.map(file => (
-          <div key={file.name} onClick={() => {
-            console.log(file.name)
-          }}>{file.name}</div>
-        ))}
+        <SelectedFilePreview>
+          {selectedFiles && selectedFiles.map(file => (
+            <div key={file.name}>
+              {file.name}
+              <DeleteFileButton onClick={() => handleDeleteFile(file.name)}>삭제</DeleteFileButton>
+            </div>
+          ))}
+        </SelectedFilePreview>
       </FormContainer>
       <PostsButtonContainer>
         <NewButton onClick={addPost} textcolor="white" backcolor={theme.color.orange} width={"6rem"} height={"2rem"} style={{ marginLeft: '1rem' }}>등록</NewButton>
