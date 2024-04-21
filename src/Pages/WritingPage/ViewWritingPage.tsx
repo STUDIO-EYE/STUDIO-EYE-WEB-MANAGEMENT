@@ -10,6 +10,7 @@ import boardApi from "../../api/boardApi";
 import commentApi from "../../api/commentApi";
 import HorizontalLine from "Components/common/HorizontalLine"
 import axios from "axios";
+import jwt_decode from "jwt-decode";
 // WritingMainPage.js
 
 interface PostInfo {
@@ -166,6 +167,15 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     updatedAt: ""
   });
   const navigate = useNavigate();
+
+  const [tokenUserName, setTokenUserName] = useState("");
+  const token = sessionStorage.getItem("login-token");
+  useEffect(() => {
+    if (token) {
+      const decodedToken:any=jwt_decode(token)
+      setTokenUserName(decodedToken.username);
+    }
+  }, []);
 
   const goToPreviousPage = () => {
     setTimeout(function () {
@@ -332,6 +342,8 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   //조회하면 showViewWriting + 수정화면 showPutWriting
   return (
     <>
+    {console.log(tokenUserName)}
+    {console.log(selectedPost.author)}
       {showViewWriting ? (
         <>
           <FormContainer>
@@ -361,8 +373,14 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
 
           </FormContainer>
           <PostsButtonContainer>
-            <PostsButton onClick={changePutView}>수정</PostsButton>
-            <PostsButton onClick={deletePost}>삭제</PostsButton>
+            {
+            tokenUserName==selectedPost.author && (
+              <>
+              <PostsButton onClick={changePutView}>수정</PostsButton>
+              <PostsButton onClick={deletePost}>삭제</PostsButton>
+              </>
+            )}
+            
             {postId ? (
               <PostsButton onClick={goToHome}>취소</PostsButton>
             ) : (

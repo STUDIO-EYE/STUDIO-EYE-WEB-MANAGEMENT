@@ -5,6 +5,10 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import myPageApi from 'api/myPageApi';
+import MyCalendar from './MyCalendar';
+import RightMyPage from './RightMyPage';
+import MyToday from './MyToday';
+import MyTodo from './MyTodo';
 
 const DashboardBox = styled.div`
   display: flex;
@@ -60,11 +64,6 @@ const TodayChecklistContainer = styled.div`
   gap: 20px;
 `;
 
-const WeekCalendar = styled.div`
-  height: 50%;
-  margin-bottom: 20px;
-`;
-
 const CheckList = styled.div`
   height: 33.33%;
   margin-bottom: 20px;
@@ -85,57 +84,26 @@ const MyPage = () => {
   const [userId, setUserId] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchCalendarEvents = async () => {
-      try {
-        const response = await myPageApi.getCalendarEventsByUserId(userId); // userId 전달
-        const responseData = response.data; // data 속성 가져오기
-        
-        if (responseData.success) {
-          alert("Calendar events fetched");
-          // 추가 로직 구현
-        } else if (responseData.success === false) {
-          if (responseData.code === 7000) {
-            alert("로그인을 먼저 진행시켜 주시길 바랍니다.");
-            navigate("/LoginPage");
-          } else if (responseData.code === 7001) {
-            alert("세션이 만료되었습니다. 다시 로그인 해주세요.");
-            sessionStorage.removeItem("login-token");
-            delete axios.defaults.headers.common["Authorization"];
-            navigate("/LoginPage");
-          } else if (responseData.code === 8000) {
-            alert("해당 사용자는 " + responseData.message);
-          }
-        } else {
-          alert("오류가 발생했습니다.");
-        }
-      } catch (error) {
-        console.error("Error fetching calendar events:", error);
-        alert("오류가 발생했습니다.");
-      }
-    };
-
-    fetchCalendarEvents();
-  }, [userId, navigate]);
   return (
     <DashboardBox>
       <DashboardBody>
         <Panel expanded={expanded}>
           <Left expanded={expanded}>
             <LeftComponent>
-              <WeekCalendar />
+              <MyCalendar/>
             </LeftComponent>
 
             <TodayChecklistContainer>
               <LeftComponent>
-                <Today />
+                <MyToday/>
               </LeftComponent>
               <LeftComponent>
-                <CheckList />
+                <MyTodo/>
               </LeftComponent>
             </TodayChecklistContainer>
           </Left>
           <RightDashboard />
+          <RightMyPage/>
         </Panel>
       </DashboardBody>
     </DashboardBox>

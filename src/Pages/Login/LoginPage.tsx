@@ -184,6 +184,7 @@ function LoginPage() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    console.log(e.key)
     if (e.key === "Enter") {
       handleLogin();
     }
@@ -206,7 +207,6 @@ function LoginPage() {
         console.error("API 요청 중 오류 발생:", error);
       });
   };
-  
 
   return (
         <WhiteBoxContainer>
@@ -237,7 +237,6 @@ function LoginPage() {
                 </StyledLink>
               </HorizontalBox>
               </LoginFormItem>
-              
             </LoginForm>
           </LoginBox>
         </WhiteBoxContainer>
