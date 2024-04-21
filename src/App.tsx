@@ -13,6 +13,9 @@ import Manage from "./Pages/InternalPage/Dashboard/Manage";
 import ModifyProject from "./Pages/ProjectPage/ModifyProject";
 import { Routes, Route } from "react-router-dom";
 import UploadedFilesComponent from 'Pages/NoticeBoardPage/FileManagementPage/UploadedFilesComponent';
+import MyPage from 'Pages/MyPage/MyPage';
+import MyPageMain from 'Pages/MyPage/MyPageMain';
+import MyManage from 'Pages/MyPage/MyManage';
 
 function App() {
   return (
@@ -25,7 +28,9 @@ function App() {
         <Route path="/PlanMain/:projectId/:postId?" element={<PlanNoticeMainpage />} />
         <Route path="/LoginPage" element={<LoginPage />} />
         <Route path="/SignInPage" element={<SignInPage />} />
+        <Route path="/MyPage" element={<MyPageMain />} />
         <Route path="/manage" element={<Manage />} />
+        <Route path="/myManage" element={<MyManage/>}/>
         <Route path="/project" element={<Project />} />
         <Route path="/modify/:projectId" element={<ModifyProject />} />
       </Routes>

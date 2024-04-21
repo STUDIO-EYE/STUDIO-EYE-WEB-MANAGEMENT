@@ -1,16 +1,15 @@
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { AiOutlineSearch } from "react-icons/ai";
-import { BiSave } from "react-icons/bi";
+import { BiSave, BiSolidDownload, BiSolidFile, BiSolidFileJpg, BiSolidFilePdf, BiSolidFilePng } from "react-icons/bi";
 import { LuDelete } from "react-icons/lu";
 
 interface File {
-    id: string;
-    fileName: string;
-    url: string;
+  id: string;
+  fileName: string;
+  filePath: string;
 }
 
 const Container = styled.div`
@@ -50,11 +49,6 @@ const SearchIcon = styled(AiOutlineSearch)`
     cursor: pointer;
     color: #ffa900;
   }
-`;
-
-const SaveIcon = styled(BiSave)`
-  font-size: 24px;
-  margin-bottom: 10px;
 `;
 
 const SearchInput = styled.input`
@@ -113,14 +107,23 @@ const SearchText = styled.div`
   font-weight: 600;
 `;
 
-const FileUploadButtonText = styled.div`
-  color: lightgray;
-  font-size: 0.7rem;
-  font-family: 'Pretendard';
+const FileText = styled.div`
+  width: 80%;
+  margin: 10px 0;
+  font-size: 0.9rem;
   font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 `;
 
-const FileUploadButton = styled.button`
+const FileIconContainer = styled.div`
+  font-size: 50px;
+  color: lightgray;
+`;
+
+const FileUploadContainer = styled.label`
+  font-family: 'Pretendard'; // 왜 안 먹음
   width: 200px;
   height: 200px;
   border-radius: 15px;
@@ -132,22 +135,29 @@ const FileUploadButton = styled.button`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  input {
+    display: none;
+  }
 `;
 
-const UploadedFileButton = styled(FileUploadButton)`
-  width: 200px;
-  height: 200px;
-  border-radius: 15px;
-  background-color: white;
-  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.08);
-  border: none;
-  color: lightgray;
+const UploadedFileContainer = styled(FileUploadContainer)`
+  color: black;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
+  text-align: center;
+  position: relative;
+`;
+
+const DownloadIconContainer = styled.div`
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 20px;
+  color: lightgray;
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
 const NavContainer = styled.div`
@@ -157,104 +167,165 @@ const NavContainer = styled.div`
 `;
 
 const UploadedFilesComponent: React.FC = () => {
-    const [files, setFiles] = useState<File[]>([]);
-    const { projectId } = useParams<{ projectId: string }>(); // URL에서 projectId 추출
-    const [searchKeyword, setSearchKeyword] = useState<string>('');
-    const [searchResults, setSearchResults] = useState<{ id: number; title: string; }[]>([]);
-    const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [files, setFiles] = useState<File[]>([]);
+  const { projectId } = useParams<{ projectId: string }>(); // URL에서 projectId 추출
+  const [searchKeyword, setSearchKeyword] = useState<string>('');
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    const savedSearches = localStorage.getItem("recentSearches");
+    return savedSearches ? JSON.parse(savedSearches) : [];
+  });
+  const MAX_RECENT_SEARCHES = 10;
+  const [originalFiles, setOriginalFiles] = useState<File[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-    const MAX_RECENT_SEARCHES = 10;
-
-    useEffect(() => {
-        const fetchFiles = async () => {
-            try {
-                const response = await axios.get(`/api/projects/${projectId}/files`);
-                if (response.data.success) {
-                    setFiles(response.data.list);
-                } else {
-                    console.error("error: ", response.data.message);
-                }
-            } catch (error) {
-                console.error("error: ", error);
-            }
-        };
-
-        fetchFiles();
-    }, [projectId]);
-
-    const handleSearch = () => {
-        // 검색어가 빈 문자열인 경우 전체 파일 목록 보여줌
-        if (!searchKeyword.trim()) {
-            setFiles(prevFiles => prevFiles);
-            return;
+  useEffect(() => {
+    // 서버에서 전체 파일 목록을 가져와서 originalFiles 상태 변수 업데이트
+    const fetchAllFiles = async () => {
+      try {
+        const response = await axios.get(`/api/projects/${projectId}/files`);
+        if (response.data.success) {
+          setFiles(response.data.list);
+          setOriginalFiles(response.data.list);
+        } else {
+          console.error("error: ", response.data.message);
         }
-
-        // 검색어에 해당하는 파일만 필터링해서 보여줌
-        const results = files.filter(file => file.fileName.includes(searchKeyword));
-        setFiles(results);
+      } catch (error) {
+        console.error("error: ", error);
+      }
     };
 
+    fetchAllFiles();
+  }, [projectId]);
 
-    const someFunctionToGetSearchResults = (keyword: string) => {
-        const mockResults = [
-            { id: 1, title: '검색 결과 1' },
-            { id: 2, title: '검색 결과 2' },
-            { id: 3, title: '검색 결과 3' },
-        ];
-        return mockResults.filter(result => result.title.includes(keyword));
-    };
+  const handleSearch = () => {
+    if (!searchKeyword.trim()) {
+      setFiles(originalFiles); // 전체 파일 목록으로 재설정
+      return;
+    }
 
-    const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === 'Enter') {
-            handleSearch();
-        }
-    };
+    const results = originalFiles.filter(file => file.fileName.includes(searchKeyword));
+    setFiles(results);
 
-    const handleDeleteRecentSearch = (index: number) => {
-        const updatedRecentSearches = [...recentSearches];
-        updatedRecentSearches.splice(index, 1);
-        setRecentSearches(updatedRecentSearches);
-    };
+    if (!recentSearches.includes(searchKeyword)) {
+      const newRecentSearches = [searchKeyword, ...recentSearches.slice(0, MAX_RECENT_SEARCHES - 1)];
+      setRecentSearches(newRecentSearches);
+      localStorage.setItem("recentSearches", JSON.stringify(newRecentSearches));
+    }
+  };
 
-    return (
-        <Container>
-            <NavContainer>
-                <NavBar>
-                    <SearchInputContainer>
-                        <SearchIcon onClick={handleSearch} />
-                        <SearchInput
-                            type="text"
-                            placeholder="검색어를 입력하세요."
-                            value={searchKeyword}
-                            onChange={(e) => setSearchKeyword(e.target.value)}
-                            onKeyPress={handleKeyPress}
-                        />
-                    </SearchInputContainer>
-                    <SearchText>최근 검색어</SearchText>
-                    {recentSearches.map((search, index) => (
-                        <RecentSearchItemContainer key={index}>
-                            <RecentSearchItem>
-                                {search}
-                                <RecentSearchItemDeleteButton onClick={() => handleDeleteRecentSearch(index)}>
-                                    <LuDelete />
-                                </RecentSearchItemDeleteButton>
-                            </RecentSearchItem>
-                        </RecentSearchItemContainer>
-                    ))}
-                </NavBar>
-            </NavContainer>
-            <FileContainer>
-                {files && files.map((file) => (
-                    <UploadedFileButton key={file.id}>
-                        <a href={file.url} target="_blank" rel="noopener noreferrer">
-                            {file.fileName}
-                        </a>
-                    </UploadedFileButton>
-                ))}
-            </FileContainer>
-        </Container>
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleSearch();
+    }
+  };
 
-    );
+  const handleDeleteRecentSearch = (index: number) => {
+    const updatedRecentSearches = [...recentSearches];
+    updatedRecentSearches.splice(index, 1);
+    setRecentSearches(updatedRecentSearches);
+
+    localStorage.setItem("recentSearches", JSON.stringify(updatedRecentSearches));
+  };
+
+  // 파일 확장자에 따라
+  const getFileIcon = (fileName: string): React.ReactNode => {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    if (extension === 'pdf') {
+      return <BiSolidFilePdf />;
+    } else if (extension === 'png') {
+      return <BiSolidFilePng />;
+    } else if (extension === 'jpg' || extension === 'jpeg') {
+      return <BiSolidFileJpg />;
+    }
+    return <BiSolidFile />;
+  };
+
+  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.files && e.target.files.length > 0) {
+  //     setSelectedFile(e.target.files[0]);
+  //   }
+  // }
+
+  // const handleFileUpload = async () => {
+  //   const data: { [key: string]: string } = {
+  //     fileName: fileName,
+  //   }
+
+  //   const formData = new FormData();
+
+  //   const json = JSON.stringify(data);
+  //   const blob = new Blob([json], { type: 'application/json' });
+  //   formData.append("Dto 만들어졋나", blob);
+  //   formData.append("files", selectedFile);
+
+  //   try {
+  //     const response = await axios.post(`/api/projects/${projectId}/files`, formData, {
+  //       headers: {
+  //         "Content-Type": "multipart/form-data",
+  //       },
+  //     });
+  //     if (response.data.success) {
+  //       alert("파일이 성공적으로 업로드되었습니다.");
+  //     } else {
+  //       alert("파일 업로드 중 오류가 발생했습니다.");
+  //     }
+  //   } catch (error) {
+  //     console.error("파일 업로드 중 오류:", error);
+  //     alert("파일 업로드 중 오류가 발생했습니다.");
+  //   }
+  // };
+
+  return (
+    <Container>
+      <NavContainer>
+        <NavBar>
+          <SearchInputContainer>
+            <SearchIcon onClick={handleSearch} />
+            <SearchInput
+              type="text"
+              placeholder="검색어를 입력하세요."
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+              onKeyPress={handleKeyPress}
+            />
+          </SearchInputContainer>
+          <SearchText>최근 검색어</SearchText>
+          {recentSearches.map((search, index) => (
+            <RecentSearchItemContainer key={index}>
+              <RecentSearchItem onClick={() => { setSearchKeyword(search); handleSearch(); }}>
+                {search}
+                <RecentSearchItemDeleteButton onClick={() => handleDeleteRecentSearch(index)}>
+                  <LuDelete />
+                </RecentSearchItemDeleteButton>
+              </RecentSearchItem>
+            </RecentSearchItemContainer>
+          ))}
+        </NavBar>
+      </NavContainer>
+      <FileContainer>
+        {files && files.map((file) => (
+          <UploadedFileContainer key={file.id}>
+            <FileIconContainer>
+              {getFileIcon(file.fileName)}
+            </FileIconContainer>
+            <FileText>
+              {file.fileName}
+            </FileText>
+            <a href={file.filePath} target="_blank" rel="noopener noreferrer" download>
+              <DownloadIconContainer>
+                <BiSolidDownload />
+              </DownloadIconContainer>
+            </a>
+          </UploadedFileContainer>
+        ))}
+        {/* <FileUploadContainer>
+          파일 업로드
+          <input type="file" accept=".pdf,.png,.jpg,.jpeg" onChange={handleFileChange} />
+        </FileUploadContainer>
+        </FileContainer>button onClick={handleFileUpload}>업로드</button> */}
+      </FileContainer>
+    </Container>
+  );
 };
 
 export default UploadedFilesComponent;
