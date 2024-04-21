@@ -18,15 +18,27 @@ const Container = styled.div`
 `;
 
 const FileContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 20px;
   margin-left: 100px;
+  justify-content: flex-start;
+  align-items: flex-start;
+`;
+
+const BookmarkIcon = styled(LuDelete)`
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  font-size: 30px;
+  color: gray;
+  z-index: 999;
+  cursor: pointer;
 `;
 
 const NavBar = styled.div`
   width: 225px;
-  height: 100vh;
+  height: 60vh;
   background-color: #f8f9fa;
   box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.08);
   padding: 20px;
@@ -168,7 +180,7 @@ const NavContainer = styled.div`
 
 const UploadedFilesComponent: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
-  const { projectId } = useParams<{ projectId: string }>(); // URL에서 projectId 추출
+  const { projectId } = useParams<{ projectId: string }>(); // url에서 projectId 추출
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   const [recentSearches, setRecentSearches] = useState<string[]>(() => {
     const savedSearches = localStorage.getItem("recentSearches");
@@ -240,40 +252,48 @@ const UploadedFilesComponent: React.FC = () => {
     return <BiSolidFile />;
   };
 
-  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (e.target.files && e.target.files.length > 0) {
-  //     setSelectedFile(e.target.files[0]);
-  //   }
-  // }
-
-  // const handleFileUpload = async () => {
-  //   const data: { [key: string]: string } = {
-  //     fileName: fileName,
-  //   }
-
-  //   const formData = new FormData();
-
-  //   const json = JSON.stringify(data);
-  //   const blob = new Blob([json], { type: 'application/json' });
-  //   formData.append("Dto 만들어졋나", blob);
-  //   formData.append("files", selectedFile);
-
-  //   try {
-  //     const response = await axios.post(`/api/projects/${projectId}/files`, formData, {
-  //       headers: {
-  //         "Content-Type": "multipart/form-data",
-  //       },
-  //     });
-  //     if (response.data.success) {
-  //       alert("파일이 성공적으로 업로드되었습니다.");
-  //     } else {
-  //       alert("파일 업로드 중 오류가 발생했습니다.");
-  //     }
-  //   } catch (error) {
-  //     console.error("파일 업로드 중 오류:", error);
-  //     alert("파일 업로드 중 오류가 발생했습니다.");
-  //   }
-  // };
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const inputFiles = event.target.files;
+    if (!inputFiles || inputFiles.length === 0) {
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append("files", inputFiles[0]);
+  
+    try {
+      const response = await axios.post(`/api/projects/${projectId}/files`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+  
+      if (response.data.success) {
+        alert("파일이 성공적으로 업로드되었습니다.");
+        const fetchFiles = async () => {
+          try {
+            const response = await axios.get(`/api/projects/${projectId}/files`);
+            if (response.data.success) {
+              setFiles(response.data.list);
+              setOriginalFiles(response.data.list);
+              //console.log("가져온 파일 목록:", response.data.list);
+            } else {
+              console.error("파일 목록 재조회 중 오류:", response.data.message);
+            }
+          } catch (error) {
+            console.error("파일 목록 재조회 중 오류:", error);
+          }
+        };
+  
+        fetchFiles(); // 파일 목록 업데이트
+      } else {
+        alert("파일 업로드에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("파일 업로드 중 오류:", error);
+      alert("파일 업로드 중 오류가 발생했습니다.");
+    }
+  };
 
   return (
     <Container>
@@ -303,6 +323,12 @@ const UploadedFilesComponent: React.FC = () => {
         </NavBar>
       </NavContainer>
       <FileContainer>
+
+        <FileUploadContainer>
+          <input type="file" onChange={handleFileUpload} />
+          <span>파일 업로드</span>
+        </FileUploadContainer>
+
         {files && files.map((file) => (
           <UploadedFileContainer key={file.id}>
             <FileIconContainer>
@@ -318,11 +344,6 @@ const UploadedFilesComponent: React.FC = () => {
             </a>
           </UploadedFileContainer>
         ))}
-        {/* <FileUploadContainer>
-          파일 업로드
-          <input type="file" accept=".pdf,.png,.jpg,.jpeg" onChange={handleFileChange} />
-        </FileUploadContainer>
-        </FileContainer>button onClick={handleFileUpload}>업로드</button> */}
       </FileContainer>
     </Container>
   );
