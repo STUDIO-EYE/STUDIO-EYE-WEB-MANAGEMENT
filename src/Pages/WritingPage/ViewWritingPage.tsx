@@ -9,6 +9,7 @@ import "react-quill/dist/quill.snow.css";
 import boardApi from "../../api/boardApi";
 import commentApi from "../../api/commentApi";
 import HorizontalLine from "Components/common/HorizontalLine"
+import axios from "axios";
 import jwt_decode from "jwt-decode";
 // WritingMainPage.js
 
@@ -138,16 +139,15 @@ const SelectedFileLabel = styled.label`
   margin-top: 0.5rem;
 `;
 
-interface PostData {
-  commentId: number,
-  title: string,
-  content: string,
-  author: string,
-  date: string,
-  commentCount: number,
-  category: string,
-  updatedAt: string
-}
+const SelectedFilePreview = styled.div`
+  margin-top: 0.5rem;
+`;
+
+const DeleteFileButton = styled.button`
+  margin-top: 0.5rem;
+  color: red;
+`;
+
 
 const ViewWritingPage = ({ selectedRowId, projectId, postId }
   : { selectedRowId: number, projectId: number, postId: number }) => {
@@ -155,7 +155,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   const [title, setTitle] = useState(""); // 제목을 저장하는 상태
   const [showViewWriting, setShowViewWriting] = useState(true);
   const [showPutWriting, setShowPutWriting] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedPost, setSelectedPost] = useState({
     commentId: 0,
     title: "",
@@ -187,7 +187,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   };
 
   // // 글쓰기 수정 함수
-  const putWiring = () => {
+  const putWriting = () => {
     // HTML 태그 제거하기 위한 정규식
     const strippedHtml = editorHtml.replace(/<[^>]+>/g, "");
   
@@ -199,22 +199,22 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   
     const updatedPostData = {
       projectId: projectId,
-      postId: selectedRowId,
+      postId: selectedRowId, // postId 추가
       title: title,
       content: editorHtml,
       category: selectedPost.category, // 이미 저장된 category 정보 사용
       updatedAt: selectedPost.updatedAt,
     };
   
-    // 업데이트할 데이터를 JSON 형식으로 변환하고 Blob으로 만들기
     const json = JSON.stringify(updatedPostData);
     const blob = new Blob([json], { type: 'application/json' });
   
-    // FormData 생성
     const formData = new FormData();
-    formData.append("updatePostRequestDto", blob); // updatePostRequestDto에 Blob 추가
-    if (selectedFile) {
-      formData.append("files", selectedFile); // 선택된 파일이 있다면 FormData에 추가
+    formData.append("updatePostRequestDto", blob);
+    if (selectedFiles) {
+      selectedFiles.forEach(file => {
+        formData.append("files", file);
+      });
     }
   
     // axios를 사용하여 PUT 요청 보내기
@@ -225,7 +225,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
         alert("게시글이 성공적으로 업데이트 되었습니다.");
         setTitle(""); // 필드 초기화
         setEditorHtml("");
-        setSelectedFile(null); // 선택된 파일 초기화
+        setSelectedFiles([]);
   
         if (postId) {
           goToHome();
@@ -238,8 +238,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
         alert("게시글 업데이트 중 오류가 발생했습니다.");
       });
   };
-
-
+  
   //게시글 삭제 함수
   const deletePost = () => {
     const token = sessionStorage.getItem('login-token');
@@ -308,15 +307,33 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     fetchData();
   }, [selectedRowId, projectId]);
 
-  const checktoken = () => {
-    console.log(sessionStorage.getItem('login-token'))
-  }
+  const [filePaths, setFilePaths] = useState<string[]>([]);
+
+  useEffect(() => {
+  const fetchFiles = async () => {
+    try {
+      const response = await axios.get(`/api/posts/files?projectId=${projectId}&postId=${postId}`);
+      const files = response.data.list;
+      const paths = files.map((file: any) => file.filePath);
+      setFilePaths(paths);
+    } catch (error) {
+      console.error("Error fetching files:", error);
+    }
+  };
+
+  fetchFiles();
+}, [projectId, selectedRowId]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setSelectedFile(e.target.files[0]);
+      const filesToAdd = Array.from(e.target.files);
+      setSelectedFiles((prevFiles) => [...prevFiles, ...filesToAdd]);
     }
-  }  
+  };
+
+  const handleDeleteFile = (fileNameToDelete: string) => {
+    setSelectedFiles((prevFiles) => prevFiles.filter(file => file.name !== fileNameToDelete));
+  };
 
   // 수정 시간
   const updatedAtDate = new Date(selectedPost.updatedAt);
@@ -340,9 +357,20 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
               </AuthorAndDate>
             </ViewTitleInput>
             <HorizontalLine />
-            <Content
-              dangerouslySetInnerHTML={{ __html: selectedPost.content }}
-            />
+            <Content dangerouslySetInnerHTML={{ __html: selectedPost.content }} />
+            {/* 파일 미리보기 */}
+            {filePaths.map((filePath, index) => (
+              <div key={index}>
+                {filePath.endsWith(".png") || filePath.endsWith(".jpg") || filePath.endsWith(".jpeg") ? (
+                  <img src={filePath} alt="파일 미리보기" />
+                ) : (
+                  <div>
+                    파일: <a href={filePath} download>다운로드</a>
+                  </div>
+                )}
+              </div>
+            ))}
+
           </FormContainer>
           <PostsButtonContainer>
             {
@@ -387,15 +415,33 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
               type="file"
               id="file"
               onChange={handleFileChange}
-              accept="image/*, application/pdf" // 이미지와 pdf 파일만 허용하는 걸로
+              accept="image/*, application/pdf"
+              multiple
             />
             <SelectedFileLabel htmlFor="file">파일 선택</SelectedFileLabel>
-            {selectedFile && <div onClick={() => {
-              console.log(selectedFile)
-            }}>{selectedFile.name}</div>}
+            <SelectedFilePreview>
+              {selectedFiles && selectedFiles.map(file => (
+                <div key={file.name}>
+                  {file.name}
+                  <DeleteFileButton onClick={() => handleDeleteFile(file.name)}>삭제</DeleteFileButton>
+                </div>
+              ))}
+            </SelectedFilePreview>
+            {/* 파일 미리보기 */}
+            {filePaths.map((filePath, index) => (
+              <div key={index}>
+                {filePath.endsWith(".png") || filePath.endsWith(".jpg") || filePath.endsWith(".jpeg") ? (
+                  <img src={filePath} alt="파일 미리보기" />
+                ) : (
+                  <div>
+                    파일: <a href={filePath} download>다운로드</a>
+                  </div>
+                )}
+              </div>
+            ))}
           </FormContainer>
           <PostsButtonContainer>
-            <PostsButton onClick={putWiring}>완료</PostsButton>
+            <PostsButton onClick={putWriting}>완료</PostsButton>
             <PostsButton onClick={goToPreviousPage}>취소</PostsButton>
           </PostsButtonContainer>
         </>
