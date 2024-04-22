@@ -2,9 +2,8 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { FaPen, FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import scheduleApi from "../../../api/scheduleApi";
+import myPageApi from "../../api/myPageApi";
 import axios from "axios";
-import { TitleSm } from "Components/common/Font";
 import { theme } from "LightTheme";
 import NewButton from "Components/common/NewButton";
 
@@ -152,17 +151,13 @@ const EventItem=styled.span`
 `;
 
 interface Event {
-  scheduleId: number;
+  userScheduleId: number;
   content: string;
   startDate: string;
   endDate:string;
 }
 
-interface WeekCalendarProps {
-  projectId: number;
-}
-
-const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
+const MyCalendar = () => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [events, setEvents] = useState<Event[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -170,7 +165,6 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
     is:false,
     event:[]});
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
-  const [isChanging,setIsChanging]=useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
 
   const navigate = useNavigate();
@@ -178,7 +172,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await scheduleApi.getScheduleList(projectId);
+        const response = await myPageApi.getCalendarEvents();
         if (response.data && response.data.success === false) {
           if (response.data.code === 6001) {
             setMessage(response.data.message);
@@ -196,7 +190,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
     };
 
     fetchEvents();
-  }, [projectId]);
+  }, []);
 
   const getDayColor = (dayIndex: number): string => {
     switch (dayIndex) {
@@ -291,7 +285,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
 
   const fetchEvents = async () => {
     try {
-      const response = await scheduleApi.getScheduleList(projectId);
+      const response = await myPageApi.getCalendarEvents();
       setEvents(response.data.list);
     } catch (error) {
       console.error("Error fetching the schedules", error);
@@ -300,7 +294,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
 
   const handleDeleteEvent = async (scheduleId: number) => {
     try {
-      await scheduleApi.deleteSchedule(scheduleId);
+      await myPageApi.deleteCalendarEvent(scheduleId);
       fetchEvents();
       alert("성공적으로 삭제되었습니다.");
       window.location.reload();
@@ -310,15 +304,15 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
   };
 
   const handleEditEventSave = async (scheduleId: number, newText: string) => {
-    const eventToUpdate = events.find((e) => e.scheduleId === scheduleId);
+    const eventToUpdate = events.find((e) => e.userScheduleId === scheduleId);
 
     if (eventToUpdate) {
       try {
         const updatedData: Event = { ...eventToUpdate, content: newText };
-        await scheduleApi.updateSchedule(scheduleId, updatedData);
+        await myPageApi.putCalendarEventByUserId(scheduleId, updatedData);
 
         setEvents((prevEvents) =>
-          prevEvents.map((e) => (e.scheduleId === scheduleId ? updatedData : e))
+          prevEvents.map((e) => (e.userScheduleId === scheduleId ? updatedData : e))
         );
         setShowModal(false);
         alert("성공적으로 수정되었습니다.");
@@ -401,7 +395,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
               {editingEvent && (
                 <div>
                   <textarea
-                    style={{width:'100%',height:'4rem',marginBottom:'0.5rem',resize:'none',border:'0.001rem solid',borderRadius:'3px'}}
+                    style={{width:'100%',height:'4rem',marginBottom:'0.5rem'}}
                     value={editingEvent.content}
                     onChange={(e) => {
                       if (editingEvent) {
@@ -410,36 +404,19 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
                           content: e.target.value,
                         };
                         setEditingEvent(updatedEvent);
-                        setIsChanging(true)
                       }
                     }}
                   />
                   <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"30%"} height={""} margin="0 5% 0.3rem 0"
-                    onClick={() =>{
-                      setIsChanging(false)
-                      editingEvent && handleEditEventSave(editingEvent.scheduleId, editingEvent.content)
-                    }}>수정</NewButton>
+                    onClick={() =>
+                      editingEvent && handleEditEventSave(editingEvent.userScheduleId, editingEvent.content)}>수정</NewButton>
                   <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"30%"} height={""} margin="0 5% 0 0"
-                    onClick={() =>{
-                      setIsChanging(false)
-                      editingEvent && handleDeleteEvent(editingEvent.scheduleId)
-                    }}>삭제</NewButton>
+                    onClick={() =>
+                      editingEvent && handleDeleteEvent(editingEvent.userScheduleId)}>삭제</NewButton>
                   <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"30%"} height={""} margin="0 0 0 0"
                     onClick={() => {
-                      if(isChanging){
-                        var confirmFlag=window.confirm("변경 사항이 있습니다. 취소하시겠습니까?")
-                        if(confirmFlag){
-                          setIsChanging(false)
-                          setEditingEvent(null)
-                          setShowEvent({is:true,event:showEvent.event})
-                        }else{
-                          return
-                        }
-                      }else{
-                        setIsChanging(false)
-                        setEditingEvent(null)
-                        setShowEvent({is:true,event:showEvent.event})
-                      }
+                      setEditingEvent(null)
+                      setShowEvent({is:true,event:showEvent.event})
                     }}>취소</NewButton>
                 </div>
               )}
@@ -451,7 +428,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
         <ManageButtonContainer>
           <ManageButton
             onClick={() =>
-              navigate("/manage", { state: { projectId: projectId } })
+              navigate("/myManage")
             }
           >
             <FaPen />
@@ -463,5 +440,5 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
   );
 };
 
-export default WeekCalendar;
+export default MyCalendar;
 

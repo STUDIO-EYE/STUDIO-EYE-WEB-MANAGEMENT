@@ -7,6 +7,7 @@ import { FaTrash, FaCheck, FaEdit, FaEllipsisH, FaCrown, FaUser, FaUserSlash } f
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 import swal from 'sweetalert';
+import { Tooltip } from "@mui/material";
 
 interface Project {
   projectId: number;
@@ -217,14 +218,22 @@ const MemberInitials = styled.div`
   z-index: 1;
   background-color: ${props => props.color || "#FFA900"};
   color: white;
+  cursor: pointer;
 `;
 
-const CrownIcon = styled(FaCrown)`
-  position: absolute;
-  top: 5px;
-  left: 20px;
-  color: #ffa900;
-`;
+interface TooltipState {
+  projectId: number;
+  userId: string;
+  name: string;
+  email: string;
+}
+
+interface ProjectMember {
+  userId: string;
+  name: string;
+  email: string;
+  role: string;
+}
 
 function OngoingProject() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -232,7 +241,7 @@ function OngoingProject() {
   const [currentDetailsProjects, setCurrentDetailsProjects] = useState<any[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState<{ [key: number]: boolean }>({});
   const [userInProjects, setUserInProjects] = useState<boolean[]>([]);
-
+  const [tooltipVisible, setTooltipVisible] = useState<TooltipState | null>(null);
 
   const projectsPerPage = 10;
   const navigate = useNavigate();
@@ -379,8 +388,8 @@ function OngoingProject() {
     navigate("/Project");
   };
 
-  const handleRowClick = (projectId: number,projectName:string) => {
-    navigate(`/Manage/${projectId}`,{state:{name:projectName}});
+  const handleRowClick = (projectId: number, projectName: string) => {
+    navigate(`/Manage/${projectId}`, { state: { name: projectName } });
   };
 
   const goToHome = () => {
@@ -391,15 +400,6 @@ function OngoingProject() {
     setTimeout(function () {
       window.location.reload();
     }, 100);
-  };
-
-  const renumberProjects = (projects: Project[]) => {
-    return projects.map((project: Project, index: number) => {
-      return {
-        ...project,
-        id: index + 1,
-      };
-    });
   };
 
   const handleDeleteClick = async (e: any, projectId: number) => {
@@ -461,13 +461,29 @@ function OngoingProject() {
     navigate(`/modify/${projectId}`);
   }
 
-  const generateRandomColor = () => {
-    const letters = "0123456789ABCDEF";
-    let color = "#";
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
+  const handleMouseEnter = (projectId: number, member: ProjectMember) => {
+    setTooltipVisible({
+      projectId,
+      userId: member.userId,
+      name: member.name,
+      email: member.email,
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setTooltipVisible(null);
+  };
+
+  const isTooltipOpen = (
+    tooltip: TooltipState | null,
+    projectId: number,
+    userId: string
+  ) => {
+    return (
+      tooltip !== null &&
+      tooltip.projectId === projectId &&
+      tooltip.userId === userId
+    );
   };
 
   return (
@@ -491,7 +507,7 @@ function OngoingProject() {
                     <FaCrown color="#ffa900" size={15} />
                   </div>
                 )}
-                <ProjectItemContent onClick={() => handleRowClick(project.projectId,project.name)}>
+                <ProjectItemContent onClick={() => handleRowClick(project.projectId, project.name)}>
                   <div>
                     <ProjectTitle>{project.name}</ProjectTitle>
                     <ProjectPeriod>
@@ -500,20 +516,22 @@ function OngoingProject() {
                     <ProjectDescription>{project.description}</ProjectDescription>
                     <MemberInfo>
                       {userInProjects[index] ? (
-                        <>
-                          {currentDetailsProjects[index]?.data?.data?.leaderAndMemberList
-                            ?.map((member: any, memberIndex: number) => (
-                              <MemberInitials
-                                key={member.userId}
-                                color={`hsl(${(memberIndex * 50) % 360}, 50%, 50%)`} // 랜덤 배정이지만 새로고침해도 고정된 색상이 될 수 있도록
-                              >
-                                {member.name.slice(-2)}
-                              </MemberInitials>
-                            ))}
-                          {isTeamLeader(currentDetailsProjects[index]) && (
-                            <CrownIcon size={15} />
-                          )}
-                        </>
+                        currentDetailsProjects[index]?.data?.data?.leaderAndMemberList?.map((member: ProjectMember, memberIndex: number) => (
+                          <Tooltip
+                            key={member.userId}
+                            title={`${member.name} (${member.email})`}
+                            open={isTooltipOpen(tooltipVisible, project.projectId, member.userId)}
+                            disableHoverListener
+                          >
+                            <MemberInitials
+                              onMouseEnter={() => handleMouseEnter(project.projectId, member)}
+                              onMouseLeave={handleMouseLeave}
+                              color={`hsl(${(memberIndex * 50) % 360}, 50%, 50%)`}
+                            >
+                              {member.name.slice(-2)}
+                            </MemberInitials>
+                          </Tooltip>
+                        ))
                       ) : (
                         <span style={{ color: 'red' }}>해당 프로젝트의 멤버가 아닙니다.</span>
                       )}

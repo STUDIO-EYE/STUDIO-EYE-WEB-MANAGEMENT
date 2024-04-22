@@ -40,39 +40,41 @@ const CommentPage = ({ selectedRowId, projectId, postId }
     const navigate = useNavigate();
 
     const handleAddComment = (newComment:any) => {
-        setComments((prevComments) => [...prevComments, newComment]); //댓글 최신게 나중에 보여주기
-        setSelectedPost((prevPost) => ({
-          ...prevPost,
-          commentSum: prevPost.commentSum + 1,
-        }));
+      fetchData()
+        // setComments((prevComments) => [...prevComments, newComment]); //댓글 최신게 나중에 보여주기
+        // setSelectedPost((prevPost) => ({
+        //   ...prevPost,
+        //   commentSum: prevPost.commentSum + 1,
+        // }));
         //이런 로직 쓸거면 한 다음에 댓글 수 서버에 저장?하는 기능도 필요할듯
       };
       const handleDeleteComment = () => {
-        setSelectedPost((prevPost) => ({
-          ...prevPost,
-          commentSum: prevPost.commentSum - 1,
-        }));
+        fetchData()
+        // setSelectedPost((prevPost) => ({
+        //   ...prevPost,
+        //   commentSum: prevPost.commentSum - 1,
+        // }));
       };
 
     useEffect(() => {
         // 병렬로 API 호출을 수행하는 함수
-        const fetchData = async () => {
-          try {
-            const [commentsResponse] = await Promise.all([
-              commentApi.getCommentList(selectedRowId),
-            ]);
-            // postResponse 처리
-    
-            if (commentsResponse.data.success) {
-              setComments(commentsResponse.data.data);
-            }
-          } catch (error) {
-            console.error("Error fetching data:", error);
-          }
-        };
-    
         fetchData();
       }, [selectedRowId, projectId]);
+
+      const fetchData = async () => {
+        try {
+          const [commentsResponse] = await Promise.all([
+            commentApi.getCommentList(selectedRowId),
+          ]);
+          // postResponse 처리
+  
+          if (commentsResponse.data.success) {
+            setComments(commentsResponse.data.data);
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
 
       return (
         <>
