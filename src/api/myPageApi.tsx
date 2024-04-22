@@ -61,9 +61,9 @@ const myPageApi: MyPageApi = {
     const response = await axios.post(`/api/userTodo`,data);
     return response;
   },
-  checkTodo: async (data) => {
+  checkTodo: async (userTodoId) => {
     console.log(sessionStorage.getItem('login-token'));
-    const response = await axios.post(`/api/userTodo`,data);
+    const response = await axios.patch(`/api/userTodo/checking/${userTodoId}`);
     return response;
   },
 
