@@ -10,7 +10,7 @@ import { Name } from './Font';
 import { FaBriefcase, FaChartLine, FaSignOutAlt, FaUser } from 'react-icons/fa';
 
 const NavigationBar = styled.div`
-  // width: 225px;
+  width: 225px;
   height: 100vh;
   background-color: #f8f9fa;
   box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.08);

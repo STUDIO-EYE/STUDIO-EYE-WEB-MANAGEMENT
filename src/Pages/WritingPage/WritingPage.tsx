@@ -12,7 +12,6 @@ import Button from "Components/common/Button";
 import NewButton from "Components/common/NewButton";
 import { theme } from "LightTheme";
 import { left } from "@popperjs/core";
-import FileManagementMainContent from "Pages/NoticeBoardPage/FileManagementPage/FileManagementMainContent";
 
 const FormContainer = styled.div`
   display: flex;
