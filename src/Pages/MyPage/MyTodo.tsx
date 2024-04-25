@@ -29,7 +29,7 @@ const List = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: -30px;
-  padding:10px 20px;
+  padding:10px 5px 10px 20px;
 `;
 
 const AddButton = styled.button`
@@ -64,7 +64,7 @@ const Item = styled.li<{ completed: boolean }>`
   align-items: center;
   padding: 10px;
   border-radius: 5px;
-  margin: 10px 0 10px 0;
+  margin: 10px 5px 10px 5px;
   background-color: #ffffff;
   // box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   text-decoration: ${(props) => (props.completed ? "line-through" : "none")};
