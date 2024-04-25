@@ -1,32 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import StudioeyeLogo from "../../assets/logo/studioeye.png";
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
-import projectApi from 'api/projectApi';
-import jwt_decode from "jwt-decode";
-import { Link } from "react-router-dom";
-import { Name } from './Font';
 import { FaBriefcase, FaChartLine, FaSignOutAlt, FaUser } from 'react-icons/fa';
 
 const NavigationBar = styled.div`
   width: 225px;
-  height: 100vh;
-  background-color: #f8f9fa;
-  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.08);
+  height: calc(100vh - 4rem);
+  background-color: white;
   display: flex;
   flex-direction: column;
   position: fixed;
-  top: 0;
+  top: 4rem;
   left: 0;
   z-index: 1000;
-`;
-
-const LogoBox = styled.img`
-  margin: 30px 0 20px 45px;
-  max-width: 60%;
-  width: 170px;
-  cursor: pointer;
 `;
 
 const NavigationWrapper = styled.div`
@@ -35,114 +21,68 @@ const NavigationWrapper = styled.div`
 
 const NavigationContent = styled.div`
   padding: 20px 0;
-  color: #495057;
+  color: black;
   font-size: 1rem;
+`;
+
+const IconContainer = styled.span`
+  margin-right: 15px;
+  margin-top: 5px;
+  color: black;
+  font-size: 25px;
 `;
 
 const NavigationLink = styled.a`
   display: flex;
   align-items: center;
-  color: #495057;
   text-decoration: none;
-  margin-bottom: 15px;
-  transition: background-color 0.3s, font-weight 0.3s;
-  padding: 10px 20px;
-  font-weight: 500;
-  &:hover {
-    background-color: #e9ecef;
-  }
-`;
-
-const LoginButton = styled.button`
-  border: none;
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  margin-top: 15px;
-  transition: background-color 0.3s, font-weight 0.3s;
-  padding: 10px 20px;
-  font-weight: 500;
-  width: 100%;
-  cursor: pointer;
   font-size: 1rem;
+  transition: background-color 0.3s, font-weight 0.3s;
+  padding: 20px 55px;
+  font-weight: 500;
+  border-radius: 0 15px 15px 0;
+  color: black;
+
   &:hover {
-    background-color: #e9ecef;
+    background-color: black;
+    color: white;
   }
-`;
 
-const NameBlock = styled.div`
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  margin-bottom: 100px;
-`;
-
-const StyledLink = styled(Link)`
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
+  &:hover ${IconContainer} {
+    color: #FFC83D;
+  }
 `;
 
 const NavBar = () => {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState("");
-
-  useEffect(() => {
-    const token = sessionStorage.getItem("login-token");
-    if (token) {
-      setIsLoggedIn(true);
-      const decodedToken = jwt_decode(token);
-      setUserName((decodedToken as any).username);
-    }
-  }, []);
-
-  const handleLogout = () => {
-    sessionStorage.removeItem("login-token");
-    delete axios.defaults.headers.common["Authorization"];
-    setIsLoggedIn(false);
-    setUserName("");
-    alert("로그아웃 완료");
-    navigate("/");
-  };
 
   return (
-    <>
-      <NavigationBar>
-        <LogoBox src={StudioeyeLogo} onClick={() => navigate("/")} />
-        <NavigationWrapper>
-          <NavigationContent>
-            <NavigationLink href="/">
-              <FaBriefcase style={{ marginRight: '10px' }} /> Project
-            </NavigationLink>
-            <NavigationLink href="/mypage">
-              <FaUser style={{ marginRight: '10px' }} /> My Page
-            </NavigationLink>
-            <NavigationLink href="#">
-              <FaChartLine style={{ marginRight: '10px' }} /> Auth
-            </NavigationLink>
-          </NavigationContent>
-        </NavigationWrapper>
-        <NameBlock>
-          {isLoggedIn ? (
-            <>
-              <Name>{userName} 님, 안녕하세요.</Name>
-              <StyledLink to="/">
-                <LoginButton onClick={handleLogout}>
-                  <FaSignOutAlt style={{ marginRight: '10px' }} />
-                  Log Out
-                </LoginButton>
-              </StyledLink>
-            </>
-          ) : (
-            <StyledLink to="/LoginPage">
-              <LoginButton>Log In</LoginButton>
-            </StyledLink>
-          )}
-        </NameBlock>
-      </NavigationBar>
-    </>
+    <NavigationBar>
+      <NavigationWrapper>
+        <NavigationContent>
+          <NavigationLink href="/">
+            <IconContainer>
+              <FaBriefcase />
+            </IconContainer>
+            프로젝트
+          </NavigationLink>
+          <NavigationLink href="/mypage">
+            <IconContainer>
+              <FaUser />
+            </IconContainer>
+            마이페이지
+          </NavigationLink>
+          <NavigationLink href="#">
+            <IconContainer>
+              <FaChartLine />
+            </IconContainer>
+            계정
+          </NavigationLink>
+        </NavigationContent>
+      </NavigationWrapper>
+    </NavigationBar>
   );
 };
+
 
 export default NavBar;

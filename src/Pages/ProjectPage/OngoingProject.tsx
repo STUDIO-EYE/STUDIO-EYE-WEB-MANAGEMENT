@@ -8,6 +8,7 @@ import axios from "axios";
 import jwt_decode from "jwt-decode";
 import swal from 'sweetalert';
 import { Tooltip } from "@mui/material";
+import { IoAddCircle } from "react-icons/io5";
 
 interface Project {
   projectId: number;
@@ -25,10 +26,6 @@ const AppContainer = styled.div`
   margin-top: 16px;
 `;
 
-const Container = styled.div`
-  text-align: left;
-`;
-
 const ProjectWrapper = styled.div`
   width: 400px;
   background-color: white;
@@ -36,7 +33,7 @@ const ProjectWrapper = styled.div`
   margin-right: 50px;
   margin-bottom: 100px;
   border-radius: 15px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: 0px 15px 15px rgba(0, 0, 0, 0.1);
 `;
 
 const ProjectsContainer = styled.div`
@@ -47,9 +44,10 @@ const ProjectsContainer = styled.div`
   align-items: center;
 `;
 
-const ProjectItemWrapper = styled.div`
+const ProjectItemWrapper = styled.div<{ isTeamLeader: boolean }>`
   width: calc(100% - 40px);
-  background-color: white;
+  background-color: ${(props) => (props.isTeamLeader ? "#FFC83D" : "#F9FBFD")};
+  color: ${(props) => (props.isTeamLeader ? "black" : "black")};
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
   cursor: pointer;
   padding: 20px;
@@ -57,10 +55,12 @@ const ProjectItemWrapper = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
-  border-radius: 15px;
+  border-radius: 20px;
+  transition: background-color 0.3s;
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.01);
+    background-color: ${(props) => (props.isTeamLeader ? "#F9FBFD" : "black")};
+    color: ${(props) => (props.isTeamLeader ? "black" : "white")};
   }
 `;
 
@@ -104,19 +104,22 @@ const DropdownMenu = styled.div`
   position: absolute;
   top: 15px;
   right: 10px;
+  padding: 5px;
   display: flex;
   flex-direction: column;
-  background-color: #ffffff;
+  background-color: white;
   border-radius: 8px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.08);
   z-index: 1;
 `;
 
-const DropdownButton = styled.button`
+const DropdownButton = styled.button<{ isTeamLeader: boolean }>`
+  display: ${(props) => (props.isTeamLeader ? "block" : "none")}; 
   background-color: transparent;
   border: none;
   outline: none;
   cursor: pointer;
+  color: black;
 
   &:hover {
     color: rgba(0, 0, 0, 0.08);
@@ -128,9 +131,10 @@ const DeleteButton = styled.button`
   border: none;
   outline: none;
   color: red;
-  margin: 4px;
+  padding: 4px;
   cursor: pointer;
-
+  font-family: 'Pretendard';
+  font-weight: 600;
   &:hover {
     background-color: rgba(0, 0, 0, 0.08);
   }
@@ -141,44 +145,53 @@ const CompleteButton = styled.button`
   border: none;
   outline: none;
   color: green;
-  margin: 4px;
+  padding: 4px;
   cursor: pointer;
-
+  font-family: 'Pretendard';
+  font-weight: 600;
   &:hover {
     background-color: rgba(0, 0, 0, 0.08);
   }
 `;
 
 const ModifyButton = styled.button`
-  background-color: transparent;
+  background-color: white;
   border: none;
   outline: none;
   color: #ffa900;
-  margin: 4px;
+  padding: 4px;
   cursor: pointer;
-
+  font-family: 'Pretendard';
+  font-weight: 600;
   &:hover {
     background-color: rgba(0, 0, 0, 0.08);
   }
 `;
 
 const LabelArea = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
   text-align: left;
+  margin-bottom: 50px;
 `;
 
 const CreateButton = styled.button`
-  background-color: white;
-  border: 0px;
-  margin-left: 275px;
+  background-color: transparent;
+  border: none;
   cursor: pointer;
+  font-size: 2rem;
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.03);
+    color: #FFC83D;
   }
 `;
 
 const PaginationContainer = styled.div`
+    margin-top: 50px;
+    
+
   .pagination {
     list-style-type: none;
     display: flex;
@@ -197,7 +210,16 @@ const PaginationContainer = styled.div`
   }
 
   .active .page-link {
-    font-weight: bold;
+    font-weight: 600;
+    font-size: 0.5rem;
+    background-color: black;
+    color: white;
+    padding: 10px;
+
+    &:hover {
+      background-color: #FFC83D;
+      color: white;
+    }
   }
 `;
 
@@ -242,8 +264,17 @@ function OngoingProject() {
   const [dropdownOpen, setDropdownOpen] = useState<{ [key: number]: boolean }>({});
   const [userInProjects, setUserInProjects] = useState<boolean[]>([]);
   const [tooltipVisible, setTooltipVisible] = useState<TooltipState | null>(null);
-
   const projectsPerPage = 10;
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("login-token");
+    if (token) {
+      const decodedToken: any = jwt_decode(token);
+      setUserName(decodedToken.username); // 토큰에서 사용자 이름 가져오기
+    }
+  }, []);
+
   const navigate = useNavigate();
 
   const indexOfLastProject = currentPage * projectsPerPage;
@@ -489,24 +520,19 @@ function OngoingProject() {
   return (
     <AppContainer>
       <ProjectWrapper>
-        <Container>
-          <LabelArea>
-            <TitleSm>In Progress</TitleSm>
-            <CreateButton type="button" onClick={handleAddProject}>
-              <TextLg>+</TextLg>
-            </CreateButton>
-          </LabelArea>
-        </Container>
+        <LabelArea>
+          <TitleSm>진행 중인 <br></br> 프로젝트 👇</TitleSm>
+          <CreateButton type="button" onClick={handleAddProject}>
+            <IoAddCircle />
+          </CreateButton>
+        </LabelArea>
         <ProjectsContainer>
           {currentDetailsProjects.length > 0 && (
             currentProjects.map((project: Project, index) => (
-              <ProjectItemWrapper key={project.projectId}>
-                {/* 임시 추가: 팀장이면 왕관 표시 뜸 */}
-                {isTeamLeader(currentDetailsProjects[index]) && (
-                  <div style={{ position: 'absolute', top: '5px', left: '20px' }}>
-                    <FaCrown color="#ffa900" size={15} />
-                  </div>
-                )}
+              <ProjectItemWrapper
+                key={project.projectId}
+                isTeamLeader={isTeamLeader(currentDetailsProjects[index])}
+              >
                 <ProjectItemContent onClick={() => handleRowClick(project.projectId, project.name)}>
                   <div>
                     <ProjectTitle>{project.name}</ProjectTitle>
@@ -538,7 +564,7 @@ function OngoingProject() {
                     </MemberInfo>
                   </div>
                   <ButtonsContainer>
-                    <DropdownButton onClick={(e) => toggleDropdown(e, project.projectId)}>
+                    <DropdownButton isTeamLeader={isTeamLeader(currentDetailsProjects[index])} onClick={(e) => toggleDropdown(e, project.projectId)}>
                       <FaEllipsisH />
                     </DropdownButton>
                   </ButtonsContainer>

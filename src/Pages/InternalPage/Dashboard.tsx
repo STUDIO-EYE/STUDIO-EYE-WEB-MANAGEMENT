@@ -40,7 +40,6 @@ const LeftComponent = styled.div`
 
 const Left = styled.div<{ expanded: boolean }>`
   padding: 20px;
-  background-color: white;
   flex-basis: 50%;
   height: ${(props) => (props.expanded ? "1000px" : "600px")}; // 크기 변경
   overflow-y: auto;
@@ -72,9 +71,10 @@ const Button = styled.button`
   background-color: white;
 `;
 
-const Arc = styled.div<{ scrolled: boolean }>`
+const Arc = styled.div`
+background-color: transparent;
   margin-left: 225px;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   display: flex;
 `;
 
@@ -118,8 +118,8 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
 
   return (
     <DashboardBox>
-      <Arc scrolled={scrolled}> {/* scrolled prop 전달 */}
-        <Title>{projectId}번 프로젝트</Title>
+      <Arc>
+        <Title>오늘의 일정이 n개 있습니다.</Title>
       </Arc>
       <DashboardBody onScroll={() => handleScroll}> {/* 스크롤 이벤트 핸들러 추가 */}
         <Panel expanded={expanded}>

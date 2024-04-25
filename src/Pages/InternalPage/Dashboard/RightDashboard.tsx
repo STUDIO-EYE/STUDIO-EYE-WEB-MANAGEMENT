@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import boardApi from "../../../api/boardApi";
 import axios from "axios";
 import { TitleSm } from "Components/common/Font";
+import { IoFileTrayFullSharp, IoAddCircle } from "react-icons/io5";
+import { FaPenToSquare } from "react-icons/fa6";
 
 interface Post {
   id: number;
@@ -21,7 +23,6 @@ interface DashboardProps {
 }
 
 const RightDashboardBox = styled.div`
-  background-color: white;
   flex-basis: 50%;
   overflow-y: auto;
 
@@ -58,17 +59,21 @@ const RightboardBody = styled.div<RightBoardProps>`
   ${(props) => props.isEditing && "margin-bottom: 100px;"}
 `;
 
-const GoToFilePageButton = styled.div<RightBoardProps>`
-  width: 90%;
+const GoToFilePageButton = styled.div`
+  width: 84%;
+  text-align: center;
   margin-top: 1rem;
   margin-left: 2rem;
   flex-direction: column;
-  background-color: white;
-  overflow: hidden;
   transition: height 0.3s ease-in-out;
-  flex: 1;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
-  ${(props) => props.isEditing && "margin-bottom: 100px;"}
+  background-color: lightgray;
+  padding: 15px;
+  border-radius: 15px;
+  
+  &:hover{
+    background-color: rgba(0, 0, 0, 0.08);
+  }
 `;
 
 const BoardTitleDiv = styled.div`
@@ -99,28 +104,36 @@ const ContentDiv = styled.div`
 
 const Text = styled.text`
   font-size: 1rem;
-  text-decoration: underline;
   white-space: nowrap;
   text-overflow: ellipsis;
   cursor: pointer;
   padding-left: 1rem;
+    &:hover {
+      text-decoration: underline;
+    }
 `;
 
-const GoButton = styled.div`
+const PlusButton = styled.div`
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;;
+  margin-left: auto;
+    &:hover {
+      color: rgba(0, 0, 0, 0.08);
+    }
+`;
+
+const FileButton = styled.div`
   cursor: pointer;
   font-weight: 600;
   font-size: 1.5rem;
-  margin-left: auto;
-  
-  &:hover{
-    opacity:0.5;
-  }
+  margin-left: 15px;
 `;
 
-const BoardTitleText=styled.div`
+const BoardTitleText = styled.div`
 cursor:pointer;
 &:hover{
-  opacity:0.5;
+  color: rgba(0, 0, 0, 0.08);
 }
 `;
 
@@ -131,24 +144,24 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId }) =>
   const [editData, setEditData] = useState<Post[]>([]);
 
   const goToPlanPage = () => {
-    navigate(`/PlanMain/${projectId}`,{state:{name:projectData.name}});
+    navigate(`/PlanMain/${projectId}`, { state: { name: projectData.name } });
   };
-  const goToPlanWritingPage=()=>{//plan 글쓰기 페이지로 이동
-    navigate(`/PlanMain/${projectId}`,{state:{name:projectData.name, writing:true}})
+  const goToPlanWritingPage = () => {//plan 글쓰기 페이지로 이동
+    navigate(`/PlanMain/${projectId}`, { state: { name: projectData.name, writing: true } })
   }
 
   const goToMakingPage = () => {
-    navigate(`/MakingMain/${projectId}`,{state:{name:projectData.name}});
+    navigate(`/MakingMain/${projectId}`, { state: { name: projectData.name } });
   };
-  const goToMakingWritingPage=()=>{//making 글쓰기 페이지로 이동
-    navigate(`/MakingMain/${projectId}`,{state:{name:projectData.name, writing:true}})
+  const goToMakingWritingPage = () => {//making 글쓰기 페이지로 이동
+    navigate(`/MakingMain/${projectId}`, { state: { name: projectData.name, writing: true } })
   }
 
   const goToEditPage = () => {
-    navigate(`/EditMain/${projectId}`,{state:{name:projectData.name}});
+    navigate(`/EditMain/${projectId}`, { state: { name: projectData.name } });
   };
-  const goToEditWritingPage=()=>{//edit 글쓰기 페이지로 이동
-    navigate(`/EditMain/${projectId}`,{state:{name:projectData.name, writing:true}})
+  const goToEditWritingPage = () => {//edit 글쓰기 페이지로 이동
+    navigate(`/EditMain/${projectId}`, { state: { name: projectData.name, writing: true } })
   }
 
   const goToFilePage = () => {
@@ -206,14 +219,13 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId }) =>
 
   return (
     <RightDashboardBox>
-      <GoToFilePageButton>
-        goToFilePage 버튼
-        <GoButton onClick={goToFilePage}>+</GoButton>
+      <GoToFilePageButton onClick={goToFilePage}>
+        <FileButton><IoFileTrayFullSharp /></FileButton>
       </GoToFilePageButton>
       <RightboardBody>
         <BoardTitleDiv>
           <BoardTitleText><TitleSm onClick={goToPlanPage}>기획</TitleSm></BoardTitleText>
-          <GoButton onClick={goToPlanWritingPage}>+</GoButton>
+          <PlusButton onClick={goToPlanWritingPage}><FaPenToSquare /></PlusButton>
         </BoardTitleDiv>
         <BoardContentDiv>
           {planData.length === 0 ? (
@@ -232,8 +244,8 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId }) =>
       </RightboardBody>
       <RightboardBody>
         <BoardTitleDiv>
-          <TitleSm onClick={goToMakingPage}>제작</TitleSm>
-          <GoButton onClick={goToMakingWritingPage}>+</GoButton>
+          <BoardTitleText><TitleSm onClick={goToPlanPage}>제작</TitleSm></BoardTitleText>
+          <PlusButton onClick={goToMakingWritingPage}><FaPenToSquare /></PlusButton>
         </BoardTitleDiv>
         <BoardContentDiv>
           {productionDate.length === 0 ? (
@@ -252,8 +264,8 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId }) =>
       </RightboardBody>
       <RightboardBody isEditing>
         <BoardTitleDiv>
-          <TitleSm onClick={goToEditPage}>편집</TitleSm>
-          <GoButton onClick={goToEditWritingPage}>+</GoButton>
+          <BoardTitleText><TitleSm onClick={goToPlanPage}>편집</TitleSm></BoardTitleText>
+          <PlusButton onClick={goToEditWritingPage}><FaPenToSquare /></PlusButton>
         </BoardTitleDiv>
         <BoardContentDiv>
           {editData.length === 0 ? (

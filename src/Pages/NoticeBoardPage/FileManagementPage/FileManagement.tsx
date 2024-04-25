@@ -21,13 +21,25 @@ interface File {
 
 const Container = styled.div`
   display: flex;
-  width: calc(100% - 100px);
+  width: calc(90vw - 150px);
+  height: calc(100vh - 4rem);
   flex-direction: column;
-  margin-left: 225px;
+  margin-left: 185px;
 `;
 
-const NavBar = styled.div`
+const NavigationToggle = styled.button`
+  background: none;
+  border: none;
+  font-size: 25px;
+  padding: 10px;
+  &:hover {
+    color: #FFC83D;
+  }
+`;
+
+const IconBar = styled.div`
   width: 100%;
+  border-radius: 15px;
   padding: 20px;
   margin-bottom: 50px;
   display: flex;
@@ -43,13 +55,12 @@ const FileContainer = styled.div<{ isGallery: boolean }>`
   gap: 20px;
   justify-content: ${({ isGallery }) => (isGallery ? "flex-start" : "start")};
   align-items: center;
-  margin-left: ${({ isGallery }) => (isGallery ? "7%" : "3%")};;
+  margin-left: ${({ isGallery }) => (isGallery ? "6%" : "3%")};;
   margin-bottom: 100px;
 `;
 
 const SearchInputContainer = styled.div`
   display: flex;
-
   align-items: center;
   position: relative;
 `;
@@ -68,10 +79,11 @@ const SearchIcon = styled(AiOutlineSearch)`
 const SearchInput = styled.input`
   font-family: "Pretendard";
   font-size: 0.9rem;
-  width: calc(100% - 30px);
+  width: 200px;
   padding: 10px 10px 10px 20px;
   border-color: rgba(0, 0, 0, 0.08);
   border-radius: 15px;
+  background-color: white;
   &:focus {
     border-color: #ffa900;
     outline: none;
@@ -83,15 +95,14 @@ const RecentSearchesDropdown = styled.div<{ visible: boolean }>`
   top: 40px;
   left: 0;
   width: 100%;
-  background-color: white;
-  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.08);
+  background-color: rgba(243, 243, 243, 0.5);
   border-radius: 15px;
   z-index: 100;
   display: ${({ visible }) => (visible ? "block" : "none")};
 `;
 
 const RecentSearchItem = styled.div`
-  padding: 7.5px 20px;
+  padding: 15px 20px;
   font-size: 0.8rem;
   color: gray;
   position: relative;
@@ -111,7 +122,6 @@ const RecentSearchItemDeleteButton = styled.button`
   font-size: 1rem;
   color: gray;
   opacity: 0;
-  transition: opacity 0.3s;
   ${RecentSearchItem}:hover & {
     opacity: 1;
   }
@@ -283,6 +293,11 @@ const FileManagement: React.FC = () => {
   });
   const [isGallery, setIsGallery] = useState(true); // 갤러리/리스트 형식 구분
   const [showRecentSearches, setShowRecentSearches] = useState(false);
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  
+  const toggleNavBar = () => {
+    setIsNavVisible(!isNavVisible);
+  };
 
   const getExtension = (fileName: string) => {
     return fileName.split(".").pop()?.toLowerCase();
@@ -422,7 +437,7 @@ const FileManagement: React.FC = () => {
 
   return (
     <Container>
-      <NavBar>
+      <IconBar>
         <SearchInputContainer ref={searchInputRef} onClick={toggleRecentSearches}>
           <SearchIcon onClick={handleSearch} />
           <SearchInput
@@ -473,7 +488,7 @@ const FileManagement: React.FC = () => {
             <TooltipText className="tooltip">리스트 보기</TooltipText>
           </TooltipContainer>
         </IconContainer>
-      </NavBar>
+      </IconBar>
 
       <FileContainer isGallery={isGallery}>
         {files.map((file) => {

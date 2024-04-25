@@ -27,8 +27,8 @@ export const TitleMd = styled.span`
 `;
 
 export const TitleSm = styled.span`
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 800;
   @media ${media.mobile} {
     font-size: 1.25rem;
     font-weight: 600;

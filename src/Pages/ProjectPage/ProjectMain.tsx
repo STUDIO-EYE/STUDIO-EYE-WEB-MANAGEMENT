@@ -6,7 +6,6 @@ import styled, { createGlobalStyle } from "styled-components";
 
 const GlobalStyle = createGlobalStyle`
   body {
-    background-color: white;
     margin: 0;
   }
 `;
@@ -16,7 +15,6 @@ const MainBody = styled.div`
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  background-color: white;
 `;
 
 const Title = styled.text`
@@ -33,7 +31,6 @@ const Wrapper = styled.div`
 `;
 
 const Container = styled.div`
-  background-color: white;
   display: flex;
   justify-content: center;
   position: relative;
