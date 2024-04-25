@@ -59,9 +59,9 @@ const LeftComponent = styled.div`
 `;
 
 const TodayChecklistContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  // display: grid;
+  // grid-template-columns: 1fr 1fr;
+  // gap: 20px;
 `;
 
 const CheckList = styled.div`
@@ -92,15 +92,6 @@ const MyPage = () => {
             <LeftComponent>
               <MyCalendar/>
             </LeftComponent>
-
-            <TodayChecklistContainer>
-              <LeftComponent>
-                <MyToday/>
-              </LeftComponent>
-              <LeftComponent>
-                <MyTodo/>
-              </LeftComponent>
-            </TodayChecklistContainer>
           </Left>
           <RightDashboard />
           <RightMyPage/>

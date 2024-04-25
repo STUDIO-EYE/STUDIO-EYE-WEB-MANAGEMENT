@@ -6,6 +6,9 @@ import myPageApi from "../../api/myPageApi";
 import axios from "axios";
 import { theme } from "LightTheme";
 import NewButton from "Components/common/NewButton";
+import Calendar from "react-calendar";
+// import 'react-calendar/dist/Calendar.css'
+import moment from "moment";
 
 const Container = styled.div`
   background-color: #ffffff;
@@ -41,15 +44,140 @@ const ArrowButton = styled.button`
   font-size: 12px;
 `;
 
-const Calendar = styled.div`
-  display: grid;
-  grid-template-columns: repeat(7, 14%);
-  gap: 1px;
-  // border: 1px solid #e0e0e0;
+const CustomCalendar=styled(Calendar)`
+.react-calendar {
+  width: 100%;
   max-width: 100%;
-  // background-color: #f7f7f7;
-  margin-left: 0.1rem;
-  margin-right: auto;
+  background: white;
+  line-height: 1.125em;
+}
+.react-calendar button {
+  margin: 0;
+  border: 0;
+  outline: none;
+  border:none;
+}
+button {
+  padding:4px;
+  border-radius: 5px;
+  &:hover {
+    
+  }
+}
+
+.react-calendar__navigation {
+  display: flex;
+  height: 44px;
+  margin-bottom: 1em;
+}
+.react-calendar__navigation button {
+  min-width: 44px;
+  background: white;
+  border:none;
+  &:hover{
+    background-color:${theme.color.gray10};
+    cursor:pointer;
+  }
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  font-size:0.7rem;
+  color:${theme.color.gray40};
+  margin-bottom:0.5rem;
+  text-decoration:none;
+}
+.react-calendar__month-view__weekdays abbr {
+  text-decoration: none;
+}
+.react-calendar__month-view__days__day--weekend {
+  color: #fff;
+  font-size: 18px;
+  text-decoration: none;
+  width: 44px;
+  height: 44px;
+  text-align: center;
+}
+.react-calendar__month-view__weekNumbers .react-calendar__tile {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  font: inherit;
+  font-size: 0.3em;
+}
+.react-calendar__month-view__days__day--weekend {
+  color: #d10000;
+}
+
+.react-calendar__month-view__days__day--neighboringMonth,
+.react-calendar__decade-view__years__year--neighboringDecade,
+.react-calendar__century-view__decades__decade--neighboringCentury {
+  color: ${theme.color.gray20};
+}
+
+.react-calendar__year-view .react-calendar__tile,
+.react-calendar__decade-view .react-calendar__tile,
+.react-calendar__century-view .react-calendar__tile {
+  padding: 2em 0.5em;
+}
+
+.react-calendar__tile {
+  width: 100%;
+  background: none;
+  text-align: left;
+  font: inherit;
+  font-size: 0.7rem;
+  display:flex;
+  flex-direction:column;
+  border:none;
+}
+
+.react-calendar__tile:disabled {
+  background-color: #f0f0f0;
+  color: #ababab;
+}
+
+.react-calendar__month-view__days__day--neighboringMonth:disabled,
+.react-calendar__decade-view__years__year--neighboringDecade:disabled,
+.react-calendar__century-view__decades__decade--neighboringCentury:disabled {
+  color: #cdcdcd;
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background-color: ${theme.color.gray10};
+}
+.react-calendar__tile--now {
+  background: ${theme.color.lightOrange};
+}
+.react-calendar__tile--now:enabled:hover,
+.react-calendar__tile--now:enabled:focus {
+  background: ${theme.color.lightOrange};
+}
+
+.react-calendar__tile--hasActive {
+  background: ${theme.color.gray20};
+}
+.react-calendar__tile--active {
+  background: ${theme.color.orange};
+  color: white;
+}
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus {
+  background: ${theme.color.orange};
+}
+.react-calendar--selectRange .react-calendar__tile--hover {
+  background-color: ${theme.color.orange};
+}
+
+/* 일정 있는 날 표시 점 */
+.dot {
+  height: 8px;
+  width: 8px;
+  background-color: #FFBB0D;
+  border-radius: 50%;
+  text-align: center;
+  margin-top: 3px;
+}
 `;
 
 const ManageButtonContainer = styled.div`
@@ -165,7 +293,7 @@ const MyCalendar = () => {
     is:false,
     event:[]});
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
-  const [message, setMessage] = useState<string>("");
+  const [selectDate,setSelectDate]=useState<string>();
 
   const navigate = useNavigate();
 
@@ -175,7 +303,7 @@ const MyCalendar = () => {
         const response = await myPageApi.getCalendarEvents();
         if (response.data && response.data.success === false) {
           if (response.data.code === 6001) {
-            setMessage(response.data.message);
+            // setMessage(response.data.message);
           } else if (response.data.code === 7001) {
             sessionStorage.removeItem("login-token");
             delete axios.defaults.headers.common["Authorization"];
@@ -323,12 +451,23 @@ const MyCalendar = () => {
     }
   };
 
+  const handleDateChange=(e:any)=>{
+    setSelectDate(moment(e).format("YYYY/MM/DD"));
+    console.log(selectDate);
+  }
+
   const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
   return (
     <div className="App">
       <Container>
-        <CalendarHeader>
+        <CustomCalendar 
+        locale="en"
+        onChange={handleDateChange}
+        formatDay={(locale, date) => moment(date).format("DD")}
+        />
+        <div>{selectDate}의 일정</div>
+        {/* <CalendarHeader>
           <span style={{cursor: 'pointer',fontSize:'0.8rem',margin:'1rem'}} onClick={goToNewDate}>
             {currentDate.toLocaleString('en-GB',{month:'long'})+" "+currentDate.getFullYear()}
           </span>
@@ -341,7 +480,7 @@ const MyCalendar = () => {
             </ArrowButton>
           </div>
         </CalendarHeader>
-        <Calendar>
+        <CustomCalendar>
           {days.map((day, index) => (
             <DayHeader key={index} isWeekend={index === 0 || index === 6}>
               {day}
@@ -424,7 +563,7 @@ const MyCalendar = () => {
                 setEditingEvent(null)}}>닫기</NewButton>
             </Modal>
           )}
-        </Calendar>
+        </CustomCalendar> */}
         <ManageButtonContainer>
           <ManageButton
             onClick={() =>

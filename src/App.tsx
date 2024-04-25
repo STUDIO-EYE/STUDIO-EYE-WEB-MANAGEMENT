@@ -20,6 +20,7 @@ import MyManage from 'Pages/MyPage/MyManage';
 function App() {
   return (
       <Routes>
+        {/* <Route path="/" element={<ProjectMain />} /> */}
         <Route path="/" element={<ProjectMain />} />
         <Route path="/Manage/:projectId" element={<InternalMainpage />} />
         <Route path="/Manage/:projectId/files" element={<FileManagementMain />} />

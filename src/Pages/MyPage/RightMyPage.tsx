@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import boardApi from "../../api/boardApi";
 import axios from "axios";
 import { TitleSm } from "Components/common/Font";
+import MyTodo from "./MyTodo";
 
 interface Post {
   id: number;
@@ -201,8 +202,10 @@ const RightDashboard = () => {
 
   return (
     <RightDashboardBox>
+      <MyTodo/>
       <RightboardBody>
         <BoardTitleDiv>
+          siasia
           {/* <BoardTitleText><TitleSm onClick={goToPlanPage}>기획</TitleSm></BoardTitleText>
           <GoButton onClick={goToPlanWritingPage}>+</GoButton> */}
         </BoardTitleDiv>
