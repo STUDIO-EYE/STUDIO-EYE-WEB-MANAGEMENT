@@ -80,7 +80,9 @@ const Item = styled.li<{ completed: boolean }>`
   }
 `;
 
-const Checkbox = styled.input.attrs({ type: "checkbox" })``;
+const Checkbox = styled.input.attrs({ type: "checkbox" })`
+margin-right:0.4rem;
+`;
 
 const AddModal = styled.div`
   position: fixed;

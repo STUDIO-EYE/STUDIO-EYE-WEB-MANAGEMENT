@@ -7,6 +7,8 @@ import axios from "axios";
 import { TitleSm } from "Components/common/Font";
 import { theme } from "LightTheme";
 import NewButton from "Components/common/NewButton";
+import Calendar from "react-calendar";
+import moment from "moment";
 
 const Container = styled.div`
   background-color: #ffffff;
@@ -15,42 +17,140 @@ const Container = styled.div`
   border-radius: 15px;
 `;
 
-const List = styled.div`
-  margin-top: -15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+const CustomCalendar=styled(Calendar)`
+.react-calendar {
   width: 100%;
-`;
-
-const Title = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
-`;
-
-const CalendarHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 0.1rem solid ${theme.color.gray20};
-`;
-
-const ArrowButton = styled.button`
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 12px;
-`;
-
-const Calendar = styled.div`
-  display: grid;
-  grid-template-columns: repeat(7, 14%);
-  gap: 1px;
-  // border: 1px solid #e0e0e0;
   max-width: 100%;
-  // background-color: #f7f7f7;
-  margin-left: 0.1rem;
-  margin-right: auto;
+  background: white;
+  line-height: 1.125em;
+}
+.react-calendar button {
+  margin: 0;
+  border: 0;
+  outline: none;
+  border:none;
+}
+button {
+  padding:4px;
+  border-radius: 5px;
+  &:hover {
+    
+  }
+}
+
+.react-calendar__navigation {
+  display: flex;
+  height: 44px;
+  margin-bottom: 1em;
+}
+.react-calendar__navigation button {
+  min-width: 44px;
+  background: white;
+  border:none;
+  &:hover{
+    background-color:${theme.color.gray10};
+    cursor:pointer;
+  }
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  font-size:0.7rem;
+  color:${theme.color.gray40};
+  margin-bottom:0.5rem;
+  text-decoration:none;
+}
+.react-calendar__month-view__weekdays abbr {
+  text-decoration: none;
+}
+.react-calendar__month-view__days__day--weekend {
+  color: #fff;
+  font-size: 18px;
+  text-decoration: none;
+  width: 44px;
+  height: 44px;
+  text-align: center;
+}
+.react-calendar__month-view__weekNumbers .react-calendar__tile {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  font: inherit;
+  font-size: 0.3em;
+}
+.react-calendar__month-view__days__day--weekend {
+  color: #d10000;
+}
+
+.react-calendar__month-view__days__day--neighboringMonth,
+.react-calendar__decade-view__years__year--neighboringDecade,
+.react-calendar__century-view__decades__decade--neighboringCentury {
+  color: ${theme.color.gray20};
+}
+
+.react-calendar__year-view .react-calendar__tile,
+.react-calendar__decade-view .react-calendar__tile,
+.react-calendar__century-view .react-calendar__tile {
+  padding: 2em 0.5em;
+}
+
+.react-calendar__tile {
+  width: 100%;
+  background: none;
+  text-align: left;
+  font: inherit;
+  font-size: 0.7rem;
+  display:flex;
+  flex-direction:column;
+  border:none;
+}
+
+.react-calendar__tile:disabled {
+  background-color: #f0f0f0;
+  color: #ababab;
+}
+
+.react-calendar__month-view__days__day--neighboringMonth:disabled,
+.react-calendar__decade-view__years__year--neighboringDecade:disabled,
+.react-calendar__century-view__decades__decade--neighboringCentury:disabled {
+  color: #cdcdcd;
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background-color: ${theme.color.gray10};
+}
+.react-calendar__tile--now {
+  background: ${theme.color.lightOrange};
+}
+.react-calendar__tile--now:enabled:hover,
+.react-calendar__tile--now:enabled:focus {
+  background: ${theme.color.lightOrange};
+}
+
+.react-calendar__tile--hasActive {
+  background: ${theme.color.gray20};
+}
+.react-calendar__tile--active {
+  background: ${theme.color.orange};
+  color: white;
+}
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus {
+  background: ${theme.color.orange};
+}
+.react-calendar--selectRange .react-calendar__tile--hover {
+  background-color: ${theme.color.orange};
+}
+
+/* 일정 있는 날 표시 점 */
+.dot {
+  height: 13px;
+  width: 12px;
+  background-color: ${theme.color.black};
+  border-radius: 50%;
+  text-align: center;
+  margin-top: 3px;
+}
 `;
 
 const ManageButtonContainer = styled.div`
@@ -77,12 +177,6 @@ const ManageButton = styled.button`
   }
 `;
 
-const MoreButton = styled.button`
-  background-color: transparent;
-  border: transparent;
-  font-size: 12px;
-`;
-
 const Modal = styled.div`
   text-align: start;
   position: fixed;
@@ -97,58 +191,6 @@ const Modal = styled.div`
   padding: 1rem;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-`;
-
-const DayHeader = styled.div<{ isWeekend: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #ffffff;
-  height: 30px;
-  font-size: 12px;
-  font-weight: 500;
-  color: ${(props) => (props.isWeekend ? "red" : "black")};
-`;
-
-const Day = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  background-color: #ffffff;
-  height: 3rem;
-  font-size: 12px;
-  color: black;
-  cursor: pointer;
-  margin:0.1rem;
-
-  &:hover {
-    background-color: #e0e0e0;
-  }
-`;
-
-const ScheduleItem = styled.p`
-  margin-top: -2px;
-  margin-bottom: 6px;
-  color: grey;
-  background-color: red;
-  padding: 0px 8px;
-  border-radius: 8px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 150px;
-  cursor: pointer;
-`;
-
-const EventItem=styled.span`
-  cursor:pointer;
-  display:block;
-  font-size:0.85rem;
-  margin-bottom:0.2rem;
-  padding: 0.2rem;
-  background-color:${theme.color.gray10};
-  border-radius: 5px;
 `;
 
 interface Event {
@@ -172,6 +214,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [isChanging,setIsChanging]=useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
+  const [selectDate,setSelectDate]=useState<Date>(new Date());
 
   const navigate = useNavigate();
 
@@ -198,27 +241,6 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
     fetchEvents();
   }, [projectId]);
 
-  const getDayColor = (dayIndex: number): string => {
-    switch (dayIndex) {
-      case 0:
-        return "#ffb3b3";
-      case 1:
-        return "#ffdab3";
-      case 2:
-        return "#ffffb3";
-      case 3:
-        return "#d1ffb3";
-      case 4:
-        return "#b3e0ff";
-      case 5:
-        return "#dab3ff";
-      case 6:
-        return "#ffb3e1";
-      default:
-        return "#ffffff";
-    }
-  };
-
   const getWeekDates = (date: Date): Date[] => {
     const weekDates: Date[] = [];
     let startDate = new Date(date);
@@ -231,18 +253,6 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
     }
 
     return weekDates;
-  };
-
-  const goToPreviousWeek = () => {
-    const newDate = new Date(currentDate);
-    newDate.setDate(newDate.getDate() - 7);
-    setCurrentDate(newDate);
-  };
-
-  const goToNextWeek = () => {
-    const newDate = new Date(currentDate);
-    newDate.setDate(newDate.getDate() + 7);
-    setCurrentDate(newDate);
   };
 
   const goToNewDate = () => {
@@ -267,27 +277,27 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
       date.getDate()
     ).getTime();
 
-    return events.filter((e) => {
-      const eventStartDate = new Date(
-        new Date(e.startDate).getFullYear(),
-        new Date(e.startDate).getMonth(),
-        new Date(e.startDate).getDate()
-      ).getTime();
-      const eventEndDate = new Date(
-        new Date(e.endDate).getFullYear(),
-        new Date(e.endDate).getMonth(),
-        new Date(e.endDate).getDate(),
-        23,
-        59,
-        59,
-        999
-      ).getTime();
-
-      return targetDate >= eventStartDate && targetDate <= eventEndDate;
-    });
+    if(events!=null){
+      return events.filter((e) => {
+        const eventStartDate = new Date(
+          new Date(e.startDate).getFullYear(),
+          new Date(e.startDate).getMonth(),
+          new Date(e.startDate).getDate()
+        ).getTime();
+        const eventEndDate = new Date(
+          new Date(e.endDate).getFullYear(),
+          new Date(e.endDate).getMonth(),
+          new Date(e.endDate).getDate(),
+          23,
+          59,
+          59,
+          999
+        ).getTime();
+  
+        return targetDate >= eventStartDate && targetDate <= eventEndDate;
+      });
+    }else return [];
   };
-
-  const currentWeekDates = getWeekDates(currentDate);
 
   const fetchEvents = async () => {
     try {
@@ -329,75 +339,47 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
     }
   };
 
-  const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+  const handleDateChange=(e:any)=>{
+    setSelectDate(e);
+  }
 
   return (
     <div className="App">
       <Container>
-        <CalendarHeader>
-          <span style={{cursor: 'pointer',fontSize:'0.8rem',margin:'1rem'}} onClick={goToNewDate}>
-            {currentDate.toLocaleString('en-GB',{month:'long'})+" "+currentDate.getFullYear()}
-          </span>
-          <div>
-            <ArrowButton onClick={goToPreviousWeek}>
-              <FaArrowLeft />
-            </ArrowButton>
-            <ArrowButton onClick={goToNextWeek} style={{margin:'1rem'}}>
-              <FaArrowRight />
-            </ArrowButton>
-          </div>
-        </CalendarHeader>
-        <Calendar>
-          {days.map((day, index) => (
-            <DayHeader key={index} isWeekend={index === 0 || index === 6}>
-              {day}
-            </DayHeader>
-          ))}
+      <CustomCalendar 
+        locale="en"
+        onChange={handleDateChange}
+        formatDay={(locale, date) => moment(date).format("DD")}
+        tileContent={({date,view})=>{
+          let html=[];
+          if(events.find((x) =>
+            (x.startDate <= moment(date).format("YYYY-MM-DD"))&& x.endDate>=moment(date).format("YYYY-MM-DD"))){
+            html.push(<div className="dot" style={{color:"white"}}>{findEventsForDate(new Date(date!!)).length}</div>)
+            return(
+              <>
+                <div className="etc">
+                  {html}
+                </div>
+              </>
+            )
+          }
+        }}
+      />
 
-          {currentWeekDates.map((date) => {
-            const eventsForDate = findEventsForDate(date);
-            return (
-              <Day
-                key={date.toString()}
-                onClick={() => {
-                  if (eventsForDate.length) {
-                    setShowEvent({is:true,event:eventsForDate});
-                    // setEditingEvent(eventsForDate[0]);
-                    setShowModal(true);
-                  }
-                }}
-              >
-                <div>{date.getDate()}</div>
-                <ScheduleItem
-                  onClick={() => {
-                    setShowEvent({is:true,event:eventsForDate});
-                    setShowModal(true);
-                  }}
-                  style={{ backgroundColor: getDayColor(date.getDay()) }}>
-                    {eventsForDate.length!=0?eventsForDate.length:""}
-                  </ScheduleItem>
-              </Day>
-            );
-          })}
+      <div>{moment(selectDate).format("YYYY/MM/DD")}의 일정</div>
+        {findEventsForDate(new Date(selectDate!!)).length!=0
+          ? findEventsForDate(new Date(selectDate!!)).map((event)=>{
+            return <div style={{cursor:'pointer'}}
+            onClick={()=>{
+              setShowModal(true)
+              setEditingEvent(event)
+            }} key={event.scheduleId}>{event.content}</div>})
+          :<div>오늘의 일정이 없습니다.</div>
+        }
 
 
           {showModal && (
             <Modal>
-              {showEvent.is&&(
-                <>
-                <span style={{fontWeight:'500', marginBottom:'0.5rem',display:'block'}}>이벤트 목록</span>
-                {showEvent.event.map((event)=>{
-                  return (
-                    <EventItem onClick={() => {
-                      setShowEvent({is:false,event:showEvent.event})
-                      setEditingEvent(event);
-                      }}>{
-                        event.content.length>22?event.content.slice(0,22)+"...":
-                        event.content}</EventItem>
-                  )
-                })}
-                </>
-              )}
               {editingEvent && (
                 <div>
                   <textarea
@@ -414,40 +396,37 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
                       }
                     }}
                   />
-                  <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"30%"} height={""} margin="0 5% 0.3rem 0"
+                  <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"49%"} height={""} margin="0 2% 0.3rem 0"
                     onClick={() =>{
-                      setIsChanging(false)
                       editingEvent && handleEditEventSave(editingEvent.scheduleId, editingEvent.content)
-                    }}>수정</NewButton>
-                  <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"30%"} height={""} margin="0 5% 0 0"
-                    onClick={() =>{
                       setIsChanging(false)
-                      editingEvent && handleDeleteEvent(editingEvent.scheduleId)
-                    }}>삭제</NewButton>
-                  <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"30%"} height={""} margin="0 0 0 0"
-                    onClick={() => {
-                      if(isChanging){
-                        var confirmFlag=window.confirm("변경 사항이 있습니다. 취소하시겠습니까?")
-                        if(confirmFlag){
+                    }}>수정</NewButton>
+                  <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"49%"} height={""}
+                    onClick={() =>{
+                        if(window.confirm("정말 삭제하시겠습니까?")){
+                          editingEvent && handleDeleteEvent(editingEvent.scheduleId)
                           setIsChanging(false)
                           setEditingEvent(null)
-                          setShowEvent({is:true,event:showEvent.event})
-                        }else{
-                          return
-                        }
-                      }else{
-                        setIsChanging(false)
-                        setEditingEvent(null)
-                        setShowEvent({is:true,event:showEvent.event})
-                      }
-                    }}>취소</NewButton>
+                          setShowModal(false)
+                        }else{return}
+                    }}>삭제</NewButton>
                 </div>
               )}
-              <NewButton backcolor={theme.color.orange} width={"100%"} height={"1.2rem"} onClick={()=>{setShowModal(false)
-                setEditingEvent(null)}}>닫기</NewButton>
+              <NewButton backcolor={theme.color.orange} width={"100%"} height={"1.2rem"}
+              onClick={()=>{
+                if(isChanging){
+                  if(window.confirm("변경 사항이 있습니다. 변경사항을 삭제하시겠습니까?")){
+                    setIsChanging(false)
+                    setShowModal(false)
+                    setEditingEvent(null)
+                  }else return
+                }else{
+                  setIsChanging(false)
+                  setShowModal(false)
+                setEditingEvent(null)
+                }}}>닫기</NewButton>
             </Modal>
           )}
-        </Calendar>
         <ManageButtonContainer>
           <ManageButton
             onClick={() =>

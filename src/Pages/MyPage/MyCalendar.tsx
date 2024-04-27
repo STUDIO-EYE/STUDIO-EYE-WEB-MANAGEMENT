@@ -17,33 +17,6 @@ const Container = styled.div`
   border-radius: 15px;
 `;
 
-const List = styled.div`
-  margin-top: -15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-`;
-
-const Title = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
-`;
-
-const CalendarHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 0.1rem solid ${theme.color.gray20};
-`;
-
-const ArrowButton = styled.button`
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 12px;
-`;
-
 const CustomCalendar=styled(Calendar)`
 .react-calendar {
   width: 100%;
@@ -171,9 +144,9 @@ button {
 
 /* 일정 있는 날 표시 점 */
 .dot {
-  height: 8px;
-  width: 8px;
-  background-color: #FFBB0D;
+  height: 13px;
+  width: 12px;
+  background-color: ${theme.color.black};
   border-radius: 50%;
   text-align: center;
   margin-top: 3px;
@@ -204,12 +177,6 @@ const ManageButton = styled.button`
   }
 `;
 
-const MoreButton = styled.button`
-  background-color: transparent;
-  border: transparent;
-  font-size: 12px;
-`;
-
 const Modal = styled.div`
   text-align: start;
   position: fixed;
@@ -226,62 +193,6 @@ const Modal = styled.div`
   z-index: 1000;
 `;
 
-const DayHeader = styled.div<{ isWeekend: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #ffffff;
-  height: 30px;
-  font-size: 12px;
-  font-weight: 500;
-  color: ${(props) => (props.isWeekend ? "red" : "black")};
-`;
-
-const Day = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  background-color: #ffffff;
-  height: 3rem;
-  font-size: 12px;
-  color: black;
-  cursor: pointer;
-  margin:0.1rem;
-
-  &:hover {
-    background-color: #e0e0e0;
-  }
-`;
-
-const ScheduleItem = styled.p`
-  margin-top: -2px;
-  margin-bottom: 6px;
-  color: grey;
-  background-color: red;
-  padding: 0px 8px;
-  border-radius: 8px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 150px;
-  cursor: pointer;
-`;
-
-const EventItem=styled.span`
-  cursor:pointer;
-  display:block;
-  font-size:0.85rem;
-  margin-bottom:0.2rem;
-  padding: 0.2rem;
-  background-color:${theme.color.gray10};
-  border-radius: 5px;
-`;
-
-const Events=styled.div`
-
-`;
-
 interface Event {
   userScheduleId: number;
   content: string;
@@ -292,6 +203,7 @@ interface Event {
 const MyCalendar = () => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [events, setEvents] = useState<Event[]>([]);
+  const [isChange,setIsChange]=useState(false);
   const [eventsForDate,setEventsForDate]=useState<Event[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showEvent,setShowEvent]=useState<{is:boolean;event:Event[]}>({
@@ -325,27 +237,6 @@ const MyCalendar = () => {
     fetchEvents();
   }, []);
 
-  const getDayColor = (dayIndex: number): string => {
-    switch (dayIndex) {
-      case 0:
-        return "#ffb3b3";
-      case 1:
-        return "#ffdab3";
-      case 2:
-        return "#ffffb3";
-      case 3:
-        return "#d1ffb3";
-      case 4:
-        return "#b3e0ff";
-      case 5:
-        return "#dab3ff";
-      case 6:
-        return "#ffb3e1";
-      default:
-        return "#ffffff";
-    }
-  };
-
   const getWeekDates = (date: Date): Date[] => {
     const weekDates: Date[] = [];
     let startDate = new Date(date);
@@ -358,18 +249,6 @@ const MyCalendar = () => {
     }
 
     return weekDates;
-  };
-
-  const goToPreviousWeek = () => {
-    const newDate = new Date(currentDate);
-    newDate.setDate(newDate.getDate() - 7);
-    setCurrentDate(newDate);
-  };
-
-  const goToNextWeek = () => {
-    const newDate = new Date(currentDate);
-    newDate.setDate(newDate.getDate() + 7);
-    setCurrentDate(newDate);
   };
 
   const goToNewDate = () => {
@@ -394,27 +273,27 @@ const MyCalendar = () => {
       date.getDate()
     ).getTime();
 
-    return events.filter((e) => {
-      const eventStartDate = new Date(
-        new Date(e.startDate).getFullYear(),
-        new Date(e.startDate).getMonth(),
-        new Date(e.startDate).getDate()
-      ).getTime();
-      const eventEndDate = new Date(
-        new Date(e.endDate).getFullYear(),
-        new Date(e.endDate).getMonth(),
-        new Date(e.endDate).getDate(),
-        23,
-        59,
-        59,
-        999
-      ).getTime();
-
-      return targetDate >= eventStartDate && targetDate <= eventEndDate;
-    });
+    if(events!=null){
+      return events.filter((e) => {
+        const eventStartDate = new Date(
+          new Date(e.startDate).getFullYear(),
+          new Date(e.startDate).getMonth(),
+          new Date(e.startDate).getDate()
+        ).getTime();
+        const eventEndDate = new Date(
+          new Date(e.endDate).getFullYear(),
+          new Date(e.endDate).getMonth(),
+          new Date(e.endDate).getDate(),
+          23,
+          59,
+          59,
+          999
+        ).getTime();
+  
+        return targetDate >= eventStartDate && targetDate <= eventEndDate;
+      });
+    }else return [];
   };
-
-  const currentWeekDates = getWeekDates(currentDate);
 
   const fetchEvents = async () => {
     try {
@@ -430,7 +309,7 @@ const MyCalendar = () => {
       await myPageApi.deleteCalendarEvent(scheduleId);
       fetchEvents();
       alert("성공적으로 삭제되었습니다.");
-      window.location.reload();
+      // window.location.reload();
     } catch (error) {
       console.error("스케줄 삭제 중 오류 발생", error);
     }
@@ -460,23 +339,21 @@ const MyCalendar = () => {
     setSelectDate(e);
   }
 
-  const addHoliday=()=>{
-    var xhr = new XMLHttpRequest();
-    var url = 'http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo'; /*URL*/
-    var queryParams = '?' + encodeURIComponent('serviceKey') + '='+'서비스키'; /*Service Key*/
-    queryParams += '&' + encodeURIComponent('solYear') + '=' + encodeURIComponent('2015'); /**/
-    queryParams += '&' + encodeURIComponent('solMonth') + '=' + encodeURIComponent('09'); /**/
-    xhr.open('GET', url + queryParams);
-    xhr.onreadystatechange = function () {
-      if (this.readyState == 4) {
-        alert('Status: '+this.status+'nHeaders: '+JSON.stringify(this.getAllResponseHeaders())+'nBody: '+this.responseText);
-      }
-};
+//   const addHoliday=()=>{
+//     var xhr = new XMLHttpRequest();
+//     var url = 'http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo'; /*URL*/
+//     var queryParams = '?' + encodeURIComponent('serviceKey') + '='+'서비스키'; /*Service Key*/
+//     queryParams += '&' + encodeURIComponent('solYear') + '=' + encodeURIComponent('2015'); /**/
+//     queryParams += '&' + encodeURIComponent('solMonth') + '=' + encodeURIComponent('09'); /**/
+//     xhr.open('GET', url + queryParams);
+//     xhr.onreadystatechange = function () {
+//       if (this.readyState == 4) {
+//         alert('Status: '+this.status+'nHeaders: '+JSON.stringify(this.getAllResponseHeaders())+'nBody: '+this.responseText);
+//       }
+// };
 
-xhr.send('');
-  }
-
-  const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+// xhr.send('');
+//   }
 
   return (
     <div className="App">
@@ -485,6 +362,20 @@ xhr.send('');
         locale="en"
         onChange={handleDateChange}
         formatDay={(locale, date) => moment(date).format("DD")}
+        tileContent={({date,view})=>{
+          let html=[];
+          if(events.find((x) =>
+            (x.startDate <= moment(date).format("YYYY-MM-DD"))&& x.endDate>=moment(date).format("YYYY-MM-DD"))){
+            html.push(<div className="dot" style={{color:"white"}}>{findEventsForDate(new Date(date!!)).length}</div>)
+            return(
+              <>
+                <div className="etc">
+                  {html}
+                </div>
+              </>
+            )
+          }
+        }}
       />
         <div>{moment(selectDate).format("YYYY/MM/DD")}의 일정</div>
         {findEventsForDate(new Date(selectDate!!)).length!=0
@@ -511,19 +402,39 @@ xhr.send('');
                           content: e.target.value,
                         };
                         setEditingEvent(updatedEvent);
+                        setIsChange(true);
                       }
                     }}
                   />
                   <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"49%"} height={""} margin="0 2% 0.3rem 0"
-                    onClick={() =>
-                      editingEvent && handleEditEventSave(editingEvent.userScheduleId, editingEvent.content)}>수정</NewButton>
+                    onClick={() =>{
+                      editingEvent && handleEditEventSave(editingEvent.userScheduleId, editingEvent.content)
+                      setIsChange(false)
+                    }}>수정</NewButton>
                   <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"49%"} height={""}
-                    onClick={() =>
-                      editingEvent && handleDeleteEvent(editingEvent.userScheduleId)}>삭제</NewButton>
+                    onClick={() =>{
+                      if(window.confirm("정말 삭제하시겠습니까?")){
+                        editingEvent && handleDeleteEvent(editingEvent.userScheduleId)
+                        setIsChange(false)
+                        setShowModal(false)
+                        setEditingEvent(null)
+                      }else{return}
+                    }}>삭제</NewButton>
                 </div>
               )}
-              <NewButton backcolor={theme.color.orange} width={"100%"} height={"1.2rem"} onClick={()=>{setShowModal(false)
-                setEditingEvent(null)}}>닫기</NewButton>
+              <NewButton backcolor={theme.color.orange} width={"100%"} height={"1.2rem"}
+              onClick={()=>{
+                if(isChange){
+                  if(window.confirm("변경 사항이 있습니다. 변경사항을 삭제하시겠습니까?")){
+                    setIsChange(false)
+                    setShowModal(false)
+                    setEditingEvent(null)
+                  }else{ return }
+                }else{
+                  setIsChange(false)
+                  setShowModal(false)
+                  setEditingEvent(null)
+                }}}>닫기</NewButton>
             </Modal>
           )}
         <ManageButtonContainer>
