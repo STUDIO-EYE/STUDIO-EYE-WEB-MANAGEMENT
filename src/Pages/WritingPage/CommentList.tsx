@@ -20,23 +20,23 @@ const FormContainer = styled.div`
   background-color: transparent;
   border-radius: 15px;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+  background-color: #F9FBFD;
 `;
 
 const Author = styled.div`
-  font-weight: 500;
+  font-weight: 800;
   font-size: 1rem;
-  margin-bottom: 0.07rem;
-  background-color: ${theme.color.orange};
+  margin-bottom: 0.5rem;
   border-radius: 15px;
-  padding: 0.1rem 0.3rem;
   display: inline-block;
-  color: white;
 `;
 
 const Content = styled.div`
   margin-bottom: 0.5rem;
   margin-top: 0.2rem;
   font-size: 1rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
 `;
 
 const Date = styled.div`
@@ -45,18 +45,19 @@ const Date = styled.div`
 `;
 
 const CommentTitle = styled.h3`
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #282c34;
   margin-left: 0.5rem;
 `;
 
 const CommentButton = styled.div`
-  font-size: 0.7rem;
+color: rgba(0, 0, 0, 0.5);
+  font-size: 0.9rem;
   cursor: pointer;
   margin-right: 0.4rem;
 
   &:hover {
-    color: rgba(0, 0, 0, 0.5);
+    color: rgba(0, 0, 0, 0.3);
   }
 `;
 
@@ -73,21 +74,21 @@ const ButtonAuthorContainer = styled.div`
 `;
 
 const CommentTextarea = styled.textarea`
-  width: 80%;
-  padding: 0.1rem;
+font-family: 'Pretendard';
+  width: 97%;
+  padding: 0.5rem;
+  border-radius: 8px;
   border: 1px solid #ccc;
-  border-radius: 2px;
-  color: #282c34;
-  max-height: 1rem;
-  min-height: 1rem;
   resize: none;
-  font-size: 1rem;
+  font-size: 0.9rem;
   vertical-align: middle;
+  margin-bottom: 1rem;
 
   &:focus {
-    outline: 0.5px solid darkgray;
+    outline: 1px solid darkgray;
   }
 `;
+
 
 const CommentList = ({
     selectedPost,
@@ -166,28 +167,28 @@ const CommentList = ({
                     <ButtonAuthorContainer>
                         <Author>{comment.userName}</Author>
 
-                            <ButtonContainer>
-                                {tokenUserName === comment.userName && (
-                                    <>
-                                        <CommentButton onClick={() => deleteComment(comment.id)}>
-                                            삭제
+                        <ButtonContainer>
+                            {tokenUserName === comment.userName && (
+                                <>
+                                    <CommentButton onClick={() => deleteComment(comment.id)}>
+                                        삭제
+                                    </CommentButton>
+                                    {editingCommentId === comment.id ? (
+                                        <CommentButton onClick={() => finishEditing(comment.id)}>
+                                            완료
                                         </CommentButton>
-                                        {editingCommentId === comment.id ? (
-                                            <CommentButton onClick={() => finishEditing(comment.id)}>
-                                                완료
-                                            </CommentButton>
-                                        ) : (
-                                            <CommentButton
-                                                onClick={() =>
-                                                    startEditing(comment.id, comment.content)
-                                                }
-                                            >
-                                                수정
-                                            </CommentButton>
-                                        )}
-                                    </>
-                                )}
-                            </ButtonContainer>
+                                    ) : (
+                                        <CommentButton
+                                            onClick={() =>
+                                                startEditing(comment.id, comment.content)
+                                            }
+                                        >
+                                            수정
+                                        </CommentButton>
+                                    )}
+                                </>
+                            )}
+                        </ButtonContainer>
                     </ButtonAuthorContainer>
 
                     {editingCommentId === comment.id ? (
@@ -200,7 +201,7 @@ const CommentList = ({
                     )}
                     <Date>
                         {comment.updatedAt ? comment.updatedAt.toString() + "(수정됨)"
-                        : comment.createdAt.toString()}
+                            : comment.createdAt.toString()}
                     </Date>
 
                 </FormContainer>

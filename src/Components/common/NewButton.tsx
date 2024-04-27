@@ -1,6 +1,7 @@
 import React, { ReactNode,MouseEvent } from 'react';
 import styled from 'styled-components';
 import { media } from './Font';
+import { theme } from 'LightTheme';
 
 interface RectangleProps{
   className?:string,
@@ -18,6 +19,7 @@ interface RectangleProps{
 }
 
 const StyledButton = styled.button<RectangleProps>`
+  font-family: 'Pretendard';
   border: none;
   border-radius: 10px;
   font-size: ${(prop)=>prop?prop.fontSize:'1rem'};
@@ -31,7 +33,7 @@ const StyledButton = styled.button<RectangleProps>`
   margin: ${(prop)=>prop.margin};
 
   &:hover {
-    opacity: 0.6;
+    color: ${theme.color.orange};
   }
 
   @media ${media.half}{

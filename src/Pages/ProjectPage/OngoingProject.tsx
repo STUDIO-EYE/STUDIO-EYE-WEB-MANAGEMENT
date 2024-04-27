@@ -9,6 +9,7 @@ import jwt_decode from "jwt-decode";
 import swal from 'sweetalert';
 import { Tooltip } from "@mui/material";
 import { IoAddCircle } from "react-icons/io5";
+import { Dropdown, DropdownItem } from "Components/common/DropDownBox";
 
 interface Project {
   projectId: number;
@@ -100,72 +101,11 @@ const ButtonsContainer = styled.div`
   align-items: center;
 `;
 
-const DropdownMenu = styled.div`
-  position: absolute;
-  top: 15px;
-  right: 10px;
-  padding: 5px;
-  display: flex;
-  flex-direction: column;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.08);
-  z-index: 1;
-`;
-
 const DropdownButton = styled.button<{ isTeamLeader: boolean }>`
   display: ${(props) => (props.isTeamLeader ? "block" : "none")}; 
   background-color: transparent;
   border: none;
   outline: none;
-  cursor: pointer;
-  color: black;
-
-  &:hover {
-    color: rgba(0, 0, 0, 0.08);
-  }
-`;
-
-const DeleteButton = styled.button`
-  background-color: white;
-  border: none;
-  outline: none;
-  color: red;
-  padding: 4px;
-  cursor: pointer;
-  font-family: 'Pretendard';
-  font-weight: 600;
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.08);
-  }
-`;
-
-const CompleteButton = styled.button`
-  background-color: white;
-  border: none;
-  outline: none;
-  color: green;
-  padding: 4px;
-  cursor: pointer;
-  font-family: 'Pretendard';
-  font-weight: 600;
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.08);
-  }
-`;
-
-const ModifyButton = styled.button`
-  background-color: white;
-  border: none;
-  outline: none;
-  color: #ffa900;
-  padding: 4px;
-  cursor: pointer;
-  font-family: 'Pretendard';
-  font-weight: 600;
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.08);
-  }
 `;
 
 const LabelArea = styled.div`
@@ -330,10 +270,8 @@ function OngoingProject() {
 
   useEffect(() => {
     const closeDropdownMenu = (e: MouseEvent) => {
-      // 클릭된 요소가 드롭다운 메뉴 내부 요소인지 확인
       const clickedInsideDropdown = (e.target as HTMLElement).closest('.dropdown-menu');
       if (!clickedInsideDropdown) {
-        // 다른 데 클릭하면 드롭다운 메뉴 닫기
         setDropdownOpen({});
       }
     };
@@ -488,7 +426,8 @@ function OngoingProject() {
 
   const isDropdownOpen = (projectId: number) => dropdownOpen[projectId] || false;
 
-  function handleModifyClick(projectId: number): void {
+  function handleModifyClick(e: React.MouseEvent, projectId: number): void {
+    e.stopPropagation();
     navigate(`/modify/${projectId}`);
   }
 
@@ -565,31 +504,28 @@ function OngoingProject() {
                   </div>
                   <ButtonsContainer>
                     <DropdownButton isTeamLeader={isTeamLeader(currentDetailsProjects[index])} onClick={(e) => toggleDropdown(e, project.projectId)}>
-                      <FaEllipsisH />
+                      <Dropdown>
+                        {isTeamLeader(currentDetailsProjects[index]) ? (
+                          <>
+                            <DropdownItem onClick={(e) => handleModifyClick(e, project.projectId)} style={{ color: 'black' }}>
+                              <FaEdit /> 수정
+                            </DropdownItem>
+                            <DropdownItem onClick={(e) => handleCompleteClick(e, project.projectId)} style={{ color: 'green' }}>
+                              <FaCheck /> 완료
+                            </DropdownItem>
+                            <DropdownItem onClick={(e) => handleDeleteClick(e, project.projectId)} style={{ color: 'red' }}>
+                              <FaTrash /> 삭제
+                            </DropdownItem>
+                          </>
+                        ) : (
+                          <DropdownItem>
+                            팀장이 아니므로 드롭다운 메뉴를 열 자격이 없습니다.
+                          </DropdownItem>
+                        )}
+                      </Dropdown>
                     </DropdownButton>
                   </ButtonsContainer>
                 </ProjectItemContent>
-                {isDropdownOpen(project.projectId) && (
-                  <DropdownMenu>
-                    {isTeamLeader(currentDetailsProjects[index]) ? (
-                      <>
-                        <ModifyButton onClick={() => handleModifyClick(project.projectId)}>
-                          <FaEdit /> 수정
-                        </ModifyButton>
-                        <CompleteButton onClick={(e) => handleCompleteClick(e, project.projectId)}>
-                          <FaCheck /> 완료
-                        </CompleteButton>
-                        <DeleteButton onClick={(e) => handleDeleteClick(e, project.projectId)}>
-                          <FaTrash /> 삭제
-                        </DeleteButton>
-                      </>
-                    ) : (
-                      <div onClick={() => alert("팀장이 아니므로 드롭다운 메뉴를 열 자격이 없습니다.")}>
-                        팀장이 아니므로 드롭다운 메뉴를 열 자격이 없습니다.
-                      </div>
-                    )}
-                  </DropdownMenu>
-                )}
               </ProjectItemWrapper>
             ))
           )}
