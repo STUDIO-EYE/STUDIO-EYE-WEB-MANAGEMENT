@@ -278,6 +278,10 @@ const EventItem=styled.span`
   border-radius: 5px;
 `;
 
+const Events=styled.div`
+
+`;
+
 interface Event {
   userScheduleId: number;
   content: string;
@@ -288,12 +292,13 @@ interface Event {
 const MyCalendar = () => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [events, setEvents] = useState<Event[]>([]);
+  const [eventsForDate,setEventsForDate]=useState<Event[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showEvent,setShowEvent]=useState<{is:boolean;event:Event[]}>({
     is:false,
     event:[]});
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
-  const [selectDate,setSelectDate]=useState<string>();
+  const [selectDate,setSelectDate]=useState<Date>(new Date());
 
   const navigate = useNavigate();
 
@@ -452,8 +457,23 @@ const MyCalendar = () => {
   };
 
   const handleDateChange=(e:any)=>{
-    setSelectDate(moment(e).format("YYYY/MM/DD"));
-    console.log(selectDate);
+    setSelectDate(e);
+  }
+
+  const addHoliday=()=>{
+    var xhr = new XMLHttpRequest();
+    var url = 'http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo'; /*URL*/
+    var queryParams = '?' + encodeURIComponent('serviceKey') + '='+'서비스키'; /*Service Key*/
+    queryParams += '&' + encodeURIComponent('solYear') + '=' + encodeURIComponent('2015'); /**/
+    queryParams += '&' + encodeURIComponent('solMonth') + '=' + encodeURIComponent('09'); /**/
+    xhr.open('GET', url + queryParams);
+    xhr.onreadystatechange = function () {
+      if (this.readyState == 4) {
+        alert('Status: '+this.status+'nHeaders: '+JSON.stringify(this.getAllResponseHeaders())+'nBody: '+this.responseText);
+      }
+};
+
+xhr.send('');
   }
 
   const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
@@ -465,72 +485,20 @@ const MyCalendar = () => {
         locale="en"
         onChange={handleDateChange}
         formatDay={(locale, date) => moment(date).format("DD")}
-        />
-        <div>{selectDate}의 일정</div>
-        {/* <CalendarHeader>
-          <span style={{cursor: 'pointer',fontSize:'0.8rem',margin:'1rem'}} onClick={goToNewDate}>
-            {currentDate.toLocaleString('en-GB',{month:'long'})+" "+currentDate.getFullYear()}
-          </span>
-          <div>
-            <ArrowButton onClick={goToPreviousWeek}>
-              <FaArrowLeft />
-            </ArrowButton>
-            <ArrowButton onClick={goToNextWeek} style={{margin:'1rem'}}>
-              <FaArrowRight />
-            </ArrowButton>
-          </div>
-        </CalendarHeader>
-        <CustomCalendar>
-          {days.map((day, index) => (
-            <DayHeader key={index} isWeekend={index === 0 || index === 6}>
-              {day}
-            </DayHeader>
-          ))}
-
-          {currentWeekDates.map((date) => {
-            const eventsForDate = findEventsForDate(date);
-            return (
-              <Day
-                key={date.toString()}
-                onClick={() => {
-                  if (eventsForDate.length) {
-                    setShowEvent({is:true,event:eventsForDate});
-                    // setEditingEvent(eventsForDate[0]);
-                    setShowModal(true);
-                  }
-                }}
-              >
-                <div>{date.getDate()}</div>
-                <ScheduleItem
-                  onClick={() => {
-                    setShowEvent({is:true,event:eventsForDate});
-                    setShowModal(true);
-                  }}
-                  style={{ backgroundColor: getDayColor(date.getDay()) }}>
-                    {eventsForDate.length!=0?eventsForDate.length:""}
-                  </ScheduleItem>
-              </Day>
-            );
-          })}
-
+      />
+        <div>{moment(selectDate).format("YYYY/MM/DD")}의 일정</div>
+        {findEventsForDate(new Date(selectDate!!)).length!=0
+          ? findEventsForDate(new Date(selectDate!!)).map((event)=>{
+            return <div style={{cursor:'pointer'}}
+            onClick={()=>{
+              setShowModal(true)
+              setEditingEvent(event)
+            }} key={event.userScheduleId}>{event.content}</div>})
+          :<div>오늘의 일정이 없습니다.</div>
+        }
 
           {showModal && (
             <Modal>
-              {showEvent.is&&(
-                <>
-                <span style={{fontWeight:'500', marginBottom:'0.5rem',display:'block'}}>이벤트 목록</span>
-                {showEvent.event.map((event)=>{
-                  return (
-                    <EventItem onClick={() => {
-                      setShowEvent({is:false,event:showEvent.event})
-                      setEditingEvent(event);
-                      }}>{
-                        event.content.length>22?event.content.slice(0,22)+"...":
-                        event.content}</EventItem>
-                  )
-                })}
-                </>
-              )}
               {editingEvent && (
                 <div>
                   <textarea
@@ -546,24 +514,18 @@ const MyCalendar = () => {
                       }
                     }}
                   />
-                  <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"30%"} height={""} margin="0 5% 0.3rem 0"
+                  <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"49%"} height={""} margin="0 2% 0.3rem 0"
                     onClick={() =>
                       editingEvent && handleEditEventSave(editingEvent.userScheduleId, editingEvent.content)}>수정</NewButton>
-                  <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"30%"} height={""} margin="0 5% 0 0"
+                  <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"49%"} height={""}
                     onClick={() =>
                       editingEvent && handleDeleteEvent(editingEvent.userScheduleId)}>삭제</NewButton>
-                  <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"30%"} height={""} margin="0 0 0 0"
-                    onClick={() => {
-                      setEditingEvent(null)
-                      setShowEvent({is:true,event:showEvent.event})
-                    }}>취소</NewButton>
                 </div>
               )}
               <NewButton backcolor={theme.color.orange} width={"100%"} height={"1.2rem"} onClick={()=>{setShowModal(false)
                 setEditingEvent(null)}}>닫기</NewButton>
             </Modal>
           )}
-        </CustomCalendar> */}
         <ManageButtonContainer>
           <ManageButton
             onClick={() =>

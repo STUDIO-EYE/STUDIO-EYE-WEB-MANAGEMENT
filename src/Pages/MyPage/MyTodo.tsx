@@ -21,6 +21,7 @@ const Container = styled.div`
   // padding: 20px;
   // margin: 20px auto;
   margin-left: 2rem;
+  padding: 0 0 1px 0;
   border-radius: 15px;
 `;
 
@@ -247,14 +248,15 @@ function MyTodo() {
   };
 
   const handleDelete = async (todoIndex: number) => {
-    console.log(todoIndex);
-    const filteredItems = items.filter((item) => item.userTodoId !== todoIndex);
-    setItems(filteredItems);
+    if(window.confirm("삭제하시겠습니까?")){
+      const filteredItems = items.filter((item) => item.userTodoId !== todoIndex);
+      setItems(filteredItems);
 
-    try {
-      await myPageApi.deleteTodo(todoIndex);
-    } catch (error) {
-      console.error("Error deleting item", error);
+      try {
+        await myPageApi.deleteTodo(todoIndex);
+      } catch (error) {
+        console.error("Error deleting item", error);
+      }
     }
   };
 
@@ -320,7 +322,12 @@ function MyTodo() {
   const [editIndex, setEditIndex] = useState<number>(-1);
   const [isUrgent, setIsUrgent] = useState<boolean>(false);
 
-  const sortedItems = [...items].sort((a, b) => {
+  const emergenSort=[...items].sort((a,b)=>{
+    if(a.todoEmergency&&!b.todoEmergency)return -1;
+    if(!a.todoEmergency&&b.todoEmergency)return 1;
+    return 0;
+  })
+  const sortedItems = [...emergenSort].sort((a, b) => {
     if (a.checked && !b.checked) return 1;
     if (!a.checked && b.checked) return -1;
     return 0;

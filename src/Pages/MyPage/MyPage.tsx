@@ -7,7 +7,6 @@ import axios from 'axios';
 import myPageApi from 'api/myPageApi';
 import MyCalendar from './MyCalendar';
 import RightMyPage from './RightMyPage';
-import MyToday from './MyToday';
 import MyTodo from './MyTodo';
 
 const DashboardBox = styled.div`

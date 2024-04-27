@@ -145,8 +145,7 @@ function SignInPage() {
         pwd: "",
         name: "",
         phoneNumber: "",
-        verificationCode: "",
-        role: "USER"
+        verificationCode: ""
     });
     const [pwcheck,setpwcheck]=useState("")
 
@@ -290,14 +289,14 @@ function SignInPage() {
             </TitleCenterBox>
 
             <TextMd>Role</TextMd>
-                <select
+                {/* <select
                     name="role"
                     value={formData.role}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                 >
                     <option value="USER">사용자</option>
                     <option value="ADMIN">관리자</option>
-                </select>
+                </select> */}
 
             <SignInBox className="SignInBox">
                     <SubInputForm className="SubInputFormWithButton">
