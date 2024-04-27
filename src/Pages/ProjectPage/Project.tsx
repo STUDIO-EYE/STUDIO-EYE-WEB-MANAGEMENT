@@ -203,6 +203,8 @@ function Project() {
         memberIdList: memberIdList,
       };
       const response = await projectApi.createProject(newProject);
+      //console.log(response);
+
       // 서버에서 실패 응답을 보냈는지 확인
       if (response.data && response.data.success === false) {
         if (response.data.code === 7000) {
@@ -213,6 +215,8 @@ function Project() {
           sessionStorage.removeItem("login-token");
           delete axios.defaults.headers.common["Authorization"];
           navigate("/LoginPage");
+        } else if (response.data.code === 7005) {
+          alert("jwt토큰오류래요");
         }
         return;
       }

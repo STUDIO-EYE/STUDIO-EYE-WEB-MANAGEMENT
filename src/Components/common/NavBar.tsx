@@ -72,7 +72,7 @@ const NavBar = () => {
             </IconContainer>
             마이페이지
           </NavigationLink>
-          <NavigationLink href="#">
+          <NavigationLink href="/Account">
             <IconContainer>
               <FaChartLine />
             </IconContainer>

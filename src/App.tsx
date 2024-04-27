@@ -14,6 +14,7 @@ import ModifyProject from "./Pages/ProjectPage/ModifyProject";
 import { Routes, Route } from "react-router-dom";
 import MyPageMain from 'Pages/MyPage/MyPageMain';
 import MyManage from 'Pages/MyPage/MyManage';
+import AccountPageMain from 'Pages/Account/AccountPageMain';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/LoginPage" element={<LoginPage />} />
         <Route path="/SignInPage" element={<SignInPage />} />
         <Route path="/MyPage" element={<MyPageMain />} />
+        <Route path="/Account" element={<AccountPageMain />} />
         <Route path="/manage" element={<Manage />} />
         <Route path="/myManage" element={<MyManage/>}/>
         <Route path="/project" element={<Project />} />
