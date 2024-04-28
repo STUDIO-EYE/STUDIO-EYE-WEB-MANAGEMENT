@@ -123,20 +123,10 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
         <Panel expanded={expanded}>
           <Left expanded={expanded}>
             <LeftComponent>
+              <ProjectProgress completedCount={completedCount} totalCount={totalCount} />
+              <CheckList projectId={projectId} updateProgress={updateProgress} />
               <WeekCalendar projectId={projectId} />
             </LeftComponent>
-            <LeftComponent>
-              <ProjectProgress completedCount={completedCount} totalCount={totalCount} />
-            </LeftComponent>
-            {/* Today와 CheckList를 감싸는 컨테이너 추가 */}
-            <TodayChecklistContainer>
-              <LeftComponent>
-                <Today projectId={projectId} />
-              </LeftComponent>
-              <LeftComponent>
-                <CheckList projectId={projectId} updateProgress={updateProgress} />
-              </LeftComponent>
-            </TodayChecklistContainer>
           </Left>
           <RightDashboard projectData={projectInfo} projectId={projectId} />
         </Panel>
