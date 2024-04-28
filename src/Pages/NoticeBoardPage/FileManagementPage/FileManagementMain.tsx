@@ -1,13 +1,12 @@
 import Body from 'Components/common/Body';
 import React from 'react';
-import FileManagementMainContent from './FileManagementMainContent';
-import UploadedFilesComponent from './UploadedFilesComponent';
+import FileManagement from './FileManagement';
 
 const FileManagementMain = () => {
 
   return (
     <Body>
-      <UploadedFilesComponent />
+      <FileManagement />
     </Body>
   );
 };

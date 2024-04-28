@@ -8,14 +8,12 @@ import NEWheader from "./NEWheader";
 const HeaderBlock = styled.div`
   position: fixed;
   width: 100%;
-  background: white;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+  z-index: 1000;
 `;
 
 const NavBarContainer = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: fixed;
+  top: 4rem;
   width: 225px;
 `;
 
@@ -26,7 +24,10 @@ const PageBody = styled.div`
 `;
 
 const ContentWrapper = styled.div`
+  display: flex;
   flex-grow: 1;
+  height: calc(100vh - 4rem);
+  margin-top: 4rem;
 `;
 
 const SideDiv = styled.div<{ additionalWidth: number }>`
@@ -71,7 +72,9 @@ const Body = ({ children }: BodyProps) => {
 
   return (
     <>
-      
+    <HeaderBlock>
+      <NEWheader />
+    </HeaderBlock>
       <NavBarContainer>
         <NavBar />
       </NavBarContainer>

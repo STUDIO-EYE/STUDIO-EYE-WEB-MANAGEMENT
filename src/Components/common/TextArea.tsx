@@ -4,6 +4,7 @@ import React from "react";
 import styled from "styled-components";
 
 const StyledTextArea = styled.textarea<InputTextProps>`
+  font-family: 'Pretendard';
   width: ${(prop)=>(prop.width)};
   height: ${(prop)=>(prop.height)};
   padding: 0.3rem;
