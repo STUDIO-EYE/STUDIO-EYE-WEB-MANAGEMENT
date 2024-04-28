@@ -192,13 +192,39 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     }
   }, []);
 
+
+  const [filePaths, setFilePaths] = useState<string[]>([]);
+  const [fileNames, setFileNames] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchFiles = async () => {
+      try {
+        const response = await axios.get(`/api/posts/files?projectId=${projectId}&postId=${postId}`);
+        const files = response.data.list;
+
+        // 기존 파일 목록을 File 객체로 변환하고 existingFiles에 저장
+        const existingFilesArray = files.map((file: any) => new File([], file.fileName));
+        setExistingFiles(existingFilesArray); // 기존 파일 상태 업데이트
+
+        const paths = files.map((file: any) => file.filePath);
+        const names = files.map((file: any) => file.fileName);
+        setFilePaths(paths);
+        setFileNames(names);
+      } catch (error) {
+        console.error("Error fetching files:", error);
+      }
+    };
+
+    fetchFiles();
+  }, [projectId, selectedRowId]);
+
   const goToPreviousPage = () => {
     setTimeout(function () {
       window.location.reload();
     }, 100);
   };
   const goToHome = () => {
-    navigate(`/manage/${projectId}`);
+    navigate(`/Manage/${projectId}`);
   };
 
   const putWriting = () => {
@@ -206,7 +232,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
       alert("제목과 내용을 모두 입력해주세요.");
       return;
     }
-  
+
     const updatedPostData = {
       projectId: projectId,
       postId: selectedRowId,
@@ -215,16 +241,17 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
       category: selectedPost.category,
       updatedAt: selectedPost.updatedAt,
     };
-  
+
     const json = JSON.stringify(updatedPostData);
     const blob = new Blob([json], { type: 'application/json' });
-  
+
     const formData = new FormData();
     formData.append("updatePostRequestDto", blob);
-  
+
+    // 기존 파일과 새로 선택한 파일을 모두 합쳐서 formData에 추가
     const allFiles = [...existingFiles, ...selectedFiles];
     allFiles.forEach((file) => formData.append("files", file));
-  
+
     boardApi
       .putBoard(formData)
       .then((response) => {
@@ -239,7 +266,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
         alert("게시글 업데이트 중 오류가 발생했습니다.");
       });
   };
-  
+
   //게시글 삭제 함수
   const deletePost = () => {
     const token = sessionStorage.getItem('login-token');
@@ -308,31 +335,6 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     fetchData();
   }, [selectedRowId, projectId]);
 
-  const [filePaths, setFilePaths] = useState<string[]>([]);
-  const [fileNames, setFileNames] = useState<string[]>([]);
-
-  useEffect(() => {
-    const fetchFiles = async () => {
-      try {
-        const response = await axios.get(`/api/posts/files?projectId=${projectId}&postId=${postId}`);
-        const files = response.data.list;
-  
-        // 기존 파일 목록을 File 객체로 변환하고 existingFiles에 저장
-        const existingFilesArray = files.map((file: any) => new File([], file.fileName)); // 빈 파일로 변환
-        setExistingFiles(existingFilesArray);
-  
-        const paths = files.map((file: any) => file.filePath);
-        const names = files.map((file: any) => file.fileName);
-        setFilePaths(paths);
-        setFileNames(names);
-      } catch (error) {
-        console.error("Error fetching files:", error);
-      }
-    };
-  
-    fetchFiles();
-  }, [projectId, selectedRowId]);  
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const filesToAdd = Array.from(e.target.files);
@@ -353,7 +355,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
 
   // 수정 시간
   const updatedAtDate = new Date(selectedPost.updatedAt);
-  const formattedUpdatedAt = `${updatedAtDate.getFullYear()}-${String(updatedAtDate.getMonth() + 1).padStart(2, '0')}-${String(updatedAtDate.getDate()).padStart(2, '0')}-${String(updatedAtDate.getHours()).padStart(2, '0')}:${String(updatedAtDate.getMinutes()).padStart(2, '0')}:${String(updatedAtDate.getSeconds()).padStart(2, '0')}`;
+  const formattedUpdatedAt = `${updatedAtDate.getFullYear()}년 ${String(updatedAtDate.getMonth() + 1).padStart(2, '0')}월 ${String(updatedAtDate.getDate()).padStart(2, '0')}일 ${String(updatedAtDate.getHours()).padStart(2, '0')}:${String(updatedAtDate.getMinutes()).padStart(2, '0')}:${String(updatedAtDate.getSeconds()).padStart(2, '0')}`;
 
   //조회하면 showViewWriting + 수정화면 showPutWriting
   return (

@@ -88,6 +88,10 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
     setTitle(e.target.value);
   };
 
+  const goToHome = () => {
+    navigate(`/Manage/${projectId}`);
+  };
+
   const addPost = async () => {
     // HTML 태그 제거하기 위한 정규식
     const strippedHtml = editorHtml.replace(/<[^>]+>/g, "");
@@ -124,7 +128,7 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
       const response = await boardApi.postBoard(formData);
       if (response.data.success) {
         alert("게시글이 성공적으로 작성되었습니다.");
-        onBack()
+        // onBack()
         // setTimeout(function () {
         //   window.location.reload();
         // }, 100);
@@ -132,6 +136,7 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
         setTitle("");
         setEditorHtml("");
         setSelectedFiles([]);
+        goToHome();
 
       } else if (response.data.success === false) {
         if (response.data.code === 7000) {
@@ -164,6 +169,7 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
   const handleDeleteFile = (fileNameToDelete: string) => {
     setSelectedFiles((prevFiles) => prevFiles.filter(file => file.name !== fileNameToDelete));
   };
+
 
   return (
     <>

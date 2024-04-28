@@ -118,9 +118,7 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
 
   return (
     <DashboardBox>
-      <Arc>
-        <Title>오늘의 일정이 n개 있습니다.</Title>
-      </Arc>
+      
       <DashboardBody onScroll={() => handleScroll}> {/* 스크롤 이벤트 핸들러 추가 */}
         <Panel expanded={expanded}>
           <Left expanded={expanded}>

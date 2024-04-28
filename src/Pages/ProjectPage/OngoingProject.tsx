@@ -361,10 +361,6 @@ function OngoingProject() {
     navigate(`/Manage/${projectId}`, { state: { name: projectName } });
   };
 
-  const goToHome = () => {
-    navigate(`/`);
-  };
-
   const refresh = () => {
     setTimeout(function () {
       window.location.reload();
