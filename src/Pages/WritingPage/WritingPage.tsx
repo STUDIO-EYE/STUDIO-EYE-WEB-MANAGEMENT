@@ -128,11 +128,6 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
       const response = await boardApi.postBoard(formData);
       if (response.data.success) {
         alert("게시글이 성공적으로 작성되었습니다.");
-        // onBack()
-        // setTimeout(function () {
-        //   window.location.reload();
-        // }, 100);
-
         setTitle("");
         setEditorHtml("");
         setSelectedFiles([]);
@@ -160,16 +155,9 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
     }
   };
 
-  const goToPreviousPage = () => {
-    setTimeout(function () {
-      window.location.reload();
-    }, 100);
-  };
-
   const handleDeleteFile = (fileNameToDelete: string) => {
     setSelectedFiles((prevFiles) => prevFiles.filter(file => file.name !== fileNameToDelete));
   };
-
 
   return (
     <>

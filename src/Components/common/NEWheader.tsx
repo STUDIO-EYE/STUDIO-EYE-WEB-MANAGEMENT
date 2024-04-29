@@ -101,7 +101,8 @@ const NEWheader = () => {
     setIsLoggedIn(false);
     setUserName("");
     alert("로그아웃 완료");
-    navigate("/");
+    //window.location.reload();
+    navigate("/LoginPage");
   };
 
   return (

@@ -6,7 +6,7 @@ import { width } from '@mui/system';
 const StyledRectangle=styled.div<rectangleProps>`
     width: ${(prop) => prop.width};
     margin: ${(prop)=>prop.margin};
-    box-shadow: 0px 4px 4px rgba(0,0,0,0.04);
+    //box-shadow: 0px 4px 4px rgba(0,0,0,0.04);
     border-radius:1.6rem;
     //background-color:white;
     padding: 0.2rem 1rem;

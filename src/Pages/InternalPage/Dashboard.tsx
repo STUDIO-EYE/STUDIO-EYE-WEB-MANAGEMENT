@@ -34,15 +34,16 @@ const Panel = styled.div<{ expanded: boolean }>`
 `;
 
 const LeftComponent = styled.div`
-  height: 33.33%;
-  margin-bottom: 20px;
+  margin-bottom: 20px; /* 여백을 일정하게 지정 */
 `;
 
 const Left = styled.div<{ expanded: boolean }>`
   padding: 20px;
   flex-basis: 50%;
-  height: ${(props) => (props.expanded ? "1000px" : "600px")}; // 크기 변경
+  height: ${(props) => (props.expanded ? "1000px" : "600px")};
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 
   &::-webkit-scrollbar {
     width: 15px;
@@ -62,22 +63,6 @@ const Left = styled.div<{ expanded: boolean }>`
   }
 `;
 
-const Line = styled.div`
-  height: 80px;
-`;
-
-const Button = styled.button`
-  width: 40px;
-  background-color: white;
-`;
-
-const Arc = styled.div`
-background-color: transparent;
-  margin-left: 225px;
-  margin-bottom: 10px;
-  display: flex;
-`;
-
 const NewPanel = styled.button`
   height: 300px;
   width: 100%;
@@ -86,16 +71,10 @@ const NewPanel = styled.button`
   transition: height 0.3s ease-in-out; /* transition 추가 */
 `;
 
-const TodayChecklistContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-`;
-
 const Dashboard = ({ projectId }: { projectId: number }) => {
   const [expanded, setExpanded] = useState(false);
-  const location=useLocation();
-  const projectInfo={...location.state}
+  const location = useLocation();
+  const projectInfo = { ...location.state }
   const [scrolled, setScrolled] = useState(false); /* 스크롤 여부 상태 */
 
   const [completedCount, setCompletedCount] = useState<number>(0);
@@ -118,14 +97,14 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
 
   return (
     <DashboardBox>
-      
+
       <DashboardBody onScroll={() => handleScroll}> {/* 스크롤 이벤트 핸들러 추가 */}
         <Panel expanded={expanded}>
           <Left expanded={expanded}>
             <LeftComponent>
+              <WeekCalendar projectId={projectId} />
               <ProjectProgress completedCount={completedCount} totalCount={totalCount} />
               <CheckList projectId={projectId} updateProgress={updateProgress} />
-              <WeekCalendar projectId={projectId} />
             </LeftComponent>
           </Left>
           <RightDashboard projectData={projectInfo} projectId={projectId} />

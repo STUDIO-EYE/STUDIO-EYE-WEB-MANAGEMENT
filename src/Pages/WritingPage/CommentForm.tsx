@@ -14,7 +14,7 @@ const FormContainer = styled.div`
   justify-content: flex-start;
   align-items: center;
   gap: 10px;
-  padding: 20px 20px 0 20px;
+  padding: 20px;
   background-color: #F9FBFD;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
   border-radius: 10px;
@@ -32,13 +32,6 @@ const StyledTextArea = styled(TextArea)`
 const StyledButton = styled(NewButton)`
   width: 40%;
   min-height: 40px;
-  font-size: 1rem;
-  border-radius: 20px;
-  transition: all 0.3s;
-  &:hover {
-    
-    cursor: pointer;
-  }
 `;
 
 const CommentForm = ({ onAddComment, postId, selectedPost }: { onAddComment: any; postId: number; selectedPost: any }) => {
@@ -102,9 +95,9 @@ const CommentForm = ({ onAddComment, postId, selectedPost }: { onAddComment: any
       <StyledButton
         textcolor="black"
         backcolor="transparent"
-        width={"30%"}
+        width={"50%"}
         onClick={handleSubmit}
-        height={"100%"}
+        height={"120%"}
       >
         작성
       </StyledButton>
