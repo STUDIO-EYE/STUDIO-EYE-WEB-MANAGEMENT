@@ -377,15 +377,15 @@ const MyCalendar = () => {
           }
         }}
       />
-        <div>{moment(selectDate).format("YYYY/MM/DD")}의 일정</div>
+        <div style={{textAlign:'left', margin:'1rem 0 0.5rem 1rem'}}>{moment(selectDate).format("YYYY/MM/DD")}의 일정</div>
         {findEventsForDate(new Date(selectDate!!)).length!=0
           ? findEventsForDate(new Date(selectDate!!)).map((event)=>{
-            return <div style={{cursor:'pointer'}}
+            return <div style={{cursor:'pointer', margin:'0.5rem 1rem',textAlign:'left',backgroundColor:theme.color.gray10,borderRadius:'10px',padding:'3px',fontSize:'0.9rem'}}
             onClick={()=>{
               setShowModal(true)
               setEditingEvent(event)
             }} key={event.userScheduleId}>{event.content}</div>})
-          :<div>오늘의 일정이 없습니다.</div>
+          :<div style={{margin:'0.5rem 1rem',textAlign:'left',padding:'3px',fontSize:'0.9rem',color:theme.color.gray40}}>오늘의 일정이 없습니다.</div>
         }
 
           {showModal && (

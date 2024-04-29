@@ -46,10 +46,10 @@ const NavigationLink = styled.div`
   }
 `;
 
-const ProjectDropdownContainer = styled.div<{ isVisible: boolean }>`
+const ProjectDropdownContainer = styled.div<{ maxHeight: number }>`
   transition: max-height 0.3s;
   overflow: hidden;
-  max-height: ${({ isVisible }) => (isVisible ? '150px' : '0')}; // 드롭박스 가시성 제어
+  max-height: ${({ maxHeight }) => maxHeight}px;
 `;
 
 const ProjectList = styled.div`
@@ -118,6 +118,8 @@ const NavBar = () => {
     setIsProjectMenuOpen(false);
   };
 
+  const maxHeight = isProjectMenuOpen ? ongoingProjects.length * 40 + 10 : 0; 
+
   return (
     <NavigationBar>
       <NavigationWrapper>
@@ -132,7 +134,7 @@ const NavBar = () => {
             프로젝트
           </NavigationLink>
 
-          <ProjectDropdownContainer isVisible={isProjectMenuOpen}>
+          <ProjectDropdownContainer maxHeight={maxHeight}>
             <ProjectList>
               {ongoingProjects.map((project) => (
                 <ProjectItem

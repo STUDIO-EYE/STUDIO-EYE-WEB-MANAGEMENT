@@ -12,6 +12,7 @@ import {
 import { BiSolidDownload, BiSolidFile, BiSolidFileJpg, BiSolidFilePdf, BiSolidFilePng } from "react-icons/bi";
 import { LuDelete } from "react-icons/lu";
 import { SiMicrosoftpowerpoint } from "react-icons/si";
+import { PiFilePdfFill, PiFilePptFill } from "react-icons/pi";
 
 interface File {
   id: string;
@@ -262,7 +263,6 @@ const FileNameLink = styled.a`
   color: black;
   font-size: 1rem;
   width: 80%;
-  margin-top: 10px;
   text-decoration: none;
   white-space: nowrap;
   overflow: hidden;
@@ -281,6 +281,11 @@ const DownloadIcon = styled.div`
   }
 `;
 
+const StyledFileIcon = styled.div`
+  font-size: 100px;
+  margin-bottom: -15px;
+`;
+
 const FileManagement: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
   const { projectId } = useParams<{ projectId: string }>();
@@ -294,7 +299,7 @@ const FileManagement: React.FC = () => {
   const [isGallery, setIsGallery] = useState(true); // 갤러리/리스트 형식 구분
   const [showRecentSearches, setShowRecentSearches] = useState(false);
   const [isNavVisible, setIsNavVisible] = useState(true);
-  
+
   const toggleNavBar = () => {
     setIsNavVisible(!isNavVisible);
   };
@@ -364,9 +369,9 @@ const FileManagement: React.FC = () => {
   const getFileIcon = (fileName: string): React.ReactNode => {
     const extension = getExtension(fileName);
     if (extension === "pdf") {
-      return <BiSolidFilePdf color="red" />;
+      return <PiFilePdfFill color="red" />;
     } else if (extension === "ppt" || extension === "pptx") {
-      return <SiMicrosoftpowerpoint />;
+      return <PiFilePptFill color="red" />;
     }
     return <BiSolidFile />;
   };
@@ -510,7 +515,9 @@ const FileManagement: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <BiSolidFilePdf style={{ fontSize: "100px", color: "red" }} />
+                    <StyledFileIcon>
+                      {getFileIcon(file.fileName)}
+                    </StyledFileIcon>
                     <FileNameLink href={file.filePath} download>
                       {file.fileName}
                     </FileNameLink>
