@@ -102,6 +102,7 @@ button {
   display:flex;
   flex-direction:column;
   border:none;
+  cursor:pointer;
 }
 
 .react-calendar__tile:disabled {
@@ -200,7 +201,7 @@ interface Event {
   endDate:string;
 }
 
-const MyCalendar = () => {
+const MyCalendar = ({onDarkBackground}:{onDarkBackground:any}) => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [events, setEvents] = useState<Event[]>([]);
   const [isChange,setIsChange]=useState(false);
@@ -211,6 +212,7 @@ const MyCalendar = () => {
     event:[]});
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [selectDate,setSelectDate]=useState<Date>(new Date());
+  const [criterion,setCriterion]=useState<string>("day");
 
   const navigate = useNavigate();
 
@@ -237,63 +239,32 @@ const MyCalendar = () => {
     fetchEvents();
   }, []);
 
-  const getWeekDates = (date: Date): Date[] => {
-    const weekDates: Date[] = [];
-    let startDate = new Date(date);
-    startDate.setDate(date.getDate() - date.getDay());
-
-    for (let i = 0; i < 7; i++) {
-      const currentDate = new Date(startDate);
-      currentDate.setDate(startDate.getDate() + i);
-      weekDates.push(currentDate);
-    }
-
-    return weekDates;
-  };
-
-  const goToNewDate = () => {
-    const newDateString = window.prompt(
-      "궁금한 일정을 YYYY-MM-DD 형식으로 입력하세요:",
-      currentDate.toISOString().split("T")[0]
-    );
-    if (newDateString) {
-      const newDate = new Date(newDateString);
-      if (!isNaN(newDate.getTime())) {
-        setCurrentDate(newDate);
-      } else {
-        alert("유효한 날짜 형식이 아닙니다.");
-      }
-    }
-  };
-
   const findEventsForDate = (date: Date): Event[] => {
     const targetDate = new Date(
       date.getFullYear(),
       date.getMonth(),
       date.getDate()
     ).getTime();
-
     if(events!=null){
       return events.filter((e) => {
-        const eventStartDate = new Date(
-          new Date(e.startDate).getFullYear(),
-          new Date(e.startDate).getMonth(),
-          new Date(e.startDate).getDate()
-        ).getTime();
-        const eventEndDate = new Date(
-          new Date(e.endDate).getFullYear(),
-          new Date(e.endDate).getMonth(),
-          new Date(e.endDate).getDate(),
-          23,
-          59,
-          59,
-          999
-        ).getTime();
-  
-        return targetDate >= eventStartDate && targetDate <= eventEndDate;
+        if(criterion=="day"||criterion=="week"||criterion=="month"){
+          const target=moment(targetDate)
+          const eventStartDate=moment(e.startDate).startOf(criterion)
+          const eventEndDate=moment(e.endDate).endOf(criterion)
+          return target>=eventStartDate&&target<=eventEndDate;
+        }
       });
     }else return [];
   };
+  const findEventCount=(date:Date):number=>{
+    const eventlist=events.filter((e) => {
+      const target=moment(date)
+      const eventStartDate=moment(e.startDate).startOf("day")
+      const eventEndDate=moment(e.endDate).endOf("day")
+      return target>=eventStartDate&&target<=eventEndDate;
+    })
+    return eventlist.length
+  }
 
   const fetchEvents = async () => {
     try {
@@ -339,6 +310,16 @@ const MyCalendar = () => {
     setSelectDate(e);
   }
 
+  const handleCriterion=(e:any)=>{
+    setCriterion(e.target.value)
+  }
+
+  const getCurrentweek:()=>string=()=>{
+    var now=moment(selectDate).week()
+    var lastmonthweek=moment(selectDate).subtract(1,'months').endOf('month').week()
+    return moment(selectDate).format("YYYY년 MM월 ")+(now-lastmonthweek+1).toString()+"주차"
+  }
+
 //   const addHoliday=()=>{
 //     var xhr = new XMLHttpRequest();
 //     var url = 'http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo'; /*URL*/
@@ -366,7 +347,7 @@ const MyCalendar = () => {
           let html=[];
           if(events.find((x) =>
             (x.startDate <= moment(date).format("YYYY-MM-DD"))&& x.endDate>=moment(date).format("YYYY-MM-DD"))){
-            html.push(<div className="dot" style={{color:"white"}}>{findEventsForDate(new Date(date!!)).length}</div>)
+            html.push(<div className="dot" style={{color:"white"}}>{findEventCount(date)}</div>)
             return(
               <>
                 <div className="etc">
@@ -377,11 +358,26 @@ const MyCalendar = () => {
           }
         }}
       />
-        <div style={{textAlign:'left', margin:'1rem 0 0.5rem 1rem'}}>{moment(selectDate).format("YYYY/MM/DD")}의 일정</div>
+        <div style={{display:'flex', justifyContent:'space-between', margin:'1rem 1rem 0.5rem 1rem'}}>
+        <div style={{textAlign:'left'}}>{
+        criterion=="day"?moment(selectDate).format("YYYY년 MM월 DD일")
+        : criterion=="week"?getCurrentweek()
+        : moment(selectDate).format("YYYY년 MM월")}의 일정</div>
+        <div>
+        <text style={{fontSize:'0.8rem', margin:'0 0.3rem'}}>기준</text>
+        <select onChange={handleCriterion}>
+          <option value={"day"}>단일</option>
+          <option value={"week"}>일주일</option>
+          <option value={"month"}>한 달</option>
+        </select>
+        </div>
+        </div>
+
         {findEventsForDate(new Date(selectDate!!)).length!=0
           ? findEventsForDate(new Date(selectDate!!)).map((event)=>{
             return <div style={{cursor:'pointer', margin:'0.5rem 1rem',textAlign:'left',backgroundColor:theme.color.gray10,borderRadius:'10px',padding:'3px',fontSize:'0.9rem'}}
             onClick={()=>{
+              onDarkBackground(true)
               setShowModal(true)
               setEditingEvent(event)
             }} key={event.userScheduleId}>{event.content}</div>})
@@ -416,6 +412,7 @@ const MyCalendar = () => {
                       if(window.confirm("정말 삭제하시겠습니까?")){
                         editingEvent && handleDeleteEvent(editingEvent.userScheduleId)
                         setIsChange(false)
+                        onDarkBackground(false)
                         setShowModal(false)
                         setEditingEvent(null)
                       }else{return}
@@ -427,11 +424,13 @@ const MyCalendar = () => {
                 if(isChange){
                   if(window.confirm("변경 사항이 있습니다. 변경사항을 삭제하시겠습니까?")){
                     setIsChange(false)
+                    onDarkBackground(false)
                     setShowModal(false)
                     setEditingEvent(null)
                   }else{ return }
                 }else{
                   setIsChange(false)
+                  onDarkBackground(false)
                   setShowModal(false)
                   setEditingEvent(null)
                 }}}>닫기</NewButton>

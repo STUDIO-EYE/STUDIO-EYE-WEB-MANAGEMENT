@@ -112,7 +112,7 @@ export default MyBoard;
 
 const RightboardBody = styled.div<RightBoardProps>`
   width: 90%;
-  margin-top: 1rem;
+  margin-bottom: 1rem;
   margin-left: 2rem;
   flex-direction: column;
   background-color: white;

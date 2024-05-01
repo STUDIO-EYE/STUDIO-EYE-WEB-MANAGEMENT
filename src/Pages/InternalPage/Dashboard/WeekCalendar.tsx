@@ -101,6 +101,7 @@ button {
   display:flex;
   flex-direction:column;
   border:none;
+  cursor:pointer;
 }
 
 .react-calendar__tile:disabled {

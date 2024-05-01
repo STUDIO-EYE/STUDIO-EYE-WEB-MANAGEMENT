@@ -14,6 +14,11 @@ const DashboardBox = styled.div`
   flex-direction: column;
   min-width: 90%;
   margin: auto;
+  overflow:hidden;
+
+  @media ${media.half} {
+    overflow:visible;
+  }
 `;
 
 const Panel = styled.div<{ expanded: boolean }>`
@@ -80,22 +85,31 @@ const RightDashboard = styled.div`
 
 const MyPage = () => {
   const [expanded, setExpanded] = useState(false);
+  const [modaldiv,setModaldiv]=useState(false);
   const [userId, setUserId] = useState("");
   const navigate = useNavigate();
 
+const onDarkBackground=(is:boolean)=>{
+  setModaldiv(is)
+}
+
   return (
     <DashboardBox>
+      <div style={{position:'relative'}}>
+        {modaldiv?<div style={{position:'fixed',backgroundColor:"black",zIndex:999, width:'100%',height:'100%',marginTop:'0',opacity:'0.3',top:0,left:0,touchAction:'none'}}/>
+        :null}
       <DashboardBody>
         <Panel expanded={expanded}>
           <Left expanded={expanded}>
             <LeftComponent>
-              <MyCalendar/>
+              <MyCalendar onDarkBackground={onDarkBackground}/>
             </LeftComponent>
           </Left>
           <RightDashboard />
           <RightMyPage/>
         </Panel>
       </DashboardBody>
+      </div>
     </DashboardBox>
   );
 };
