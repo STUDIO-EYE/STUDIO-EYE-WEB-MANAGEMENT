@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Selector from "Components/common/Selector";
 import MyTable from "./MyTable";
+import { useNavigate } from "react-router-dom";
 
 interface RightBoardProps {
     children: React.ReactNode;
@@ -21,6 +22,7 @@ interface Post{
 }
 
 const MyBoard=(project:any)=>{
+    const navigate = useNavigate();
     const [postData, setPostData] = useState<Post[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const postPerPage = 3;
@@ -48,11 +50,22 @@ const MyBoard=(project:any)=>{
         fetchPosts();
     }, [project.project.projectId]);
 
-    const handleRowClick=()=>{
-        // setSelectedRowId(rowId);
-        // setShowTable(false);
-        // setShowWritingPage(false);
-        // setShowViewWritingPage(true);
+    const handleRowClick=(post:any)=>{
+      switch(post.category){
+        case "PLANNING":{
+          navigate(`/PlanMain/${project.project.projectId}/${post.id}`, { state: { name: project.project.name } })
+          break};
+        case "EDITING":{
+          navigate(`/EditMain/${project.project.projectId}/${post.id}`, { state: { name: project.project.name } })
+          break};
+        case "PRODUCTION":{
+          navigate(`/MakingMain/${project.project.projectId}/${post.id}`, { state: { name: project.project.name } })
+          break};
+      }
+    }
+
+    const goToProjectPage=()=>{
+      navigate(`/Manage/${project.project.projectId}`)
     }
 
     const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
@@ -98,7 +111,7 @@ const MyBoard=(project:any)=>{
         <RightboardBody>
         <BoardTitleDiv>
             {/**click 이벤트 연결할 것, project page로 이동하기*/}
-            <BoardTitleText><TitleSm>{project.project.name}</TitleSm></BoardTitleText>
+            <BoardTitleText onClick={goToProjectPage}><TitleSm>{project.project.name}</TitleSm></BoardTitleText>
         </BoardTitleDiv>
         <BoardContentDiv>
             <MyTable tableData={currentPosts} onRowClick={handleRowClick}/>

@@ -70,8 +70,8 @@ const MyTable = ({  tableData, onRowClick }
   :{tableData:any, onRowClick:any}) => {
 
     // Table의 열을 클릭했을 때 호출될 함수
-    const sendDataBoard = (rowId:number) => {
-      onRowClick(rowId);
+    const sendDataBoard = (row:any) => {
+      onRowClick(row);
     };
     // 날짜 형식 변경
     const changeDate=(date: string) :string=>{
@@ -112,7 +112,7 @@ const MyTable = ({  tableData, onRowClick }
                         <tr
                             key={row.id}
                             onClick={() => 
-                                sendDataBoard(row.id)
+                                sendDataBoard(row)
                             }
                         >
                             <TableCell><text style={{fontSize:'0.8rem'}}>{row.category}</text></TableCell>
