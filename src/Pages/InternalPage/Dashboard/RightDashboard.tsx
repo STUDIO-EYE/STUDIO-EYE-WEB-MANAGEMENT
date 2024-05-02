@@ -244,7 +244,7 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId }) =>
       </RightboardBody>
       <RightboardBody>
         <BoardTitleDiv>
-          <BoardTitleText><TitleSm onClick={goToPlanPage}>제작</TitleSm></BoardTitleText>
+          <BoardTitleText><TitleSm onClick={goToMakingPage}>제작</TitleSm></BoardTitleText>
           <PlusButton onClick={goToMakingWritingPage}><FaPenToSquare /></PlusButton>
         </BoardTitleDiv>
         <BoardContentDiv>
@@ -264,7 +264,7 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId }) =>
       </RightboardBody>
       <RightboardBody isEditing>
         <BoardTitleDiv>
-          <BoardTitleText><TitleSm onClick={goToPlanPage}>편집</TitleSm></BoardTitleText>
+          <BoardTitleText><TitleSm onClick={goToEditPage}>편집</TitleSm></BoardTitleText>
           <PlusButton onClick={goToEditWritingPage}><FaPenToSquare /></PlusButton>
         </BoardTitleDiv>
         <BoardContentDiv>

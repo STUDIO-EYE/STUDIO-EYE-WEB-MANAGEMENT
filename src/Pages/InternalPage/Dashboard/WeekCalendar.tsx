@@ -101,6 +101,7 @@ button {
   display:flex;
   flex-direction:column;
   border:none;
+  cursor:pointer;
 }
 
 .react-calendar__tile:disabled {
@@ -201,9 +202,10 @@ interface Event {
 
 interface WeekCalendarProps {
   projectId: number;
+  onDarkBackground: (is:boolean)=>void;
 }
 
-const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
+const WeekCalendar: React.FC<WeekCalendarProps> = ({projectId},{onDarkBackground}) => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [events, setEvents] = useState<Event[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -214,6 +216,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
   const [isChanging,setIsChanging]=useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [selectDate,setSelectDate]=useState<Date>(new Date());
+  const [criterion,setCriterion]=useState<string>("day");
 
   const navigate = useNavigate();
 
@@ -275,28 +278,26 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
       date.getMonth(),
       date.getDate()
     ).getTime();
-
     if(events!=null){
       return events.filter((e) => {
-        const eventStartDate = new Date(
-          new Date(e.startDate).getFullYear(),
-          new Date(e.startDate).getMonth(),
-          new Date(e.startDate).getDate()
-        ).getTime();
-        const eventEndDate = new Date(
-          new Date(e.endDate).getFullYear(),
-          new Date(e.endDate).getMonth(),
-          new Date(e.endDate).getDate(),
-          23,
-          59,
-          59,
-          999
-        ).getTime();
-  
-        return targetDate >= eventStartDate && targetDate <= eventEndDate;
+        if(criterion=="day"||criterion=="week"||criterion=="month"){
+          const target=moment(targetDate)
+          const eventStartDate=moment(e.startDate).startOf(criterion)
+          const eventEndDate=moment(e.endDate).endOf(criterion)
+          return target>=eventStartDate&&target<=eventEndDate;
+        }
       });
     }else return [];
   };
+  const findEventCount=(date:Date):number=>{
+    const eventlist=events.filter((e) => {
+      const target=moment(date)
+      const eventStartDate=moment(e.startDate).startOf("day")
+      const eventEndDate=moment(e.endDate).endOf("day")
+      return target>=eventStartDate&&target<=eventEndDate;
+    })
+    return eventlist.length
+  }
 
   const fetchEvents = async () => {
     try {
@@ -341,6 +342,14 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
   const handleDateChange=(e:any)=>{
     setSelectDate(e);
   }
+  const handleCriterion=(e:any)=>{
+    setCriterion(e.target.value)
+  }
+  const getCurrentweek:()=>string=()=>{
+    var now=moment(selectDate).week()
+    var lastmonthweek=moment(selectDate).subtract(1,'months').endOf('month').week()
+    return moment(selectDate).format("YYYY년 MM월 ")+(now-lastmonthweek+1).toString()+"주차"
+  }
 
   return (
     <div className="App">
@@ -353,7 +362,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
           let html=[];
           if(events.find((x) =>
             (x.startDate <= moment(date).format("YYYY-MM-DD"))&& x.endDate>=moment(date).format("YYYY-MM-DD"))){
-            html.push(<div className="dot" style={{color:"white"}}>{findEventsForDate(new Date(date!!)).length}</div>)
+            html.push(<div className="dot" style={{color:"white"}}>{findEventCount(date)}</div>)
             return(
               <>
                 <div className="etc">
@@ -365,11 +374,26 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
         }}
       />
 
-<div style={{textAlign:'left', margin:'1rem 0 0.5rem 1rem'}}>{moment(selectDate).format("YYYY/MM/DD")}의 일정</div>
+        <div style={{display:'flex', justifyContent:'space-between', margin:'1rem 1rem 0.5rem 1rem'}}>
+        <div style={{textAlign:'left'}}>{
+        criterion=="day"?moment(selectDate).format("YYYY년 MM월 DD일")
+        : criterion=="week"?getCurrentweek()
+        : moment(selectDate).format("YYYY년 MM월")}의 일정</div>
+        <div>
+        <text style={{fontSize:'0.8rem', margin:'0 0.3rem'}}>기준</text>
+        <select onChange={handleCriterion}>
+          <option value={"day"}>단일</option>
+          <option value={"week"}>일주일</option>
+          <option value={"month"}>한 달</option>
+        </select>
+        </div>
+        </div>
+
         {findEventsForDate(new Date(selectDate!!)).length!=0
           ? findEventsForDate(new Date(selectDate!!)).map((event)=>{
             return <div style={{cursor:'pointer', margin:'0.5rem 1rem',textAlign:'left',backgroundColor:theme.color.gray10,borderRadius:'10px',padding:'3px',fontSize:'0.9rem'}}
             onClick={()=>{
+              onDarkBackground(true)
               setShowModal(true)
               setEditingEvent(event)
             }} key={event.scheduleId}>{event.content}</div>})
@@ -405,6 +429,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
                         if(window.confirm("정말 삭제하시겠습니까?")){
                           editingEvent && handleDeleteEvent(editingEvent.scheduleId)
                           setIsChanging(false)
+                          onDarkBackground(false)
                           setEditingEvent(null)
                           setShowModal(false)
                         }else{return}
@@ -416,11 +441,13 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId }) => {
                 if(isChanging){
                   if(window.confirm("변경 사항이 있습니다. 변경사항을 삭제하시겠습니까?")){
                     setIsChanging(false)
+                    onDarkBackground(false)
                     setShowModal(false)
                     setEditingEvent(null)
                   }else return
                 }else{
                   setIsChanging(false)
+                  onDarkBackground(false)
                   setShowModal(false)
                 setEditingEvent(null)
                 }}}>닫기</NewButton>
