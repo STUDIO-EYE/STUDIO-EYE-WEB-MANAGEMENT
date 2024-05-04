@@ -21,6 +21,7 @@ const Container = styled.div`
   // padding: 20px;
   // margin: 20px auto;
   margin-left: 2rem;
+  margin-bottom:1rem;
   padding: 0 0 1px 0;
   border-radius: 15px;
 `;

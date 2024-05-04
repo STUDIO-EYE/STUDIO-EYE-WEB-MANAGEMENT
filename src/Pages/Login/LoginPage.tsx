@@ -133,13 +133,18 @@ function LoginPage() {
     axios
       .post("/user-service/login", formData)
       .then((response) => {
-        const accessToken = response.data.accessToken;
-        axios.defaults.headers.common["Authorization"] =
+        if(response.data.approved){
+          const accessToken = response.data.accessToken;
+          axios.defaults.headers.common["Authorization"] =
           "Bearer " + accessToken; // 토큰을 HTTP 헤더에 포함
-        sessionStorage.setItem("login-token", accessToken);
+          sessionStorage.setItem("login-token", accessToken);
 
-        swal('로그인 성공!', "", 'success')
-          .then(function () { navigate("/"); })
+
+          swal('로그인 성공!', "", 'success')
+          .then(function() { navigate("/"); })
+        }else{
+          swal('로그인 실패',"관리자의 승인이 필요한 계정입니다.",'warning')
+        }
       })
       .catch((error) => {
         alert("로그인 실패");

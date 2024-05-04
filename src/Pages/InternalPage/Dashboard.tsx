@@ -80,6 +80,7 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
 
   const [completedCount, setCompletedCount] = useState<number>(0);
   const [totalCount, setTotalCount] = useState<number>(0);
+  const [modaldiv,setModaldiv]=useState(false);
 
   const updateProgress = (completed: number, total: number) => {
     setCompletedCount(completed);
@@ -95,9 +96,15 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
     setScrolled(scrollTop > 0); /* 스크롤이 위로 올라가면 true, 아니면 false */
   };
 
+  const onDarkBackground=(is:boolean)=>{
+    setModaldiv(is)
+  }
+
   return (
     <DashboardBox>
-
+      <div style={{position:'relative'}}>
+        {modaldiv?<div style={{position:'fixed',backgroundColor:"black",zIndex:999, width:'100%',height:'100%',marginTop:'0',opacity:'0.3',top:0,left:0,touchAction:'none'}}/>
+        :null}
       <DashboardBody onScroll={() => handleScroll}> {/* 스크롤 이벤트 핸들러 추가 */}
         <Panel expanded={expanded}>
           <Left expanded={expanded}>
@@ -116,6 +123,7 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
         </Panel>
         {expanded && <NewPanel />}
       </DashboardBody>
+      </div>
     </DashboardBox>
   );
 };
