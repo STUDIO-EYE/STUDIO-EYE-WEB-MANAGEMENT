@@ -11,6 +11,8 @@ import commentApi from "../../api/commentApi";
 import HorizontalLine from "Components/common/HorizontalLine"
 import axios from "axios";
 import jwt_decode from "jwt-decode";
+import { Dropdown, DropdownItem } from "Components/common/DropDownBox";
+import { FaBackward, FaEdit, FaTrash } from "react-icons/fa";
 // WritingMainPage.js
 
 interface PostInfo {
@@ -24,13 +26,13 @@ interface PostInfo {
   updatedAt: string
 }
 
-/////////제목,내용/////////
 const FormContainer = styled.div`
-  max-height: 30rem; /* 댓글 컨테이너의 최대 높이 */
+  max-height: 30rem;
   max-width: 70rem;
   padding-left: 1%;
   padding-right: 1%;
-  overflow-y: auto; /* 스크롤 가능하도록 설정 */
+  overflow-y: auto;
+  margin-bottom: 2rem;
 `;
 
 const TitleInput = styled.input`
@@ -115,8 +117,7 @@ const Content = styled.div`
   margin-bottom: 0.1rem;
   min-height: 10rem;
   .ql-font-serif {
-    font-family: Georgia, Times New Roman, serif, "Courier New", Courier,
-      monospace;
+    font-family: 'Pretendard'
   }
   .ql-size-huge {
     font-size: 2.5em;
@@ -148,6 +149,19 @@ const DeleteFileButton = styled.button`
   color: red;
 `;
 
+const FileNameLink = styled.a`
+  color: black;
+  font-size: 1rem;
+  width: 80%;
+  margin-top: 10px;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
 
 const ViewWritingPage = ({ selectedRowId, projectId, postId }
   : { selectedRowId: number, projectId: number, postId: number }) => {
@@ -178,13 +192,39 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     }
   }, []);
 
+
+  const [filePaths, setFilePaths] = useState<string[]>([]);
+  const [fileNames, setFileNames] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchFiles = async () => {
+      try {
+        const response = await axios.get(`/api/posts/files?projectId=${projectId}&postId=${postId}`);
+        const files = response.data.list;
+
+        // 기존 파일 목록을 File 객체로 변환하고 existingFiles에 저장
+        const existingFilesArray = files.map((file: any) => new File([], file.fileName));
+        setExistingFiles(existingFilesArray); // 기존 파일 상태 업데이트
+
+        const paths = files.map((file: any) => file.filePath);
+        const names = files.map((file: any) => file.fileName);
+        setFilePaths(paths);
+        setFileNames(names);
+      } catch (error) {
+        console.error("Error fetching files:", error);
+      }
+    };
+
+    fetchFiles();
+  }, [projectId, selectedRowId]);
+
   const goToPreviousPage = () => {
     setTimeout(function () {
       window.location.reload();
     }, 100);
   };
   const goToHome = () => {
-    navigate(`/manage/${projectId}`);
+    navigate(`/Manage/${projectId}`);
   };
 
   const putWriting = () => {
@@ -192,7 +232,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
       alert("제목과 내용을 모두 입력해주세요.");
       return;
     }
-  
+
     const updatedPostData = {
       projectId: projectId,
       postId: selectedRowId,
@@ -201,24 +241,24 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
       category: selectedPost.category,
       updatedAt: selectedPost.updatedAt,
     };
-  
+
     const json = JSON.stringify(updatedPostData);
     const blob = new Blob([json], { type: 'application/json' });
-  
+
     const formData = new FormData();
     formData.append("updatePostRequestDto", blob);
-  
+
     // 기존 파일과 새로 선택한 파일을 모두 합쳐서 formData에 추가
     const allFiles = [...existingFiles, ...selectedFiles];
     allFiles.forEach((file) => formData.append("files", file));
-  
+
     boardApi
       .putBoard(formData)
       .then((response) => {
         alert("게시글이 성공적으로 업데이트 되었습니다.");
-        setTitle(""); // 필드 초기화
+        setTitle("");
         setEditorHtml("");
-        setSelectedFiles([]); // 선택된 파일을 초기화
+        setSelectedFiles([]);
         goToHome();
       })
       .catch((error) => {
@@ -226,18 +266,22 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
         alert("게시글 업데이트 중 오류가 발생했습니다.");
       });
   };
-  
 
   //게시글 삭제 함수
   const deletePost = () => {
     const token = sessionStorage.getItem('login-token');
     console.log(token);
-
+  
     if (!token) {
       alert('로그인이 필요합니다.');
       return;
     }
-
+  
+    const confirmDelete = window.confirm("정말로 게시글을 삭제하시겠습니까?");
+    if (!confirmDelete) {
+      return;
+    }
+  
     boardApi
       .deleteBoard({
         data: {
@@ -254,10 +298,11 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
         }
       })
       .catch((error) => {
-        console.error("Error deleting post:", error);
+        console.error("게시글 삭제 중 오류 발생:", error);
         alert("게시글 삭제 중 오류가 발생했습니다.");
       });
   };
+  
 
   const changePutView = () => {
     setTitle(selectedPost.title);
@@ -296,32 +341,6 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     fetchData();
   }, [selectedRowId, projectId]);
 
-  const [filePaths, setFilePaths] = useState<string[]>([]);
-  const [fileNames, setFileNames] = useState<string[]>([]);
-
-  useEffect(() => {
-    const fetchFiles = async () => {
-      try {
-        const response = await axios.get(`/api/posts/files?projectId=${projectId}&postId=${postId}`);
-        const files = response.data.list;
-  
-        // 기존 파일 목록을 File 객체로 변환하고 existingFiles에 저장
-        const existingFilesArray = files.map((file: any) => new File([], file.fileName));
-        setExistingFiles(existingFilesArray); // 기존 파일 상태 업데이트
-  
-        const paths = files.map((file: any) => file.filePath);
-        const names = files.map((file: any) => file.fileName);
-        setFilePaths(paths);
-        setFileNames(names);
-      } catch (error) {
-        console.error("Error fetching files:", error);
-      }
-    };
-  
-    fetchFiles();
-  }, [projectId, selectedRowId]);
-  
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const filesToAdd = Array.from(e.target.files);
@@ -347,63 +366,53 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   //조회하면 showViewWriting + 수정화면 showPutWriting
   return (
     <>
-      {console.log(tokenUserName)}
-      {console.log(selectedPost.author)}
       {showViewWriting ? (
         <>
           <FormContainer>
             <ViewTitleInput>
               <Title>{selectedPost.title}</Title>
+              <PostsButtonContainer>
+                {
+                  tokenUserName === selectedPost.author && (
+                    <>
+                      <Dropdown>
+                        <DropdownItem onClick={changePutView} style={{ color: 'green' }}>
+                          <FaEdit /> 수정
+                        </DropdownItem>
+                        <DropdownItem onClick={deletePost} style={{ color: 'red' }}>
+                          <FaTrash /> 삭제
+                        </DropdownItem>
+                        {postId ? (
+                          <DropdownItem onClick={goToHome}><FaBackward /> 취소</DropdownItem>
+                        ) : (
+                          <DropdownItem onClick={goToPreviousPage}><FaBackward /> 취소</DropdownItem>
+                        )}
+                      </Dropdown>
+                    </>
+                  )}
+              </PostsButtonContainer>
               <AuthorAndDate>
-                작성자: {selectedPost.author} | 작성일시: {selectedPost.date}
+                작성자 {selectedPost.author} | 작성 {selectedPost.date}
               </AuthorAndDate>
               <AuthorAndDate>
-                <span>마지막 수정 시간: {formattedUpdatedAt}</span>
+                <span>수정: {formattedUpdatedAt}</span>
               </AuthorAndDate>
             </ViewTitleInput>
             <HorizontalLine />
             <Content dangerouslySetInnerHTML={{ __html: selectedPost.content }} />
-            {/* 파일 미리보기
-            {filePaths.map((filePath, index, fileName) => (
-              <div key={index}>
-                {filePath.endsWith(".png") || filePath.endsWith(".jpg") || filePath.endsWith(".jpeg") ? (
-                  <img src={filePath} alt="파일 미리보기" />
-                ) : (
-                  <div>
-                    파일: {fileName}<a href={filePath} download>다운로드</a>
-                  </div>
-                )}
-              </div>
-            ))} */}
 
-            {/* 첨부파일을 목록으로 표시 */}
             {fileNames.length > 0 && (
               <div>
                 <h4>첨부파일</h4>
                 {fileNames.map((fileName, index) => (
-                  <div key={index}>
-                    {fileName} <a href={filePaths[index]} download>다운로드</a>
-                  </div>
+                  <FileNameLink href={filePaths[index]} download>
+                    {fileName}
+                  </FileNameLink>
                 ))}
               </div>
             )}
 
           </FormContainer>
-          <PostsButtonContainer>
-            {
-              tokenUserName == selectedPost.author && (
-                <>
-                  <PostsButton onClick={changePutView}>수정</PostsButton>
-                  <PostsButton onClick={deletePost}>삭제</PostsButton>
-                </>
-              )}
-
-            {postId ? (
-              <PostsButton onClick={goToHome}>취소</PostsButton>
-            ) : (
-              <PostsButton onClick={goToPreviousPage}>취소</PostsButton>
-            )}
-          </PostsButtonContainer>
         </>
       ) : showPutWriting ? (
         <>
@@ -432,7 +441,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
               type="file"
               id="file"
               onChange={handleFileChange}
-              accept="image/*, application/pdf"
+              accept="image/*, application/pdf, application/ppt, application/pptx"
               multiple
             />
             <SelectedFileLabel htmlFor="file">파일 선택</SelectedFileLabel>
@@ -444,29 +453,17 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
                 </div>
               ))}
             </SelectedFilePreview>
-            {/* 파일 미리보기
-            {filePaths.map((filePath, index) => (
-              <div key={index}>
-                {filePath.endsWith(".png") || filePath.endsWith(".jpg") || filePath.endsWith(".jpeg") ? (
-                  <img src={filePath} alt="파일 미리보기" />
-                ) : (
-                  <div>
-                    파일: <a href={filePath} download>다운로드</a>
-                  </div>
-                )}
-              </div>
-            ))} */}
             {/* 기존 파일 목록에서도 삭제 버튼 추가 */}
             {existingFiles.map((file) => (
-                <div key={file.name}>
-                  {file.name}
-                  <DeleteFileButton
-                    onClick={() => handleDeleteFile(file.name, true)}
-                  >
-                    삭제
-                  </DeleteFileButton>
-                </div>
-              ))}
+              <div key={file.name}>
+                {file.name}
+                <DeleteFileButton
+                  onClick={() => handleDeleteFile(file.name, true)}
+                >
+                  삭제
+                </DeleteFileButton>
+              </div>
+            ))}
           </FormContainer>
           <PostsButtonContainer>
             <PostsButton onClick={putWriting}>완료</PostsButton>

@@ -12,7 +12,6 @@ import Button from "Components/common/Button";
 import NewButton from "Components/common/NewButton";
 import { theme } from "LightTheme";
 import { left } from "@popperjs/core";
-import FileManagementMainContent from "Pages/NoticeBoardPage/FileManagementPage/FileManagementMainContent";
 
 const FormContainer = styled.div`
   display: flex;
@@ -89,6 +88,10 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
     setTitle(e.target.value);
   };
 
+  const goToHome = () => {
+    navigate(`/Manage/${projectId}`);
+  };
+
   const addPost = async () => {
     // HTML 태그 제거하기 위한 정규식
     const strippedHtml = editorHtml.replace(/<[^>]+>/g, "");
@@ -125,14 +128,10 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
       const response = await boardApi.postBoard(formData);
       if (response.data.success) {
         alert("게시글이 성공적으로 작성되었습니다.");
-        onBack()
-        // setTimeout(function () {
-        //   window.location.reload();
-        // }, 100);
-
         setTitle("");
         setEditorHtml("");
         setSelectedFiles([]);
+        goToHome();
 
       } else if (response.data.success === false) {
         if (response.data.code === 7000) {
@@ -154,12 +153,6 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
       console.error("Error creating post:", error);
       alert("게시글 작성 중 오류가 발생했습니다.");
     }
-  };
-
-  const goToPreviousPage = () => {
-    setTimeout(function () {
-      window.location.reload();
-    }, 100);
   };
 
   const handleDeleteFile = (fileNameToDelete: string) => {

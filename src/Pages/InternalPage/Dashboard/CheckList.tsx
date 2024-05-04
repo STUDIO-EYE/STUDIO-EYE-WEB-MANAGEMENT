@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { FaPen, FaTrash } from "react-icons/fa";
 import checkTodoApi from "../../../api/checkTodoApi";
 import { TextSm, TitleSm } from "Components/common/Font";
+import { FaPenToSquare } from "react-icons/fa6";
 
 interface TodoItem {
   todoIndex: number;
@@ -14,7 +15,7 @@ interface TodoItem {
 }
 
 const Container = styled.div`
-  max-width: 200px;
+  max-width: 100%;
   min-height: 150px; /* 기본 높이 설정 */
   background-color: #ffffff;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
@@ -25,24 +26,22 @@ const Container = styled.div`
 
 const List = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: -20px;
+  margin-bottom: 5px;
 `;
 
 const AddButton = styled.button`
   background-color: transparent;
   color: #a9a9a9;
   border: none;
-  padding: 8px 16px;
-  font-size: 10px;
+  font-size: 1rem;
   text-align: left;
   cursor: pointer;
   border-radius: 5px;
   transition: background-color 0.3s;
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.08);
+    color: rgba(0, 0, 0, 0.08);
   }
 `;
 
@@ -53,6 +52,7 @@ const ItemsList = styled.ul`
 `;
 
 const ItemContent = styled.span`
+margin-left: 5px;
   cursor: pointer;
 `;
 
@@ -66,8 +66,8 @@ const Item = styled.li<{ completed: boolean }>`
   background-color: #ffffff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   text-decoration: ${(props) => (props.completed ? "line-through" : "none")};
-  overflow-x: auto;
-  white-space: nowrap;
+  //overflow-x: auto;
+  //white-space: nowrap;
 
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.08) white;
@@ -337,7 +337,7 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
       <List>
         <TitleSm>ToDo</TitleSm>
         <AddButton type="button" onClick={() => setShowModal(true)}>
-          <FaPen />
+          <FaPenToSquare />
         </AddButton>
       </List>
       <ItemsList>
@@ -355,8 +355,6 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
             </DeleteButton>
           </Item>
         ))}
-
-
       </ItemsList>
       {showModal && (
         <AddModal>

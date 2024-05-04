@@ -1,32 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import StudioeyeLogo from "../../assets/logo/studioeye.png";
-import { useNavigate } from "react-router-dom";
-import axios from 'axios';
-import projectApi from 'api/projectApi';
-import jwt_decode from "jwt-decode";
-import { Link } from "react-router-dom";
-import { Name } from './Font';
-import { FaBriefcase, FaChartLine, FaSignOutAlt, FaUser } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaBriefcase, FaUser, FaChartLine } from 'react-icons/fa';
+import projectApi from '../../api/projectApi';
 
 const NavigationBar = styled.div`
-  // width: 225px;
-  height: 100vh;
-  background-color: #f8f9fa;
-  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.08);
+  width: 225px;
+  height: calc(100vh - 4rem);
+  background-color: white;
   display: flex;
   flex-direction: column;
   position: fixed;
-  top: 0;
+  top: 4rem;
   left: 0;
   z-index: 1000;
-`;
-
-const LogoBox = styled.img`
-  margin: 30px 0 20px 45px;
-  max-width: 60%;
-  width: 170px;
-  cursor: pointer;
 `;
 
 const NavigationWrapper = styled.div`
@@ -35,113 +22,150 @@ const NavigationWrapper = styled.div`
 
 const NavigationContent = styled.div`
   padding: 20px 0;
-  color: #495057;
+  color: black;
   font-size: 1rem;
+  transition: all 0.3s;
 `;
 
-const NavigationLink = styled.a`
-  display: flex;
-  align-items: center;
-  color: #495057;
-  text-decoration: none;
-  margin-bottom: 15px;
-  transition: background-color 0.3s, font-weight 0.3s;
-  padding: 10px 20px;
-  font-weight: 500;
-  &:hover {
-    background-color: #e9ecef;
-  }
-`;
-
-const LoginButton = styled.button`
-  border: none;
+const NavigationLink = styled.div`
   display: flex;
   align-items: center;
   text-decoration: none;
-  margin-top: 15px;
-  transition: background-color 0.3s, font-weight 0.3s;
-  padding: 10px 20px;
-  font-weight: 500;
-  width: 100%;
-  cursor: pointer;
   font-size: 1rem;
+  padding: 20px 55px;
+  font-weight: 500;
+  border-radius: 0 15px 15px 0;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+
+  color: black;
   &:hover {
-    background-color: #e9ecef;
+    background-color: black;
+    color: #FFC83D;
   }
 `;
 
-const NameBlock = styled.div`
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  margin-bottom: 100px;
+const ProjectDropdownContainer = styled.div<{ maxHeight: number }>`
+  transition: max-height 0.3s;
+  overflow: hidden;
+  max-height: ${({ maxHeight }) => maxHeight}px;
 `;
 
-const StyledLink = styled(Link)`
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
+const ProjectList = styled.div`
+  background-color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 0 0 15px 15px;
 `;
+
+const ProjectItem = styled.div`
+  padding: 20px 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  border-radius: 0 15px 15px 0;
+
+  color: black;
+  &:hover {
+    background-color: black;
+    color: #FFC83D;
+  }
+`;
+
+const IconContainer = styled.span`
+  margin-right: 15px;
+  font-size: 25px;
+`;
+
+interface Project {
+  projectId: number;
+  name: string;
+  isFinished: boolean;
+  startDate: string;
+  finishDate: string;
+}
 
 const NavBar = () => {
+  const [ongoingProjects, setOngoingProjects] = useState<Project[]>([]);
+  const [isProjectMenuOpen, setIsProjectMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState("");
 
   useEffect(() => {
-    const token = sessionStorage.getItem("login-token");
-    if (token) {
-      setIsLoggedIn(true);
-      const decodedToken = jwt_decode(token);
-      setUserName((decodedToken as any).username);
-    }
+    const fetchProjects = async () => {
+      try {
+        const response = await projectApi.getProjectList();
+        const ongoing = response.data.list.filter(
+          (project: { isFinished: boolean }) => !project.isFinished
+        );
+        setOngoingProjects(ongoing);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+
+    fetchProjects();
   }, []);
 
-  const handleLogout = () => {
-    sessionStorage.removeItem("login-token");
-    delete axios.defaults.headers.common["Authorization"];
-    setIsLoggedIn(false);
-    setUserName("");
-    alert("로그아웃 완료");
-    navigate("/");
+  const handleProjectClick = (projectId: number) => {
+    navigate(`/Manage/${projectId}`);
   };
 
+  const handleMouseEnter = () => {
+    setIsProjectMenuOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsProjectMenuOpen(false);
+  };
+
+  const maxHeight = isProjectMenuOpen ? ongoingProjects.length * 60 + 10 : 0; 
+
   return (
-    <>
-      <NavigationBar>
-        <LogoBox src={StudioeyeLogo} onClick={() => navigate("/")} />
-        <NavigationWrapper>
-          <NavigationContent>
-            <NavigationLink href="/">
-              <FaBriefcase style={{ marginRight: '10px' }} /> Project
-            </NavigationLink>
-            <NavigationLink href="/mypage">
-              <FaUser style={{ marginRight: '10px' }} /> My Page
-            </NavigationLink>
-            <NavigationLink href="#">
-              <FaChartLine style={{ marginRight: '10px' }} /> Auth
-            </NavigationLink>
-          </NavigationContent>
-        </NavigationWrapper>
-        <NameBlock>
-          {isLoggedIn ? (
-            <>
-              <Name>{userName} 님, 안녕하세요.</Name>
-              <StyledLink to="/">
-                <LoginButton onClick={handleLogout}>
-                  <FaSignOutAlt style={{ marginRight: '10px' }} />
-                  Log Out
-                </LoginButton>
-              </StyledLink>
-            </>
-          ) : (
-            <StyledLink to="/LoginPage">
-              <LoginButton>Log In</LoginButton>
-            </StyledLink>
-          )}
-        </NameBlock>
-      </NavigationBar>
-    </>
+    <NavigationBar>
+      <NavigationWrapper>
+        <NavigationContent
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <NavigationLink>
+            <IconContainer>
+              <FaBriefcase />
+            </IconContainer>
+            프로젝트
+          </NavigationLink>
+
+          <ProjectDropdownContainer maxHeight={maxHeight}>
+            <ProjectList>
+              {ongoingProjects.map((project) => (
+                <ProjectItem
+                  key={project.projectId}
+                  onClick={() => handleProjectClick(project.projectId)}
+                >
+                  {project.name}
+                </ProjectItem>
+              ))}
+            </ProjectList>
+          </ProjectDropdownContainer>
+
+          <NavigationLink
+            onClick={() => navigate('/mypage')}
+          >
+            <IconContainer>
+              <FaUser />
+            </IconContainer>
+            마이페이지
+          </NavigationLink>
+
+          <NavigationLink
+            onClick={() => navigate('/Account')}
+          >
+            <IconContainer>
+              <FaChartLine />
+            </IconContainer>
+            계정
+          </NavigationLink>
+        </NavigationContent>
+      </NavigationWrapper>
+    </NavigationBar>
   );
 };
 

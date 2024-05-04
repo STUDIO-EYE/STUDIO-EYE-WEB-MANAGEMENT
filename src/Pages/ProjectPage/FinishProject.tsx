@@ -27,11 +27,11 @@ const Container = styled.div`
 
 const ProjectWrapper = styled.div`
   width: 400px;
-  background-color: #ffffff;
+  background-color: #F9FBFD;
   padding: 20px;
   margin-bottom: 100px;
   border-radius: 15px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: 0px 15px 15px rgba(0, 0, 0, 0.1);
 `;
 
 const ProjectsContainer = styled.div`
@@ -52,7 +52,8 @@ const ProjectItemWrapper = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
-  border-radius: 15px;
+  border-radius: 20px;
+  transition: background-color 0.3s;
 
   &:hover {
     background-color: rgba(0, 0, 0, 0.01);
@@ -104,12 +105,12 @@ const StyledTable = styled.table`
 
   th,
   td {
-    width: calc(50% - 8px); /* 2개의 열이 나란히 위치하도록 */
+    width: calc(50% - 8px);
     margin-bottom: 16px;
     box-sizing: border-box;
     padding: 15px;
     text-align: left;
-    word-wrap: break-word; /* 줄바꿈 */
+    word-wrap: break-word;
   }
 
   th:last-child {
@@ -120,7 +121,7 @@ const StyledTable = styled.table`
   }
 
   tbody tr {
-    width: calc(50% - 8px); /* 2개의 열이 나란히 위치하도록 */
+    width: calc(50% - 8px);
     background-color: #ffffff;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
     cursor: pointer;
@@ -136,20 +137,22 @@ const StyledTable = styled.table`
 `;
 
 const LabelArea = styled.div`
+  display: flex;
   width: 100%;
   text-align: left;
+  margin-bottom: 50px;
 `;
 
 const DeleteButton = styled.button`
-  background-color: white;
-  border-radius: 32px;
+  background-color: transparent;
   border: none;
   outline: none;
   color: grey;
   margin: 4px;
+  cursor: pointer;
 
   &:hover {
-    background-color: black;
+    color: red;
   }
 `;
 
@@ -172,8 +175,17 @@ const PaginationContainer = styled.div`
   }
 
   .active .page-link {
-    font-weight: bold;
-  }
+    font-weight: 600;
+    font-size: 0.5rem;
+    border-radius: 15px;
+    background-color: black;
+    color: white;
+    padding: 10px;
+
+    &:hover {
+      background-color: #FFC83D;
+      color: white;
+    }
 `;
 
 function FinishProject() {
@@ -296,7 +308,7 @@ function FinishProject() {
       <ProjectWrapper>
       <Container>
         <LabelArea>
-          <TitleSm>Done</TitleSm>
+          <TitleSm>완료된 <br></br> 프로젝트 ☑️</TitleSm>
         </LabelArea>
       </Container>
 

@@ -14,12 +14,15 @@ interface TodoItem {
 }
 
 const Container = styled.div`
-  max-width: 200px;
+  max-width: 90%;
   min-height: 150px; /* 기본 높이 설정 */
   background-color: #ffffff;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin: 20px auto;
+  // padding: 20px;
+  // margin: 20px auto;
+  margin-left: 2rem;
+  margin-bottom:1rem;
+  padding: 0 0 1px 0;
   border-radius: 15px;
 `;
 
@@ -27,7 +30,8 @@ const List = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: -20px;
+  margin-bottom: -30px;
+  padding:10px 5px 10px 20px;
 `;
 
 const AddButton = styled.button`
@@ -62,9 +66,9 @@ const Item = styled.li<{ completed: boolean }>`
   align-items: center;
   padding: 10px;
   border-radius: 5px;
-  margin: 10px 0 10px 0;
+  margin: 10px 5px 10px 5px;
   background-color: #ffffff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  // box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   text-decoration: ${(props) => (props.completed ? "line-through" : "none")};
   overflow-x: auto;
   white-space: nowrap;
@@ -77,7 +81,9 @@ const Item = styled.li<{ completed: boolean }>`
   }
 `;
 
-const Checkbox = styled.input.attrs({ type: "checkbox" })``;
+const Checkbox = styled.input.attrs({ type: "checkbox" })`
+margin-right:0.4rem;
+`;
 
 const AddModal = styled.div`
   position: fixed;
@@ -245,14 +251,15 @@ function MyTodo() {
   };
 
   const handleDelete = async (todoIndex: number) => {
-    console.log(todoIndex);
-    const filteredItems = items.filter((item) => item.userTodoId !== todoIndex);
-    setItems(filteredItems);
+    if(window.confirm("삭제하시겠습니까?")){
+      const filteredItems = items.filter((item) => item.userTodoId !== todoIndex);
+      setItems(filteredItems);
 
-    try {
-      await myPageApi.deleteTodo(todoIndex);
-    } catch (error) {
-      console.error("Error deleting item", error);
+      try {
+        await myPageApi.deleteTodo(todoIndex);
+      } catch (error) {
+        console.error("Error deleting item", error);
+      }
     }
   };
 
@@ -318,7 +325,12 @@ function MyTodo() {
   const [editIndex, setEditIndex] = useState<number>(-1);
   const [isUrgent, setIsUrgent] = useState<boolean>(false);
 
-  const sortedItems = [...items].sort((a, b) => {
+  const emergenSort=[...items].sort((a,b)=>{
+    if(a.todoEmergency&&!b.todoEmergency)return -1;
+    if(!a.todoEmergency&&b.todoEmergency)return 1;
+    return 0;
+  })
+  const sortedItems = [...emergenSort].sort((a, b) => {
     if (a.checked && !b.checked) return 1;
     if (!a.checked && b.checked) return -1;
     return 0;

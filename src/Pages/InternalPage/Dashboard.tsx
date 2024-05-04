@@ -12,7 +12,8 @@ import { media } from "Components/common/Font";
 const DashboardBox = styled.div`
   display: flex;
   flex-direction: column;
-  min-width: 90%;
+  //min-width: 90%;
+  width: 100%;
   margin: auto;
 `;
 
@@ -34,16 +35,16 @@ const Panel = styled.div<{ expanded: boolean }>`
 `;
 
 const LeftComponent = styled.div`
-  height: 33.33%;
   margin-bottom: 20px;
 `;
 
 const Left = styled.div<{ expanded: boolean }>`
   padding: 20px;
-  background-color: white;
   flex-basis: 50%;
-  height: ${(props) => (props.expanded ? "1000px" : "600px")}; // 크기 변경
-  overflow-y: auto;
+  height: ${(props) => (props.expanded ? "1000px" : "600px")};
+  //overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 
   &::-webkit-scrollbar {
     width: 15px;
@@ -63,21 +64,6 @@ const Left = styled.div<{ expanded: boolean }>`
   }
 `;
 
-const Line = styled.div`
-  height: 80px;
-`;
-
-const Button = styled.button`
-  width: 40px;
-  background-color: white;
-`;
-
-const Arc = styled.div<{ scrolled: boolean }>`
-  margin-left: 225px;
-  margin-bottom: 30px;
-  display: flex;
-`;
-
 const NewPanel = styled.button`
   height: 300px;
   width: 100%;
@@ -86,25 +72,23 @@ const NewPanel = styled.button`
   transition: height 0.3s ease-in-out; /* transition 추가 */
 `;
 
-const TodayChecklistContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+const Right = styled.div`
+  margin-bottom: 5rem;
 `;
 
 const Dashboard = ({ projectId }: { projectId: number }) => {
   const [expanded, setExpanded] = useState(false);
-  const location=useLocation();
-  const projectInfo={...location.state}
+  const location = useLocation();
+  const projectInfo = { ...location.state }
   const [scrolled, setScrolled] = useState(false); /* 스크롤 여부 상태 */
 
   const [completedCount, setCompletedCount] = useState<number>(0);
   const [totalCount, setTotalCount] = useState<number>(0);
+  const [modaldiv, setModaldiv] = useState(false);
 
   const updateProgress = (completed: number, total: number) => {
     setCompletedCount(completed);
     setTotalCount(total);
-    console.log("개수" + completed);
   };
 
   const toggleExpansion = () => {
@@ -116,34 +100,34 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
     setScrolled(scrollTop > 0); /* 스크롤이 위로 올라가면 true, 아니면 false */
   };
 
+  const onDarkBackground = (is: boolean) => {
+    setModaldiv(is)
+  }
+
   return (
     <DashboardBox>
-      <Arc scrolled={scrolled}> {/* scrolled prop 전달 */}
-        <Title>{projectId}번 프로젝트</Title>
-      </Arc>
-      <DashboardBody onScroll={() => handleScroll}> {/* 스크롤 이벤트 핸들러 추가 */}
-        <Panel expanded={expanded}>
-          <Left expanded={expanded}>
-            <LeftComponent>
-              <WeekCalendar projectId={projectId} />
-            </LeftComponent>
-            <LeftComponent>
-              <ProjectProgress completedCount={completedCount} totalCount={totalCount} />
-            </LeftComponent>
-            {/* Today와 CheckList를 감싸는 컨테이너 추가 */}
-            <TodayChecklistContainer>
+      <div style={{ position: 'relative' }}>
+        {modaldiv ? <div style={{ position: 'fixed', backgroundColor: "black", zIndex: 999, width: '100%', height: '100%', marginTop: '0', opacity: '0.3', top: 0, left: 0, touchAction: 'none' }} />
+          : null}
+        <DashboardBody onScroll={() => handleScroll}> {/* 스크롤 이벤트 핸들러 추가 */}
+          <Panel expanded={expanded}>
+            <Left expanded={expanded}>
               <LeftComponent>
-                <Today projectId={projectId} />
-              </LeftComponent>
-              <LeftComponent>
+                <WeekCalendar projectId={projectId} onDarkBackground={onDarkBackground} />
+                {/* <ProjectProgress completedCount={completedCount} totalCount={totalCount} /> */}
                 <CheckList projectId={projectId} updateProgress={updateProgress} />
               </LeftComponent>
-            </TodayChecklistContainer>
-          </Left>
-          <RightDashboard projectData={projectInfo} projectId={projectId} />
-        </Panel>
-        {expanded && <NewPanel />}
-      </DashboardBody>
+            </Left>
+            <RightDashboard
+              projectData={projectInfo}
+              projectId={projectId}
+              completedCount={completedCount}
+              totalCount={totalCount}
+            />
+          </Panel>
+          {expanded && <NewPanel />}
+        </DashboardBody>
+      </div>
     </DashboardBox>
   );
 };
