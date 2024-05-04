@@ -17,22 +17,6 @@ import InputText from "Components/common/InputText";
 import { theme } from "LightTheme";
 import NewButton from "Components/common/NewButton";
 
-// import jwt-decode from "jwt-decode";
-
-// const LoginContainer = styled.div`
-//   background-color: #fafafa;
-//   display: flex;
-//   flex-direction: column;
-//   justify-content: center;
-//   align-items: center;
-//   height: 100vh;
-
-//   @media ${media.mobile} {
-//     display: block;
-//     background-color: #ffffff;
-//   }
-// `;
-
 const LoginBox = styled.div`
   display: flex;
   align-items: center;
@@ -50,14 +34,14 @@ const LoginForm = styled.div`
   flex-direction: column;
   align-items: left;
 `;
-const LoginFormItem=styled.div`
+const LoginFormItem = styled.div`
   margin-top:0.5rem;
   display:flex;
   flex-direction:column;
   @media ${media.half}{
     width:70vw;
   }
-`
+`;
 
 const LoginImageBox = styled.div`
   display: flex;
@@ -86,61 +70,8 @@ const TitleCenterBox = styled.div`
   justify-items: center;
 `;
 
-const HorizontalLine = styled.div`
-  border-top: 1px solid #ccc;
-  margin: 0.5rem 0;
-  width: 100%;
-`;
-
-const VerticalLine = styled.div`
-  border-left: 1px solid #ccc;
-  height: 400px;
-  margin: 0.5rem;
-
-  @media ${media.mobileWithImage} {
-    display: none;
-  }
-`;
-
-const InputSize = styled.input`
-  border: none;
-  border-bottom: 1px solid #000000;
-  width: 100%;
-  min-width: 288px;
-  height: 40px;
-  margin: 16px;
-  &:focus {
-    outline: none;
-  }
-`;
-
-
-const LoginPageButton = styled.button`
-  background-color: #ff530e;
-  color: #ffffff;
-  width: 100%;
-  padding: 8px 20px;
-  border: none;
-  border-radius: 32px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin: 0.5rem;
-  height: 44px;
-  &:hover {
-    background-color: #cccccc;
-  }
-`;
-
-const StyledButtonLink = styled(Link)`
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-  width: 100%;
-  display: inline-block;
-`;
-
-const StyledLink = styled(Link)<{margin?:string}>`
-  margin:${(props)=>props.margin||'-0.1rem'};
+const StyledLink = styled(Link) <{ margin?: string }>`
+  margin:${(props) => props.margin || '-0.1rem'};
   text-align: center;
   text-decoration: underline;
   cursor: pointer;
@@ -169,7 +100,14 @@ const HorizontalBox = styled.div`
   justify-content: center;
 `;
 
+const CapsLockWarning = styled.div`
+  color: red;
+  font-size: 0.8rem;
+`;
+
 function LoginPage() {
+  const [isCapsLockActive, setIsCapsLockActive] = useState(false);
+
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -184,10 +122,12 @@ function LoginPage() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    setIsCapsLockActive(e.getModifierState("CapsLock"));
+
     if (e.key === "Enter") {
       handleLogin();
     }
-  }; 
+  };
 
   const handleLogin = () => {
     axios
@@ -199,7 +139,7 @@ function LoginPage() {
         sessionStorage.setItem("login-token", accessToken);
 
         swal('로그인 성공!', "", 'success')
-        .then(function() { navigate("/"); })
+          .then(function () { navigate("/"); })
       })
       .catch((error) => {
         alert("로그인 실패");
@@ -208,38 +148,40 @@ function LoginPage() {
   };
 
   return (
-        <WhiteBoxContainer>
-          <TitleCenterBox>
-              <LoginImageBox>
-              <LoginImage src={LoginIMG} />
-              </LoginImageBox>
-              <TitleLg>MANAGEMENT PAGE</TitleLg>
-          </TitleCenterBox>
-          <LoginBox>
-            <LoginForm>
-              <LoginFormItem><AlignLeft><TextMd>EMAIL</TextMd></AlignLeft></LoginFormItem>
-              <LoginFormItem><InputText width={"69vw"} height={""} value={formData.email} placeholder={"이메일을 입력해주세요."}
-              name="email" onChange={handleData}/></LoginFormItem>
-              <LoginFormItem><AlignLeft><TextMd>PASSWORD</TextMd></AlignLeft></LoginFormItem>
-              <LoginFormItem><InputText width={"69vw"} height={""} value={formData.pwd} placeholder={"비밀번호를 입력해주세요."}
-              name="pwd" onChange={handleData} type="password" onKeyDown={handleKeyDown}/></LoginFormItem>
-              
-              <LoginFormItem>
-              <StyledLink to="#" margin="0.8rem">
-                <TextSm>비밀번호를 잊어버리셨나요?</TextSm>
+    <WhiteBoxContainer>
+      <TitleCenterBox>
+        <LoginImageBox>
+          <LoginImage src={LoginIMG} />
+        </LoginImageBox>
+        <TitleLg>MANAGEMENT PAGE</TitleLg>
+      </TitleCenterBox>
+      <LoginBox>
+        <LoginForm>
+          <LoginFormItem><AlignLeft><TextMd>EMAIL</TextMd></AlignLeft></LoginFormItem>
+          <LoginFormItem><InputText width={"69vw"} height={""} value={formData.email} placeholder={"이메일을 입력해주세요."}
+            name="email" onChange={handleData} /></LoginFormItem>
+          <LoginFormItem><AlignLeft><TextMd>PASSWORD</TextMd></AlignLeft></LoginFormItem>
+          <LoginFormItem><InputText width={"69vw"} height={""} value={formData.pwd} placeholder={"비밀번호를 입력해주세요."}
+            name="pwd" onChange={handleData} type="password" onKeyDown={handleKeyDown} /></LoginFormItem>
+          <LoginFormItem>
+            {isCapsLockActive && (
+              <CapsLockWarning>Caps Lock이 켜져 있습니다. 비밀번호를 정확히 입력하세요.</CapsLockWarning>
+            )}
+            <StyledLink to="#" margin="0.8rem">
+              <TextSm>비밀번호를 잊어버리셨나요?</TextSm>
+            </StyledLink>
+            <NewButton backcolor={theme.color.orange} textcolor={"white"} width={"70vw"} height={""} padding="0.5rem" onClick={handleLogin}>로그인</NewButton>
+            <HorizontalBox>
+              <TextSm>계정이 없으신가요?&nbsp;</TextSm>
+              <StyledLink to="/SignInPage">
+                <TextSm>이곳에 문의하세요.</TextSm>
               </StyledLink>
-              <NewButton backcolor={theme.color.orange} textcolor={"white"} width={"70vw"} height={""} padding="0.5rem" onClick={handleLogin}>로그인</NewButton>
-              <HorizontalBox>
-                <TextSm>계정이 없으신가요?&nbsp;</TextSm>
-                <StyledLink to="/SignInPage">
-                  <TextSm>이곳에 문의하세요.</TextSm>
-                </StyledLink>
-              </HorizontalBox>
-              </LoginFormItem>
-            </LoginForm>
-          </LoginBox>
-        </WhiteBoxContainer>
-        );
+            </HorizontalBox>
+          </LoginFormItem>
+        </LoginForm>
+      </LoginBox>
+    </WhiteBoxContainer>
+  );
 }
 
 export default LoginPage;

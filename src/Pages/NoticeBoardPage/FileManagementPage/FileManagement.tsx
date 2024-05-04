@@ -6,13 +6,12 @@ import {
   AiOutlineSearch,
   AiOutlineUnorderedList,
   AiOutlineAppstore,
-  AiTwotoneFileAdd,
   AiOutlineUpSquare,
 } from "react-icons/ai";
-import { BiSolidDownload, BiSolidFile, BiSolidFileJpg, BiSolidFilePdf, BiSolidFilePng } from "react-icons/bi";
+import { BiSolidDownload, BiSolidFile } from "react-icons/bi";
 import { LuDelete } from "react-icons/lu";
-import { SiMicrosoftpowerpoint } from "react-icons/si";
 import { PiFilePdfFill, PiFilePptFill } from "react-icons/pi";
+import projectApi from "api/projectApi";
 
 interface File {
   id: string;
@@ -26,16 +25,6 @@ const Container = styled.div`
   height: calc(100vh - 4rem);
   flex-direction: column;
   margin-left: 185px;
-`;
-
-const NavigationToggle = styled.button`
-  background: none;
-  border: none;
-  font-size: 25px;
-  padding: 10px;
-  &:hover {
-    color: #FFC83D;
-  }
 `;
 
 const IconBar = styled.div`
@@ -134,8 +123,8 @@ const RecentSearchItemDeleteButton = styled.button`
 
 const IconContainer = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  margin-left: auto; // 오른쪽으로 정렬
 `;
 
 const ViewModeButton = styled.button`
@@ -286,6 +275,12 @@ const StyledFileIcon = styled.div`
   margin-bottom: -15px;
 `;
 
+const ProjectName = styled.div`
+  font-size: 1rem;
+  font-weight: bold;
+  margin-right: 20px;
+`;
+
 const FileManagement: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
   const { projectId } = useParams<{ projectId: string }>();
@@ -296,13 +291,27 @@ const FileManagement: React.FC = () => {
     const savedSearches = localStorage.getItem("recentSearches");
     return savedSearches ? JSON.parse(savedSearches) : [];
   });
-  const [isGallery, setIsGallery] = useState(true); // 갤러리/리스트 형식 구분
+  const [isGallery, setIsGallery] = useState(true);
   const [showRecentSearches, setShowRecentSearches] = useState(false);
   const [isNavVisible, setIsNavVisible] = useState(true);
+  const [projectName, setProjectName] = useState<string>("");
 
-  const toggleNavBar = () => {
-    setIsNavVisible(!isNavVisible);
-  };
+  useEffect(() => {
+    const fetchProjectName = async () => {
+      try {
+        const response = await projectApi.getProjectDetails(Number(projectId));
+        if (response.data.success) {
+          setProjectName(response.data.data.name); // 프로젝트 이름 설정
+        } else {
+          console.error("프로젝트 정보를 가져오는 데 실패했습니다.");
+        }
+      } catch (error) {
+        console.error("프로젝트 정보를 가져오는 중 오류:", error);
+      }
+    };
+
+    fetchProjectName(); // 프로젝트 이름 가져오기
+  }, [projectId]);
 
   const getExtension = (fileName: string) => {
     return fileName.split(".").pop()?.toLowerCase();
@@ -443,6 +452,7 @@ const FileManagement: React.FC = () => {
   return (
     <Container>
       <IconBar>
+      <ProjectName>프로젝트 {projectName}</ProjectName>
         <SearchInputContainer ref={searchInputRef} onClick={toggleRecentSearches}>
           <SearchIcon onClick={handleSearch} />
           <SearchInput

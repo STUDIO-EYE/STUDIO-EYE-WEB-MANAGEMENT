@@ -9,8 +9,6 @@ interface ProjectProgressProps {
 
 const Container = styled.div`
     padding: 25px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
-    border-radius: 15px;
 `;
 
 const ProgressBar = styled.div`
@@ -18,6 +16,7 @@ const ProgressBar = styled.div`
     height: 20px;
     background-color: lightgray;
     border-radius: 10px;
+    margin-top: 15px;
 `;
 
 const Filler = styled.div<{ percentage: number }>`

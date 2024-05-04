@@ -12,7 +12,8 @@ import { media } from "Components/common/Font";
 const DashboardBox = styled.div`
   display: flex;
   flex-direction: column;
-  min-width: 90%;
+  //min-width: 90%;
+  width: 100%;
   margin: auto;
 `;
 
@@ -34,14 +35,14 @@ const Panel = styled.div<{ expanded: boolean }>`
 `;
 
 const LeftComponent = styled.div`
-  margin-bottom: 20px; /* 여백을 일정하게 지정 */
+  margin-bottom: 20px;
 `;
 
 const Left = styled.div<{ expanded: boolean }>`
   padding: 20px;
   flex-basis: 50%;
   height: ${(props) => (props.expanded ? "1000px" : "600px")};
-  overflow-y: auto;
+  //overflow-y: auto;
   display: flex;
   flex-direction: column;
 
@@ -83,7 +84,6 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
   const updateProgress = (completed: number, total: number) => {
     setCompletedCount(completed);
     setTotalCount(total);
-    console.log("개수" + completed);
   };
 
   const toggleExpansion = () => {
@@ -103,11 +103,16 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
           <Left expanded={expanded}>
             <LeftComponent>
               <WeekCalendar projectId={projectId} />
-              <ProjectProgress completedCount={completedCount} totalCount={totalCount} />
+              {/* <ProjectProgress completedCount={completedCount} totalCount={totalCount} /> */}
               <CheckList projectId={projectId} updateProgress={updateProgress} />
             </LeftComponent>
           </Left>
-          <RightDashboard projectData={projectInfo} projectId={projectId} />
+          <RightDashboard
+            projectData={projectInfo}
+            projectId={projectId}
+            completedCount={completedCount}
+            totalCount={totalCount}
+          />
         </Panel>
         {expanded && <NewPanel />}
       </DashboardBody>
