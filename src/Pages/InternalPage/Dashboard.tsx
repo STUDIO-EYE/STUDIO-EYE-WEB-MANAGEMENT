@@ -72,6 +72,10 @@ const NewPanel = styled.button`
   transition: height 0.3s ease-in-out; /* transition 추가 */
 `;
 
+const Right = styled.div`
+  margin-bottom: 5rem;
+`;
+
 const Dashboard = ({ projectId }: { projectId: number }) => {
   const [expanded, setExpanded] = useState(false);
   const location = useLocation();
@@ -80,7 +84,7 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
 
   const [completedCount, setCompletedCount] = useState<number>(0);
   const [totalCount, setTotalCount] = useState<number>(0);
-  const [modaldiv,setModaldiv]=useState(false);
+  const [modaldiv, setModaldiv] = useState(false);
 
   const updateProgress = (completed: number, total: number) => {
     setCompletedCount(completed);
@@ -96,33 +100,33 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
     setScrolled(scrollTop > 0); /* 스크롤이 위로 올라가면 true, 아니면 false */
   };
 
-  const onDarkBackground=(is:boolean)=>{
+  const onDarkBackground = (is: boolean) => {
     setModaldiv(is)
   }
 
   return (
     <DashboardBox>
-      <div style={{position:'relative'}}>
-        {modaldiv?<div style={{position:'fixed',backgroundColor:"black",zIndex:999, width:'100%',height:'100%',marginTop:'0',opacity:'0.3',top:0,left:0,touchAction:'none'}}/>
-        :null}
-      <DashboardBody onScroll={() => handleScroll}> {/* 스크롤 이벤트 핸들러 추가 */}
-        <Panel expanded={expanded}>
-          <Left expanded={expanded}>
-            <LeftComponent>
-              <WeekCalendar projectId={projectId} />
-              {/* <ProjectProgress completedCount={completedCount} totalCount={totalCount} /> */}
-              <CheckList projectId={projectId} updateProgress={updateProgress} />
-            </LeftComponent>
-          </Left>
-          <RightDashboard
-            projectData={projectInfo}
-            projectId={projectId}
-            completedCount={completedCount}
-            totalCount={totalCount}
-          />
-        </Panel>
-        {expanded && <NewPanel />}
-      </DashboardBody>
+      <div style={{ position: 'relative' }}>
+        {modaldiv ? <div style={{ position: 'fixed', backgroundColor: "black", zIndex: 999, width: '100%', height: '100%', marginTop: '0', opacity: '0.3', top: 0, left: 0, touchAction: 'none' }} />
+          : null}
+        <DashboardBody onScroll={() => handleScroll}> {/* 스크롤 이벤트 핸들러 추가 */}
+          <Panel expanded={expanded}>
+            <Left expanded={expanded}>
+              <LeftComponent>
+                <WeekCalendar projectId={projectId} onDarkBackground={onDarkBackground} />
+                {/* <ProjectProgress completedCount={completedCount} totalCount={totalCount} /> */}
+                <CheckList projectId={projectId} updateProgress={updateProgress} />
+              </LeftComponent>
+            </Left>
+            <RightDashboard
+              projectData={projectInfo}
+              projectId={projectId}
+              completedCount={completedCount}
+              totalCount={totalCount}
+            />
+          </Panel>
+          {expanded && <NewPanel />}
+        </DashboardBody>
       </div>
     </DashboardBox>
   );

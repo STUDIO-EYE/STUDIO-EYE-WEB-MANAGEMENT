@@ -22,6 +22,7 @@ const StyledButton = styled.button<RectangleProps>`
   font-family: 'Pretendard';
   border: none;
   border-radius: 10px;
+  font-weight: 600;
   font-size: ${(prop)=>prop?prop.fontSize:'1rem'};
   padding: ${(prop)=>prop?prop.padding:'0.25rem 0'};
   outline: none;
@@ -34,6 +35,7 @@ const StyledButton = styled.button<RectangleProps>`
 
   &:hover {
     color: ${theme.color.orange};
+    background-color: black;
   }
 
   @media ${media.half}{

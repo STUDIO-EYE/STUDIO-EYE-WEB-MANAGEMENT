@@ -3,11 +3,15 @@ import { ReactNode } from "react";
 import styled from "styled-components";
 
 const StyledDashboardBody = styled.div`
-  width: 85%;
+  width: 90%;
+  height: auto;
+  margin-bottom: 3rem;
   margin-left: 225px;
+  margin-top: -3rem;
   display: flex;
   flex-direction: column;
-  //overflow-y: hidden;
+  /* overflow-y: auto;
+  margin-bottom: 3rem; */
   transition: height 0.3s ease-in-out;
   position: relative; /* 상대 위치 설정 */
 `;

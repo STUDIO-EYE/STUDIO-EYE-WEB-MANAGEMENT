@@ -28,8 +28,6 @@ interface DashboardProps {
 const RightDashboardBox = styled.div`
   flex-basis: 50%;
   //overflow-y: auto;
-  margin-bottom: 200px;
-
 
   &::-webkit-scrollbar {
     width: 15px;
