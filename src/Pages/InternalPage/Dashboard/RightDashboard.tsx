@@ -6,6 +6,7 @@ import axios from "axios";
 import { TitleSm } from "Components/common/Font";
 import { IoFileTrayFullSharp, IoAddCircle } from "react-icons/io5";
 import { FaPenToSquare } from "react-icons/fa6";
+import ProjectProgress from "./ProjectProgress";
 
 interface Post {
   id: number;
@@ -20,11 +21,15 @@ interface RightBoardProps {
 interface DashboardProps {
   projectData: any;
   projectId: number;
+  completedCount: number;
+  totalCount: number;
 }
 
 const RightDashboardBox = styled.div`
   flex-basis: 50%;
-  overflow-y: auto;
+  //overflow-y: auto;
+  margin-bottom: 200px;
+
 
   &::-webkit-scrollbar {
     width: 15px;
@@ -46,7 +51,7 @@ const RightDashboardBox = styled.div`
 
 const RightboardBody = styled.div<RightBoardProps>`
   width: 90%;
-  height: 33.33%;
+  height: 30%;
   margin-top: 1rem;
   margin-left: 2rem;
   flex-direction: column;
@@ -60,7 +65,8 @@ const RightboardBody = styled.div<RightBoardProps>`
 `;
 
 const GoToFilePageButton = styled.div`
-  width: 84%;
+  width: 86%;
+  height: 1rem;
   text-align: center;
   margin-top: 1rem;
   margin-left: 2rem;
@@ -68,8 +74,8 @@ const GoToFilePageButton = styled.div`
   transition: height 0.3s ease-in-out;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
   background-color: lightgray;
-  padding: 15px;
-  border-radius: 15px;
+  padding: 0 10px 10px 10px;
+  border-radius: 5px;
   
   &:hover{
     background-color: rgba(0, 0, 0, 0.08);
@@ -118,8 +124,9 @@ const PlusButton = styled.div`
   font-weight: 600;
   font-size: 1rem;;
   margin-left: auto;
+  color: #a9a9a9;
     &:hover {
-      color: rgba(0, 0, 0, 0.08);
+      color: whitesmoke;
     }
 `;
 
@@ -133,11 +140,11 @@ const FileButton = styled.div`
 const BoardTitleText = styled.div`
 cursor:pointer;
 &:hover{
-  color: rgba(0, 0, 0, 0.08);
+  text-decoration: underline;
 }
 `;
 
-const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId }) => {
+const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId, completedCount, totalCount }) => {
   const navigate = useNavigate();
   const [planData, setPlanData] = useState<Post[]>([]);
   const [productionDate, setProductionDate] = useState<Post[]>([]);
@@ -219,6 +226,9 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId }) =>
 
   return (
     <RightDashboardBox>
+      <RightboardBody>
+        <ProjectProgress completedCount={completedCount} totalCount={totalCount} />
+      </RightboardBody>
       <GoToFilePageButton onClick={goToFilePage}>
         <FileButton><IoFileTrayFullSharp /></FileButton>
       </GoToFilePageButton>

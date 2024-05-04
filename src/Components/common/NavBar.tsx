@@ -24,7 +24,7 @@ const NavigationContent = styled.div`
   padding: 20px 0;
   color: black;
   font-size: 1rem;
-  transition: all 0.3s; // 부드러운 레이아웃 애니메이션
+  transition: all 0.3s;
 `;
 
 const NavigationLink = styled.div`
@@ -56,11 +56,10 @@ const ProjectList = styled.div`
   background-color: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 0 0 15px 15px;
-  padding: 10px 0;
 `;
 
 const ProjectItem = styled.div`
-  padding: 10px 15px;
+  padding: 20px 15px;
   cursor: pointer;
   transition: background-color 0.3s;
   border-radius: 0 15px 15px 0;
@@ -118,7 +117,7 @@ const NavBar = () => {
     setIsProjectMenuOpen(false);
   };
 
-  const maxHeight = isProjectMenuOpen ? ongoingProjects.length * 40 + 10 : 0; 
+  const maxHeight = isProjectMenuOpen ? ongoingProjects.length * 60 + 10 : 0; 
 
   return (
     <NavigationBar>

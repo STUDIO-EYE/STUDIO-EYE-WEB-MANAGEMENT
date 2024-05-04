@@ -9,13 +9,13 @@ import { useParams } from "react-router-dom";
 
 const GlobalStyle = createGlobalStyle`
   body {
-    background-color: #fafafa;
+    //background-color: #fafafa;
     margin: 0;
   }
 `;
 
 const MainBody = styled.div`
-  display: flex;
+  //display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;

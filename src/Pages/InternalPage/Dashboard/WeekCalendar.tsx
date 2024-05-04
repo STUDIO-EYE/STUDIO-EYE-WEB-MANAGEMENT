@@ -9,14 +9,19 @@ import { theme } from "LightTheme";
 import NewButton from "Components/common/NewButton";
 import Calendar from "react-calendar";
 import moment from "moment";
+import Manage from "./Manage";
+import { FaPenToSquare } from "react-icons/fa6";
 
 const Container = styled.div`
+  font-family: 'Pretendard';
+  font-size: 1rem;
   background-color: #ffffff;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
   border-radius: 15px;
+  padding: 10px;
 `;
 
-const CustomCalendar=styled(Calendar)`
+const CustomCalendar = styled(Calendar)`
 .react-calendar {
   width: 100%;
   max-width: 100%;
@@ -46,6 +51,10 @@ button {
   min-width: 44px;
   background: white;
   border:none;
+  font-family: 'Pretendard';
+  font-size: 1rem;
+  font-weight: 600;
+
   &:hover{
     background-color:${theme.color.gray10};
     cursor:pointer;
@@ -155,33 +164,27 @@ button {
 
 const ManageButtonContainer = styled.div`
   display: flex;
-  justify-content: flex-end;
-  padding: 0 5px 10px 0;
 `;
 
 const ManageButton = styled.button`
-  background-color: white;
-  display: flex;
+  background-color: transparent;
   color: #a9a9a9;
   border: none;
-  padding: 8px 16px;
-  font-size: 10px;
-  align-items: flex-end;
+  font-size: 1rem;
   cursor: pointer;
-  border-radius: 5px;
-
   transition: background-color 0.3s;
 
   &:hover {
-    background-color: whitesmoke;
+    color: whitesmoke;
   }
 `;
 
 const Modal = styled.div`
+  font-family: 'Pretendard';
   text-align: start;
   position: fixed;
   width: 30%;
-  height: 20%;
+  height: auto;
   overflow-x: hidden;
   top: 40%;
   left: 50%;
@@ -197,7 +200,7 @@ interface Event {
   scheduleId: number;
   content: string;
   startDate: string;
-  endDate:string;
+  endDate: string;
 }
 
 interface WeekCalendarProps {
@@ -209,13 +212,17 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({projectId},{onDarkBackground
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [events, setEvents] = useState<Event[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [showEvent,setShowEvent]=useState<{is:boolean;event:Event[]}>({
-    is:false,
-    event:[]});
+  const [showEvent, setShowEvent] = useState<{ is: boolean; event: Event[] }>({
+    is: false,
+    event: []
+  });
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
-  const [isChanging,setIsChanging]=useState<boolean>(false);
+  const [isChanging, setIsChanging] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
-  const [selectDate,setSelectDate]=useState<Date>(new Date());
+  const [selectDate, setSelectDate] = useState<Date>(new Date());
+  const [showManageModal, setShowManageModal] = useState(false);
+  const handleOpenManageModal = () => setShowManageModal(true);
+  const handleCloseManageModal = () => setShowManageModal(false);
   const [criterion,setCriterion]=useState<string>("day");
 
   const navigate = useNavigate();
@@ -278,6 +285,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({projectId},{onDarkBackground
       date.getMonth(),
       date.getDate()
     ).getTime();
+
     if(events!=null){
       return events.filter((e) => {
         if(criterion=="day"||criterion=="week"||criterion=="month"){
@@ -287,7 +295,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({projectId},{onDarkBackground
           return target>=eventStartDate&&target<=eventEndDate;
         }
       });
-    }else return [];
+    } else return [];
   };
   const findEventCount=(date:Date):number=>{
     const eventlist=events.filter((e) => {
@@ -339,7 +347,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({projectId},{onDarkBackground
     }
   };
 
-  const handleDateChange=(e:any)=>{
+  const handleDateChange = (e: any) => {
     setSelectDate(e);
   }
   const handleCriterion=(e:any)=>{
@@ -401,28 +409,51 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({projectId},{onDarkBackground
         }
 
 
-          {showModal && (
-            <Modal>
-              {editingEvent && (
-                <div>
-                  <textarea
-                    style={{width:'100%',height:'4rem',marginBottom:'0.5rem',resize:'none',border:'0.001rem solid',borderRadius:'3px'}}
-                    value={editingEvent.content}
-                    onChange={(e) => {
-                      if (editingEvent) {
-                        const updatedEvent: Event = {
-                          ...editingEvent,
-                          content: e.target.value,
-                        };
-                        setEditingEvent(updatedEvent);
-                        setIsChanging(true)
-                      }
-                    }}
-                  />
-                  <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"49%"} height={""} margin="0 2% 0.3rem 0"
-                    onClick={() =>{
-                      editingEvent && handleEditEventSave(editingEvent.scheduleId, editingEvent.content)
+        <ManageButtonContainer>
+        <div style={{ textAlign: 'left', margin: '1rem 0 0.5rem 1rem', fontWeight: 'bold', fontSize: '1.3rem' }}>{moment(selectDate).format("YYYY-MM-DD")}의 일정</div>
+          <ManageButton onClick={handleOpenManageModal}>
+            <FaPenToSquare />
+          </ManageButton>
+        </ManageButtonContainer>
+        {findEventsForDate(new Date(selectDate!!)).length != 0
+          ? findEventsForDate(new Date(selectDate!!)).map((event) => {
+            return <div style={{ cursor: 'pointer', margin: '0.5rem 1rem', textAlign: 'left', backgroundColor: theme.color.gray10, borderRadius: '5px', padding: '3px', fontSize: '1rem' }}
+              onClick={() => {
+                setShowModal(true)
+                setEditingEvent(event)
+              }} key={event.scheduleId}>{event.content}</div>
+          })
+          : <div style={{ margin: '0.5rem 1rem', textAlign: 'left', padding: '3px', fontSize: '1rem', color: theme.color.gray40 }}>오늘의 일정이 없습니다.</div>
+        }
+        {showModal && (
+          <Modal>
+            {editingEvent && (
+              <div>
+                <textarea
+                  style={{ width: '100%', height: '4rem', marginBottom: '0.5rem', resize: 'none', border: '0.001rem solid', borderRadius: '3px', fontFamily: 'Pretendard', fontSize: '1rem' }}
+                  value={editingEvent.content}
+                  onChange={(e) => {
+                    if (editingEvent) {
+                      const updatedEvent: Event = {
+                        ...editingEvent,
+                        content: e.target.value,
+                      };
+                      setEditingEvent(updatedEvent);
+                      setIsChanging(true)
+                    }
+                  }}
+                />
+                <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"49%"} height={""} margin="0 2% 0.3rem 0"
+                  onClick={() => {
+                    editingEvent && handleEditEventSave(editingEvent.scheduleId, editingEvent.content)
+                    setIsChanging(false)
+                  }}>수정</NewButton>
+                <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"49%"} height={""}
+                  onClick={() => {
+                    if (window.confirm("정말 삭제하시겠습니까?")) {
+                      editingEvent && handleDeleteEvent(editingEvent.scheduleId)
                       setIsChanging(false)
+
                     }}>수정</NewButton>
                   <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"49%"} height={""}
                     onClick={() =>{
@@ -444,29 +475,26 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({projectId},{onDarkBackground
                     onDarkBackground(false)
                     setShowModal(false)
                     setEditingEvent(null)
-                  }else return
-                }else{
+                  } else return
+                } else {
                   setIsChanging(false)
                   onDarkBackground(false)
                   setShowModal(false)
-                setEditingEvent(null)
-                }}}>닫기</NewButton>
-            </Modal>
-          )}
-        <ManageButtonContainer>
-          <ManageButton
-            onClick={() =>
-              navigate("/manage", { state: { projectId: projectId } })
-            }
-          >
-            <FaPen />
-          </ManageButton>
-        </ManageButtonContainer>
-      </Container>
+                  setEditingEvent(null)
+                }
+              }}>닫기</NewButton>
+          </Modal>
+        )}
+        
 
+        {showManageModal && (
+          <Modal>
+            <Manage projectId={projectId} onClose={handleCloseManageModal} />
+          </Modal>
+        )}
+      </Container>
     </div>
   );
 };
 
 export default WeekCalendar;
-

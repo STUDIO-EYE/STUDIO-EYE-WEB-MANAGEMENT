@@ -42,7 +42,9 @@ const StyledButton = styled.button<RectangleProps>`
 `;
 
 const WhiteButton: React.FC<RectangleProps> = (props) => (
-    <StyledButton 
+    <StyledButton
+    padding='5px'
+    fontSize='1rem' 
     textcolor={props.textcolor}
     backcolor={props.backcolor}
     width={props.width}

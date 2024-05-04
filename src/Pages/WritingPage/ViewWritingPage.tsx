@@ -271,12 +271,17 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   const deletePost = () => {
     const token = sessionStorage.getItem('login-token');
     console.log(token);
-
+  
     if (!token) {
       alert('로그인이 필요합니다.');
       return;
     }
-
+  
+    const confirmDelete = window.confirm("정말로 게시글을 삭제하시겠습니까?");
+    if (!confirmDelete) {
+      return;
+    }
+  
     boardApi
       .deleteBoard({
         data: {
@@ -293,10 +298,11 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
         }
       })
       .catch((error) => {
-        console.error("Error deleting post:", error);
+        console.error("게시글 삭제 중 오류 발생:", error);
         alert("게시글 삭제 중 오류가 발생했습니다.");
       });
   };
+  
 
   const changePutView = () => {
     setTitle(selectedPost.title);
