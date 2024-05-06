@@ -7,6 +7,7 @@ import { TitleSm } from "Components/common/Font";
 import { IoFileTrayFullSharp, IoAddCircle } from "react-icons/io5";
 import { FaPenToSquare } from "react-icons/fa6";
 import ProjectProgress from "./ProjectProgress";
+import { MdDriveFileMoveOutline } from "react-icons/md";
 
 interface Post {
   id: number;
@@ -63,18 +64,21 @@ const RightboardBody = styled.div<RightBoardProps>`
 `;
 
 const GoToFilePageButton = styled.div`
-  width: 86%;
-  height: 1rem;
-  text-align: center;
+  width: 120px;
+  height: auto;
+  text-align: left;
   margin-top: 1rem;
   margin-left: 2rem;
   flex-direction: column;
   transition: height 0.3s ease-in-out;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
   background-color: lightgray;
-  padding: 0 10px 10px 10px;
-  border-radius: 5px;
-  
+  padding: 5px 10px 10px 10px;
+  border-radius: 14px;
+  color: darkgray;
+  font-size: 1.5rem;
+  cursor: pointer;
+
   &:hover{
     background-color: rgba(0, 0, 0, 0.08);
   }
@@ -129,10 +133,9 @@ const PlusButton = styled.div`
 `;
 
 const FileButton = styled.div`
-  cursor: pointer;
   font-weight: 600;
-  font-size: 1.5rem;
-  margin-left: 15px;
+  font-size: 1rem;
+  color: darkgray;
 `;
 
 const BoardTitleText = styled.div`
@@ -224,12 +227,14 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId, comp
 
   return (
     <RightDashboardBox>
+      <GoToFilePageButton onClick={goToFilePage}>
+        <MdDriveFileMoveOutline />
+        <FileButton>파일 페이지로 이동</FileButton>
+      </GoToFilePageButton>
       <RightboardBody>
         <ProjectProgress completedCount={completedCount} totalCount={totalCount} />
       </RightboardBody>
-      <GoToFilePageButton onClick={goToFilePage}>
-        <FileButton><IoFileTrayFullSharp /></FileButton>
-      </GoToFilePageButton>
+
       <RightboardBody>
         <BoardTitleDiv>
           <BoardTitleText><TitleSm onClick={goToPlanPage}>기획</TitleSm></BoardTitleText>

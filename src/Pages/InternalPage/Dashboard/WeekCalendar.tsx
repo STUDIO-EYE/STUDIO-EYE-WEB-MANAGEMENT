@@ -15,7 +15,7 @@ import { FaPenToSquare } from "react-icons/fa6";
 const Container = styled.div`
   font-family: 'Pretendard';
   font-size: 1rem;
-  background-color: #ffffff;
+  background-color: white;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
   border-radius: 15px;
   padding: 10px;
@@ -71,7 +71,7 @@ button {
   text-decoration: none;
 }
 .react-calendar__month-view__days__day--weekend {
-  color: #fff;
+  color: white;
   font-size: 18px;
   text-decoration: none;
   width: 44px;
@@ -164,6 +164,8 @@ button {
 
 const ManageButtonContainer = styled.div`
   display: flex;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const ManageButton = styled.button`
@@ -194,6 +196,46 @@ const Modal = styled.div`
   padding: 1rem;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
+`;
+
+const DropdownContainer = styled.div`
+  margin-right: 15px;
+  display: flex;
+`;
+
+const CustomSelect = styled.select`
+  font-size: 0.9rem;
+  margin-top: 5px;
+  padding: 5px;
+  border-radius: 15px;
+  color: ${theme.color.gray50};
+  border: none;
+  outline: none;
+  transition: border-color 0.3s ease-in-out;
+  font-family: 'Pretendard';
+
+  &:hover {
+    background-color: ${theme.color.gray10};
+    cursor: pointer;
+  }
+
+  option {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    color: ${theme.color.gray50};
+    background: white;
+    border: none;
+    outline: none;
+
+    &:hover {
+      background: ${theme.color.gray20};
+    }
+  }
+`;
+
+const Label = styled.div`
+  font-size: 1.2rem;
+  font-weight: 600;
 `;
 
 interface Event {
@@ -285,23 +327,23 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId, onDarkBackground
       date.getMonth(),
       date.getDate()
     ).getTime();
-    if(events!=null){
+    if (events != null) {
       return events.filter((e) => {
-        if(criterion=="day"||criterion=="week"||criterion=="month"){
-          const target=moment(targetDate)
-          const eventStartDate=moment(e.startDate).startOf(criterion)
-          const eventEndDate=moment(e.endDate).endOf(criterion)
-          return target>=eventStartDate&&target<=eventEndDate;
+        if (criterion == "day" || criterion == "week" || criterion == "month") {
+          const target = moment(targetDate)
+          const eventStartDate = moment(e.startDate).startOf(criterion)
+          const eventEndDate = moment(e.endDate).endOf(criterion)
+          return target >= eventStartDate && target <= eventEndDate;
         }
       });
-    }else return [];
+    } else return [];
   };
-  const findEventCount=(date:Date):number=>{
-    const eventlist=events.filter((e) => {
-      const target=moment(date)
-      const eventStartDate=moment(e.startDate).startOf("day")
-      const eventEndDate=moment(e.endDate).endOf("day")
-      return target>=eventStartDate&&target<=eventEndDate;
+  const findEventCount = (date: Date): number => {
+    const eventlist = events.filter((e) => {
+      const target = moment(date)
+      const eventStartDate = moment(e.startDate).startOf("day")
+      const eventEndDate = moment(e.endDate).endOf("day")
+      return target >= eventStartDate && target <= eventEndDate;
     })
     return eventlist.length
   }
@@ -346,23 +388,23 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId, onDarkBackground
     }
   };
 
-  const handleDateChange=(e:any)=>{
+  const handleDateChange = (e: any) => {
     setSelectDate(e);
   }
-  const handleCriterion=(e:any)=>{
+  const handleCriterion = (e: any) => {
     setCriterion(e.target.value)
   }
-  const getCurrentweek:()=>string=()=>{
-    var now=moment(selectDate).week()
-    var lastmonthweek=moment(selectDate).subtract(1,'months').endOf('month').week()
-    return moment(selectDate).format("YYYY년 MM월 ")+(now-lastmonthweek+1).toString()+"주차"
+  const getCurrentweek: () => string = () => {
+    var now = moment(selectDate).week()
+    var lastmonthweek = moment(selectDate).subtract(1, 'months').endOf('month').week()
+    return moment(selectDate).format("YYYY년 MM월 ") + (now - lastmonthweek + 1).toString() + "주차"
   }
 
   return (
     <div className="App">
       <Container>
         <CustomCalendar
-          locale="en"
+          locale="ko"
           onChange={handleDateChange}
           formatDay={(locale, date) => moment(date).format("DD")}
           tileContent={({ date, view }) => {
@@ -382,22 +424,23 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId, onDarkBackground
         />
         <ManageButtonContainer>
           <div style={{ display: 'flex', justifyContent: 'space-between', margin: '1rem 1rem 0.5rem 1rem' }}>
-            <div style={{ textAlign: 'left' }}>{
-              criterion == "day" ? moment(selectDate).format("YYYY년 MM월 DD일")
-                : criterion == "week" ? getCurrentweek()
-                  : moment(selectDate).format("YYYY년 MM월")}의 일정</div>
-            <div>
-              <ManageButton onClick={handleOpenManageModal}>
-                <FaPenToSquare />
-              </ManageButton>
-              <text style={{ fontSize: '0.8rem', margin: '0 0.3rem' }}>기준</text>
-              <select onChange={handleCriterion}>
-                <option value={"day"}>단일</option>
-                <option value={"week"}>일주일</option>
-                <option value={"month"}>한 달</option>
-              </select>
-            </div>
+            <Label>
+              <div style={{ textAlign: 'left' }}>{
+                criterion == "day" ? moment(selectDate).format("YYYY년 MM월 DD일")
+                  : criterion == "week" ? getCurrentweek()
+                    : moment(selectDate).format("YYYY년 MM월")}의 일정</div>
+            </Label>
+            <ManageButton onClick={handleOpenManageModal}>
+              <FaPenToSquare />
+            </ManageButton>
           </div>
+          <DropdownContainer>
+            <CustomSelect onChange={handleCriterion}>
+              <option value="day">하루</option>
+              <option value="week">일주일</option>
+              <option value="month">한 달</option>
+            </CustomSelect>
+          </DropdownContainer>
         </ManageButtonContainer>
         {findEventsForDate(new Date(selectDate!!)).length != 0
           ? findEventsForDate(new Date(selectDate!!)).map((event) => {

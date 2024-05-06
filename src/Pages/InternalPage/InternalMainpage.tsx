@@ -33,25 +33,25 @@ const Wrapper = styled.div`
 `;
 
 const InternalMainpage = () => {
-    const InternalMainpageContent = () => {
-        const { projectId } = useParams<{ projectId: string }>();
-        return (
-            <>
-                <GlobalStyle />
-                <MainBody>
-                    <Wrapper>
-                        {projectId && <Dashboard projectId={parseInt(projectId)} />}
-                    </Wrapper>
-                    <Wrapper></Wrapper>
-                </MainBody>
-            </>
-        );
-    };
-
+  const InternalMainpageContent = () => {
+    const { projectId } = useParams<{ projectId: string }>();
     return (
-        <Body>
-            <InternalMainpageContent />
-        </Body>
+      <>
+        <GlobalStyle />
+        <MainBody>
+          <Wrapper>
+            {projectId && <Dashboard projectId={parseInt(projectId)} />}
+          </Wrapper>
+          <Wrapper></Wrapper>
+        </MainBody>
+      </>
     );
+  };
+
+  return (
+    <Body>
+      <InternalMainpageContent />
+    </Body>
+  );
 };
 export default InternalMainpage;

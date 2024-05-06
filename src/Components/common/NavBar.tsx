@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { FaBriefcase, FaUser, FaChartLine } from 'react-icons/fa';
+import { MdOutlineSettingsSuggest, MdAccountCircle, MdMovieCreation } from "react-icons/md";
 import projectApi from '../../api/projectApi';
 
 const NavigationBar = styled.div`
@@ -12,7 +13,6 @@ const NavigationBar = styled.div`
   flex-direction: column;
   position: fixed;
   top: 4rem;
-  left: 0;
   z-index: 1000;
 `;
 
@@ -33,7 +33,7 @@ const NavigationLink = styled.div`
   text-decoration: none;
   font-size: 1rem;
   padding: 20px 55px;
-  font-weight: 500;
+  font-weight: 600;
   border-radius: 0 15px 15px 0;
   position: relative;
   cursor: pointer;
@@ -55,10 +55,12 @@ const ProjectDropdownContainer = styled.div<{ maxHeight: number }>`
 const ProjectList = styled.div`
   background-color: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 0 0 15px 15px;
+  border-radius: 0 0 15px 15px 0;
 `;
 
 const ProjectItem = styled.div`
+  font-family: 'Pretendard';
+  font-weight: 500;
   padding: 20px 15px;
   cursor: pointer;
   transition: background-color 0.3s;
@@ -94,7 +96,7 @@ const NavBar = () => {
       try {
         const response = await projectApi.getProjectList();
         const ongoing = response.data.list.filter(
-          (project: { isFinished: boolean }) => !project.isFinished
+          (project: { isFinished: boolean; }) => !project.isFinished
         );
         setOngoingProjects(ongoing);
       } catch (error) {
@@ -109,62 +111,53 @@ const NavBar = () => {
     navigate(`/Manage/${projectId}`);
   };
 
-  const handleMouseEnter = () => {
-    setIsProjectMenuOpen(true);
+  const toggleProjectMenu = () => {
+    setIsProjectMenuOpen(!isProjectMenuOpen);
   };
 
-  const handleMouseLeave = () => {
-    setIsProjectMenuOpen(false);
-  };
-
-  const maxHeight = isProjectMenuOpen ? ongoingProjects.length * 60 + 10 : 0; 
+  const maxHeight = isProjectMenuOpen ? ongoingProjects.length * 60 + 10 : 0;
 
   return (
     <NavigationBar>
-      <NavigationWrapper>
-        <NavigationContent
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+      <NavigationContent>
+        <NavigationLink onClick={toggleProjectMenu}>
+          <IconContainer>
+            <MdMovieCreation />
+          </IconContainer>
+          프로젝트
+        </NavigationLink>
+
+        <ProjectDropdownContainer maxHeight={maxHeight}>
+          <ProjectList>
+            {ongoingProjects.map((project) => (
+              <ProjectItem
+                key={project.projectId}
+                onClick={() => handleProjectClick(project.projectId)}
+              >
+                {project.name}
+              </ProjectItem>
+            ))}
+          </ProjectList>
+        </ProjectDropdownContainer>
+
+        <NavigationLink
+          onClick={() => navigate('/mypage')}
         >
-          <NavigationLink>
-            <IconContainer>
-              <FaBriefcase />
-            </IconContainer>
-            프로젝트
-          </NavigationLink>
+          <IconContainer>
+            <MdAccountCircle />
+          </IconContainer>
+          마이페이지
+        </NavigationLink>
 
-          <ProjectDropdownContainer maxHeight={maxHeight}>
-            <ProjectList>
-              {ongoingProjects.map((project) => (
-                <ProjectItem
-                  key={project.projectId}
-                  onClick={() => handleProjectClick(project.projectId)}
-                >
-                  {project.name}
-                </ProjectItem>
-              ))}
-            </ProjectList>
-          </ProjectDropdownContainer>
-
-          <NavigationLink
-            onClick={() => navigate('/mypage')}
-          >
-            <IconContainer>
-              <FaUser />
-            </IconContainer>
-            마이페이지
-          </NavigationLink>
-
-          <NavigationLink
-            onClick={() => navigate('/Account')}
-          >
-            <IconContainer>
-              <FaChartLine />
-            </IconContainer>
-            계정
-          </NavigationLink>
-        </NavigationContent>
-      </NavigationWrapper>
+        <NavigationLink
+          onClick={() => navigate('/Account')}
+        >
+          <IconContainer>
+            <MdOutlineSettingsSuggest />
+          </IconContainer>
+          계정 관리
+        </NavigationLink>
+      </NavigationContent>
     </NavigationBar>
   );
 };

@@ -3,13 +3,15 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { TitleSm, TextLg, TextMd } from "../../Components/common/Font";
 import projectApi from "../../api/projectApi";
-import { FaTrash, FaCheck, FaEdit, FaEllipsisH, FaCrown, FaUser, FaUserSlash } from "react-icons/fa";
+import { FaTrash, FaCheck, FaEdit, FaEllipsisH, FaCrown, FaUser, FaUserSlash, FaPlus } from "react-icons/fa";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 import swal from 'sweetalert';
 import { Tooltip } from "@mui/material";
 import { IoAddCircle } from "react-icons/io5";
 import { Dropdown, DropdownItem } from "Components/common/DropDownBox";
+import { MdLens, MdAdd } from "react-icons/md";
+import InputText from "Components/common/InputText";
 
 interface Project {
   projectId: number;
@@ -24,22 +26,34 @@ const AppContainer = styled.div`
   text-align: center;
   justify-content: center;
   align-items: center;
-  margin-top: 16px;
+  width: 47%;
 `;
 
 const ProjectWrapper = styled.div`
-  width: 400px;
+  width: 100%;
+  height: calc(100vh - 7rem);
   background-color: white;
   padding: 20px;
-  margin-right: 50px;
-  margin-bottom: 100px;
   border-radius: 15px;
-  box-shadow: 0px 15px 15px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0px 15px 15px rgba(0, 0, 0, 0.1); */
+  overflow-y: scroll;
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+  &::-webkit-scrollbar-track {
+    background: white;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 15px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.08);
+  }
 `;
 
 const ProjectsContainer = styled.div`
   flex-wrap: wrap;
-  margin-top: 20px;
   justify-content: flex-start;
   flex-direction: column;
   align-items: center;
@@ -66,6 +80,8 @@ const ProjectItemWrapper = styled.div<{ isTeamLeader: boolean }>`
 `;
 
 const ProjectItemContent = styled.div`
+  font-family: 'Pretendard';
+
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -74,8 +90,8 @@ const ProjectItemContent = styled.div`
 
 const ProjectTitle = styled.div`
   flex: 1;
-  font-weight: bold;
-  font-size: 18px;
+  font-weight: 800;
+  font-size: 1.3rem;
   margin-bottom: 10px;
   text-align: left;
 `;
@@ -84,6 +100,7 @@ const ProjectPeriod = styled.div`
   margin-bottom: 20px;
   text-align: left;
   font-size: 12px;
+  color: gray;
 `;
 
 const ProjectDescription = styled.div`
@@ -114,24 +131,29 @@ const LabelArea = styled.div`
   align-items: center;
   width: 100%;
   text-align: left;
-  margin-bottom: 50px;
+  margin-bottom: 30px;
 `;
 
 const CreateButton = styled.button`
-  background-color: transparent;
+  background-color: black;
+  border-radius: 15px 0 15px 0;
+  color: white;
   border: none;
   cursor: pointer;
-  font-size: 2rem;
+  font-size: 1rem;
+  padding: 20px;
+  font-family: 'Pretendard';
+  font-weight: 600;
 
   &:hover {
-    color: #FFC83D;
+    background-color: #FFC83D;
+    color: black;
   }
 `;
 
 const PaginationContainer = styled.div`
     margin-top: 50px;
     
-
   .pagination {
     list-style-type: none;
     display: flex;
@@ -183,6 +205,39 @@ const MemberInitials = styled.div`
   cursor: pointer;
 `;
 
+const SearchBar = styled.div`
+  width: 100%;
+  height: 3rem;
+  margin-bottom: 3rem;
+  font-family: 'Pretendard';
+`;
+
+const SearchInput = styled.input`
+  font-family: 'Pretendard';
+  border-radius: 14px;
+  width: 90%;
+  height: auto;
+  padding: 1.5rem;
+  margin-bottom: 5rem;
+  background-color: rgba(0, 0, 0, 0.05);
+  border: none;
+  resize: none;
+  font-size: 0.9rem;
+
+  @media only screen and (max-width:50rem){
+    width: 97%;
+  }
+
+  &:focus {
+    outline: none;
+    background-color: rgba(0, 0, 0, 0.03);
+  }
+
+  &::placeholder{
+    font-size: 0.9rem;
+  }
+`;
+
 interface TooltipState {
   projectId: number;
   userId: string;
@@ -206,6 +261,15 @@ function OngoingProject() {
   const [tooltipVisible, setTooltipVisible] = useState<TooltipState | null>(null);
   const projectsPerPage = 10;
   const [userName, setUserName] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearchChange = (e: { target: { value: React.SetStateAction<string>; }; }) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredProjects = projects.filter((project) =>
+    project.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     const token = sessionStorage.getItem("login-token");
@@ -386,7 +450,7 @@ function OngoingProject() {
       }
     } catch (error) {
       console.error("Error deleting the project:", error);
-      alert("프로젝트 삭제에 실패했습니다."); // 에러 알림 메시지 추가
+      alert("프로젝트 삭제에 실패했습니다.");
     }
   };
 
@@ -456,14 +520,21 @@ function OngoingProject() {
     <AppContainer>
       <ProjectWrapper>
         <LabelArea>
-          <TitleSm>진행 중인 <br></br> 프로젝트 👇</TitleSm>
+          <TitleSm><MdLens /> <br></br> 진행 중인 프로젝트</TitleSm>
           <CreateButton type="button" onClick={handleAddProject}>
-            <IoAddCircle />
+            <FaPlus /> Add Project
           </CreateButton>
         </LabelArea>
+        <SearchBar>
+          <SearchInput
+            type="text"
+            placeholder="프로젝트를 검색하세요."
+            value={searchQuery}
+            onChange={handleSearchChange} />
+        </SearchBar>
         <ProjectsContainer>
-          {currentDetailsProjects.length > 0 && (
-            currentProjects.map((project: Project, index) => (
+          {filteredProjects.length > 0 ? (
+            filteredProjects.map((project, index) => (
               <ProjectItemWrapper
                 key={project.projectId}
                 isTeamLeader={isTeamLeader(currentDetailsProjects[index])}
@@ -524,9 +595,11 @@ function OngoingProject() {
                 </ProjectItemContent>
               </ProjectItemWrapper>
             ))
+          ) : (
+            <LabelArea>검색 결과가 없습니다.</LabelArea>
           )}
         </ProjectsContainer>
-        <PageNumbers />
+        {/* <PageNumbers /> */}
       </ProjectWrapper>
     </AppContainer>
   );

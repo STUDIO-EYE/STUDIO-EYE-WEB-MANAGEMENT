@@ -17,7 +17,7 @@ interface TodoItem {
 const Container = styled.div`
   max-width: 100%;
   min-height: 150px; /* 기본 높이 설정 */
-  background-color: #ffffff;
+  background-color: white;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
   padding: 20px;
   margin: 20px auto;
