@@ -163,6 +163,11 @@ function Project() {
 
   const handleSave = async () => {
     try {
+      if (new Date(startDate) > new Date(endDate)) {
+        alert("시작 날짜가 종료 날짜보다 이후입니다.");
+        return;
+      }
+
       const notRegistered = emailsRegisteredCheck.filter((check) => !check);
       if (notRegistered.length > 0) {
         alert(
@@ -170,7 +175,7 @@ function Project() {
         );
         return;
       }
-      // 유효성 검사
+
       if (!projectName.trim()) {
         alert("프로젝트명을 입력해주세요.");
         return;
@@ -186,15 +191,16 @@ function Project() {
         alert("모든 팀원의 이메일을 입력해주세요.");
         return;
       }
-      // 1. 각 이메일 주소에 해당하는 유저 ID를 가져옵니다.
+
       const userIdsPromises = teamMemberEmails.map(async (email) => {
         const response = await axios.get(
           `/user-service/response_userByEmail/${email}`
         );
-        return response.data.id; // UserResponse 객체에서 id를 가져옵니다.
+        return response.data.id;
       });
 
       const memberIdList = await Promise.all(userIdsPromises);
+
       const newProject = {
         name: projectName,
         description: projectDetails,
@@ -202,10 +208,9 @@ function Project() {
         finishDate: `${endDate}`,
         memberIdList: memberIdList,
       };
-      const response = await projectApi.createProject(newProject);
-      //console.log(response);
 
-      // 서버에서 실패 응답을 보냈는지 확인
+      const response = await projectApi.createProject(newProject);
+
       if (response.data && response.data.success === false) {
         if (response.data.code === 7000) {
           alert("로그인을 먼저 진행시켜 주시길 바랍니다.");
@@ -216,17 +221,17 @@ function Project() {
           delete axios.defaults.headers.common["Authorization"];
           navigate("/LoginPage");
         } else if (response.data.code === 7005) {
-          alert("jwt토큰오류래요");
+          alert("jwt토큰오류");
         }
         return;
       }
       alert("프로젝트를 생성하였습니다.");
       navigate("/");
     } catch (error) {
-      console.error("Error: ", error);
-      alert("프로젝트 생성에 실패했습니다."); // 에러 알림 메시지
+      alert("프로젝트 생성에 실패했습니다."); 
     }
   };
+
   const handleTeamMemberChange = (index: number, email: string) => {
     const updatedEmails: string[] = [...teamMemberEmails];
     updatedEmails[index] = email;

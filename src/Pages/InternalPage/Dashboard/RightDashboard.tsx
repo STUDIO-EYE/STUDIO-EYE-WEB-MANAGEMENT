@@ -72,7 +72,7 @@ const GoToFilePageButton = styled.div`
   flex-direction: column;
   transition: height 0.3s ease-in-out;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
-  background-color: lightgray;
+  background-color: whitesmoke;
   padding: 5px 10px 10px 10px;
   border-radius: 14px;
   color: darkgray;

@@ -9,9 +9,7 @@ const TotalContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
   flex-direction: column;
-  background-color: #f7f7f7;
 `;
 
 const ManageContainer = styled.div`
@@ -19,30 +17,48 @@ const ManageContainer = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 40px;
-  padding: 100px;
-  background-color: #ffffff;
+  padding: 50px;
+  background-color: white;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const Label = styled.label`
+  font-size: 1rem;
+  width: 30px;
+`;
+
+const DateContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px;
+  align-items: center;
 `;
 
 const StyledInput = styled.input`
   padding: 10px;
-  width: 300px; // Adjusted width
+  width: 130px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  font-family: 'Pretendard';
+  margin-right: 10px;
 `;
 
 const StyledTextArea = styled.textarea`
-  width: 320px;
-  margin-left: 40px;
+  width: 100%;
   min-height: 100px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  resize: none;
+  font-family: 'Pretendard';
+  font-size: 1rem;
 `;
+
 const ButtonContainer = styled.div`
   display: flex;
-  margin-left: 20px;
-  gap: 30px;
+  justify-content: center;
+  gap: 20px;
 `;
 
 const StyledButton = styled.button`
@@ -50,13 +66,14 @@ const StyledButton = styled.button`
   width: 100px;
   border: none;
   border-radius: 4px;
-  background-color: #ff530e;
-  color: #ffffff;
+  background-color: #FFC83D;
+  color: white;
   cursor: pointer;
   transition: background-color 0.3s;
 
   &:hover {
-    background-color: red;
+    background-color: black;
+    color: #FFC83D;
   }
 `;
 
@@ -66,7 +83,7 @@ const CancelButton = styled.button`
   border: none;
   border-radius: 4px;
   background-color: grey;
-  color: #ffffff;
+  color: white;
   cursor: pointer;
   transition: background-color 0.3s;
 
@@ -74,6 +91,7 @@ const CancelButton = styled.button`
     background-color: black;
   }
 `;
+
 function toKoreanTime(date: Date): string {
   const offset = 9; // Korea is UTC+9
   const localDate = new Date(date.getTime() + offset * 60 * 60 * 1000);
@@ -81,7 +99,7 @@ function toKoreanTime(date: Date): string {
 }
 
 //프로젝트의 시작날짜와 마지막 날짜 사이에 일정이 추가되어야 함.
-function MyManage() {
+const MyManage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [startDate, setStartDate] = useState(toKoreanTime(new Date()));
   const [endDate, setEndDate] = useState(toKoreanTime(new Date()));
 
@@ -108,7 +126,8 @@ function MyManage() {
       console.log(response.data)
       if (response.data.success) {
         alert("일정이 성공적으로 추가되었습니다.");
-        navigate(`/MyPage`);
+        window.location.reload();
+        onClose();
       } else if (response.data.success === false) {
         if (response.data.code === 7000) {
           alert("로그인을 먼저 진행시켜 주시길 바랍니다.");
@@ -136,42 +155,34 @@ function MyManage() {
 
   return (
     <TotalContainer>
-      <h2>Manage Events</h2>
       <ManageContainer>
-        <div>
-          <label>시작 : </label>
+        <DateContainer>
+          <Label>시작</Label>
           <StyledInput
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
           />
-        </div>
-        <div>
-          <label>종료 : </label>
+          <Label>종료</Label>
           <StyledInput
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
           />
-        </div>
-        <div>
-          <StyledTextArea
-            placeholder="일정을 입력하세요."
-            value={eventText}
-            onChange={(e) => setEventText(e.target.value)}
-          />
-        </div>
-        <div>
-          <ButtonContainer>
-            <StyledButton onClick={handleSave}>Save</StyledButton>
-            <CancelButton onClick={() => navigate(`/MyPage`)}>
-              Cancel
-            </CancelButton>
-          </ButtonContainer>
-        </div>
+        </DateContainer>
+
+        <StyledTextArea
+          placeholder="일정을 입력하세요."
+          value={eventText}
+          onChange={(e) => setEventText(e.target.value)}
+        />
+        <ButtonContainer>
+          <StyledButton onClick={handleSave}>저장</StyledButton>
+          <CancelButton onClick={onClose}>취소</CancelButton>
+        </ButtonContainer>
       </ManageContainer>
     </TotalContainer>
   );
-}
+};
 
 export default MyManage;

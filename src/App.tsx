@@ -31,7 +31,7 @@ function App() {
         <Route path="/MyPage" element={<MyPageMain />} />
         <Route path="/Account" element={<AccountPageMain />} />
         {/* <Route path="/manage" element={<Manage />} /> */}
-        <Route path="/myManage" element={<MyManage/>}/>
+        {/* <Route path="/myManage" element={<MyManage/>}/> */}
         <Route path="/project" element={<Project />} />
         <Route path="/modify/:projectId" element={<ModifyProject />} />
       </Routes>
