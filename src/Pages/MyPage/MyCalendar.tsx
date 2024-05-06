@@ -10,6 +10,7 @@ import Calendar from "react-calendar";
 // import 'react-calendar/dist/Calendar.css'
 import moment from "moment";
 import { FaPenToSquare } from "react-icons/fa6";
+import MyManage from "./MyManage";
 
 const Container = styled.div`
   font-family: 'Pretendard';
@@ -257,6 +258,9 @@ const MyCalendar = ({ onDarkBackground }: { onDarkBackground: any }) => {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [selectDate, setSelectDate] = useState<Date>(new Date());
   const [criterion, setCriterion] = useState<string>("day");
+  const [showManageModal, setShowManageModal] = useState(false);
+  const handleOpenManageModal = () => setShowManageModal(true);
+  const handleCloseManageModal = () => setShowManageModal(false);
 
   const navigate = useNavigate();
 
@@ -410,11 +414,8 @@ const MyCalendar = ({ onDarkBackground }: { onDarkBackground: any }) => {
                   : criterion == "week" ? getCurrentweek()
                     : moment(selectDate).format("YYYY년 MM월")}의 일정</div>
             </Label>
-            <ManageButton
-              onClick={() =>
-                navigate("/myManage")
-              }
-            ><FaPenToSquare /></ManageButton>
+            <ManageButton onClick={handleOpenManageModal}>
+              <FaPenToSquare /></ManageButton>
           </div>
           <DropdownContainer>
             <CustomSelect onChange={handleCriterion}>
@@ -489,8 +490,13 @@ const MyCalendar = ({ onDarkBackground }: { onDarkBackground: any }) => {
               }}>닫기</NewButton>
           </Modal>
         )}
-      </Container>
 
+        {showManageModal && (
+          <Modal>
+            <MyManage onClose={handleCloseManageModal} />
+          </Modal>
+        )}
+      </Container>
     </div>
   );
 };

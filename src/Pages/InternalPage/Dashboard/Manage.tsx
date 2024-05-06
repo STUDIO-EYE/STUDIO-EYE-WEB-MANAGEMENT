@@ -65,12 +65,13 @@ const StyledButton = styled.button`
   border: none;
   border-radius: 4px;
   background-color: #FFC83D;
-  color: #ffffff;
+  color: white;
   cursor: pointer;
   transition: background-color 0.3s;
 
   &:hover {
-    background-color: red;
+    background-color: black;
+    color: #FFC83D;
   }
 `;
 
