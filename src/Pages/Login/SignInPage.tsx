@@ -366,7 +366,7 @@ function SignInPage() {
                     <InputText
                         width={"98%"} height={""}
                         name="phoneNumber" value={formData.phoneNumber}
-                        placeholder={"하이픈(-)과 함께 입력해 주세요."}
+                        placeholder={"하이픈(-)과 함께 번호를 입력하세요."}
                         onChange={handleChange} type="tel" />
                 </SubInputForm>
                 <NewButton backcolor={theme.color.orange}
