@@ -23,9 +23,8 @@ interface Project{
 }
 
 const RightDashboardBox = styled.div`
-  background-color: white;
   flex-basis: 50%;
-  overflow-y: auto;
+  //overflow-y: auto;
 
   &::-webkit-scrollbar {
     width: 15px;
@@ -45,49 +44,9 @@ const RightDashboardBox = styled.div`
   }
 `;
 
-// const GoToFilePageButton = styled.div<RightBoardProps>`
-//   width: 90%;
-//   margin-top: 1rem;
-//   margin-left: 2rem;
-//   flex-direction: column;
-//   background-color: white;
-//   overflow: hidden;
-//   transition: height 0.3s ease-in-out;
-//   flex: 1;
-//   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
-//   ${(props) => props.isEditing && "margin-bottom: 100px;"}
-// `;
-
-
-
 const RightDashboard = () => {
   const navigate = useNavigate();
   const [projectList,setProjectList]=useState<Project[]>([])
-
-//   const goToPlanPage = () => {
-//     navigate(`/PlanMain/${projectId}`,{state:{name:projectData.name}});
-//   };
-//   const goToPlanWritingPage=()=>{//plan 글쓰기 페이지로 이동
-//     navigate(`/PlanMain/${projectId}`,{state:{name:projectData.name, writing:true}})
-//   }
-
-//   const goToMakingPage = () => {
-//     navigate(`/MakingMain/${projectId}`,{state:{name:projectData.name}});
-//   };
-//   const goToMakingWritingPage=()=>{//making 글쓰기 페이지로 이동
-//     navigate(`/MakingMain/${projectId}`,{state:{name:projectData.name, writing:true}})
-//   }
-
-//   const goToEditPage = () => {
-//     navigate(`/EditMain/${projectId}`,{state:{name:projectData.name}});
-//   };
-//   const goToEditWritingPage=()=>{//edit 글쓰기 페이지로 이동
-//     navigate(`/EditMain/${projectId}`,{state:{name:projectData.name, writing:true}})
-//   }
-
-//   const goToFilePage = () => {
-//     navigate(`/Manage/${projectId}/files`);
-//   };
 
   useEffect(() => {
     const fetchProject=async()=>{
@@ -109,7 +68,6 @@ const RightDashboard = () => {
 
   return (
     <RightDashboardBox>
-      <MyTodo/>
       {projectList.map((project)=>{
         return (
           <MyBoard project={project}/>

@@ -13,9 +13,7 @@ const DashboardBox = styled.div`
   display: flex;
   flex-direction: column;
   min-width: 90%;
-  margin: auto;
-  overflow:hidden;
-
+  padding: 20px;
   @media ${media.half} {
     overflow:visible;
   }
@@ -26,18 +24,18 @@ const Panel = styled.div<{ expanded: boolean }>`
   flex: 1;
   height: ${(props) => (props.expanded ? "1000px" : "500px")};
   transition: height 0.3s ease-in-out;
-
-  @media ${media.half} {
-    flex-direction: column;
+  width: 100%;
+  height: auto;
+  margin-top: -3rem;
+  @media ${media.half}{
+    flex-direction:column;
   }
 `;
 
 const Left = styled.div<{ expanded: boolean }>`
-  padding: 20px;
-  background-color: white;
   flex-basis: 50%;
   height: ${(props) => (props.expanded ? "1000px" : "600px")};
-  overflow-y: auto;
+  //overflow-y: auto;
 
   &::-webkit-scrollbar {
     width: 15px;
@@ -58,28 +56,10 @@ const Left = styled.div<{ expanded: boolean }>`
 `;
 
 const LeftComponent = styled.div`
-  height: 33.33%;
-  margin-bottom: 20px;
-`;
-
-const TodayChecklistContainer = styled.div`
-  // display: grid;
-  // grid-template-columns: 1fr 1fr;
-  // gap: 20px;
-`;
-
-const CheckList = styled.div`
-  height: 33.33%;
-  margin-bottom: 20px;
-`;
-
-const Today = styled.div`
-  height: 33.33%;
   margin-bottom: 20px;
 `;
 
 const RightDashboard = styled.div`
-  height: 33.33%;
   margin-bottom: 20px;
 `;
 
@@ -95,21 +75,22 @@ const onDarkBackground=(is:boolean)=>{
 
   return (
     <DashboardBox>
-      <div style={{position:'relative'}}>
+      {/* <div style={{position:'relative'}}>
         {modaldiv?<div style={{position:'fixed',backgroundColor:"black",zIndex:999, width:'100%',height:'100%',marginTop:'0',opacity:'0.3',top:0,left:0,touchAction:'none'}}/>
-        :null}
+        :null} */}
       <DashboardBody>
         <Panel expanded={expanded}>
           <Left expanded={expanded}>
             <LeftComponent>
               <MyCalendar onDarkBackground={onDarkBackground}/>
+              <MyTodo />
             </LeftComponent>
           </Left>
-          <RightDashboard />
+          {/* <RightDashboard /> */}
           <RightMyPage/>
         </Panel>
       </DashboardBody>
-      </div>
+      {/* </div> */}
     </DashboardBox>
   );
 };

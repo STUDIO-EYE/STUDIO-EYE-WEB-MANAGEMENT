@@ -13,25 +13,40 @@ import {
 import projectApi from "../../api/projectApi";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { MdLensBlur } from "react-icons/md";
 
 const AppContainer = styled.div`
   text-align: center;
   justify-content: center;
   align-items: center;
-  margin-top: 16px;
+  width: 47%;
 `;
 
-const Container = styled.div`
+const TextContainer = styled.div`
   text-align: left;
 `;
 
 const ProjectWrapper = styled.div`
-  width: 400px;
-  background-color: #F9FBFD;
+  width: 100%;
+  height: calc(100vh - 7rem);
+  background-color: white;
   padding: 20px;
-  margin-bottom: 100px;
   border-radius: 15px;
-  box-shadow: 0px 15px 15px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0px 15px 15px rgba(0, 0, 0, 0.1); */
+  overflow-y: scroll;
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+  &::-webkit-scrollbar-track {
+    background: white;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 15px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.08);
+  }
 `;
 
 const ProjectsContainer = styled.div`
@@ -69,8 +84,8 @@ const ProjectItemContent = styled.div`
 
 const ProjectTitle = styled.div`
   flex: 1;
-  font-weight: bold;
-  font-size: 18px;
+  font-weight: 800;
+  font-size: 1.3rem;
   margin-bottom: 10px;
   text-align: left;
 `;
@@ -79,6 +94,7 @@ const ProjectPeriod = styled.div`
   margin-bottom: 20px;
   text-align: left;
   font-size: 12px;
+  color: gray;
 `;
 
 const ProjectDescription = styled.div`
@@ -140,7 +156,7 @@ const LabelArea = styled.div`
   display: flex;
   width: 100%;
   text-align: left;
-  margin-bottom: 50px;
+  margin-bottom: 30px;
 `;
 
 const DeleteButton = styled.button`
@@ -186,6 +202,7 @@ const PaginationContainer = styled.div`
       background-color: #FFC83D;
       color: white;
     }
+  }
 `;
 
 function FinishProject() {
@@ -306,11 +323,11 @@ function FinishProject() {
   return (
     <AppContainer>
       <ProjectWrapper>
-      <Container>
+      <TextContainer>
         <LabelArea>
-          <TitleSm>완료된 <br></br> 프로젝트 ☑️</TitleSm>
+        <TitleSm><MdLensBlur /> <br></br> 완료된 프로젝트</TitleSm>
         </LabelArea>
-      </Container>
+      </TextContainer>
 
       <ProjectsContainer>
           {projects.map((project:any) => (
@@ -337,8 +354,6 @@ function FinishProject() {
             ))
           }
         </ProjectsContainer>
-
-      <PageNumbers />
       </ProjectWrapper>
     </AppContainer>
   );

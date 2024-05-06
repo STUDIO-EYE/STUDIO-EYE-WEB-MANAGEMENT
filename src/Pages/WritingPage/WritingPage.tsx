@@ -19,10 +19,11 @@ const FormContainer = styled.div`
   max-height: 30rem;
   max-width: 70rem;
   padding: 0 0.5rem;
-  overflow-y: auto;
+  //overflow-y: auto;
 `;
 
 const CustomQuillEditor = styled(ReactQuill)`
+  resize: none;
 
   .ql-editor {
     min-height: 20rem;
@@ -30,12 +31,10 @@ const CustomQuillEditor = styled(ReactQuill)`
 
   .ql-container {
     border: 1px solid #ccc;
-    border-radius: 15px;
   }
 
   .ql-toolbar {
     background-color: rgba(0, 0, 0, 0.03);
-    border-radius: 15px;
   }
 `;
 
@@ -162,12 +161,11 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
   return (
     <>
       <FormContainer>
-        <WritingTitle style={{ margin: "0.5rem 0" }}>제목</WritingTitle>
         <InputText
           placeholder="제목을 입력하세요."
           value={title}
           onChange={handleContentChange}
-          width={"99%"}
+          width={"98.5%"}
           height="2rem"
         />
         <CustomQuillEditor

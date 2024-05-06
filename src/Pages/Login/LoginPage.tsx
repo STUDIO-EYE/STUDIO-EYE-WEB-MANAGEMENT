@@ -38,6 +38,9 @@ const LoginFormItem = styled.div`
   margin-top:0.5rem;
   display:flex;
   flex-direction:column;
+  font-family: 'Pretendard';
+  font-weight: 600;
+
   @media ${media.half}{
     width:70vw;
   }
@@ -85,7 +88,7 @@ const WhiteBoxContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #ffffff;
+  background-color: white;
 
   @media ${media.mobile} {
     box-shadow: none;
@@ -133,17 +136,17 @@ function LoginPage() {
     axios
       .post("/user-service/login", formData)
       .then((response) => {
-        if(response.data.approved){
+        if (response.data.approved) {
           const accessToken = response.data.accessToken;
           axios.defaults.headers.common["Authorization"] =
-          "Bearer " + accessToken; // 토큰을 HTTP 헤더에 포함
+            "Bearer " + accessToken; // 토큰을 HTTP 헤더에 포함
           sessionStorage.setItem("login-token", accessToken);
 
 
           swal('로그인 성공!', "", 'success')
-          .then(function() { navigate("/"); })
-        }else{
-          swal('로그인 실패',"관리자의 승인이 필요한 계정입니다.",'warning')
+            .then(function () { navigate("/"); })
+        } else {
+          swal('로그인 실패', "관리자의 승인이 필요한 계정입니다.", 'warning')
         }
       })
       .catch((error) => {
@@ -162,24 +165,24 @@ function LoginPage() {
       </TitleCenterBox>
       <LoginBox>
         <LoginForm>
-          <LoginFormItem><AlignLeft><TextMd>EMAIL</TextMd></AlignLeft></LoginFormItem>
-          <LoginFormItem><InputText width={"69vw"} height={""} value={formData.email} placeholder={"이메일을 입력해주세요."}
+          <LoginFormItem><AlignLeft>Email</AlignLeft></LoginFormItem>
+          <LoginFormItem><InputText width={"30vw"} height={""} value={formData.email} placeholder={"이메일을 입력해주세요."}
             name="email" onChange={handleData} /></LoginFormItem>
-          <LoginFormItem><AlignLeft><TextMd>PASSWORD</TextMd></AlignLeft></LoginFormItem>
-          <LoginFormItem><InputText width={"69vw"} height={""} value={formData.pwd} placeholder={"비밀번호를 입력해주세요."}
+          <LoginFormItem><AlignLeft>Password</AlignLeft></LoginFormItem>
+          <LoginFormItem><InputText width={"30vw"} height={""} value={formData.pwd} placeholder={"비밀번호를 입력해주세요."}
             name="pwd" onChange={handleData} type="password" onKeyDown={handleKeyDown} /></LoginFormItem>
           <LoginFormItem>
             {isCapsLockActive && (
               <CapsLockWarning>Caps Lock이 켜져 있습니다. 비밀번호를 정확히 입력하세요.</CapsLockWarning>
             )}
-            <StyledLink to="#" margin="0.8rem">
+            {/* <StyledLink to="#" margin="0.8rem">
               <TextSm>비밀번호를 잊어버리셨나요?</TextSm>
-            </StyledLink>
-            <NewButton backcolor={theme.color.orange} textcolor={"white"} width={"70vw"} height={""} padding="0.5rem" onClick={handleLogin}>로그인</NewButton>
+            </StyledLink> */}
+            <NewButton backcolor={theme.color.orange} textcolor={"white"} width={"31vw"} height={""} padding="0.5rem" onClick={handleLogin}>로그인</NewButton>
             <HorizontalBox>
-              <TextSm>계정이 없으신가요?&nbsp;</TextSm>
+              <TextSm>계정이 없으신가요?&nbsp;&nbsp;</TextSm>
               <StyledLink to="/SignInPage">
-                <TextSm>이곳에 문의하세요.</TextSm>
+                <TextSm>회원가입으로</TextSm>
               </StyledLink>
             </HorizontalBox>
           </LoginFormItem>

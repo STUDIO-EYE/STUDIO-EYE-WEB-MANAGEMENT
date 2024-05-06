@@ -8,7 +8,7 @@ import Modal from "react-modal";
 import axios from "axios";
 import { FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
 import StudioeyeLogo from "../../assets/logo/studioeye.png";
-import { IoPersonCircle } from "react-icons/io5";
+import { MdFace } from "react-icons/md";
 
 const HeaderWrapper = styled.div`
   position: fixed;
@@ -71,10 +71,10 @@ const StyledLink = styled(Link)`
   display: inline-block;
 `;
 
-const IconStyled = styled(IoPersonCircle)`
+const IconStyled = styled(MdFace)`
   font-size: 25px;
   cursor: pointer;
-  margin-right: 5px;
+  margin-right: 7px;
 
   &:hover {
     color: #FFC83D;

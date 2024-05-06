@@ -19,6 +19,7 @@ const NavBarContainer = styled.div`
 
 const PageBody = styled.div`
   padding-top: 4rem;
+  
   display: flex;
   background-color: white;
 `;
@@ -26,7 +27,7 @@ const PageBody = styled.div`
 const ContentWrapper = styled.div`
   display: flex;
   flex-grow: 1;
-  height: calc(100vh - 4rem);
+  height: calc(100% - 4rem);
   margin-top: 4rem;
 `;
 

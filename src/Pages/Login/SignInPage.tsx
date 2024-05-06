@@ -147,7 +147,7 @@ function SignInPage() {
         phoneNumber: "",
         verificationCode: ""
     });
-    const [pwcheck,setpwcheck]=useState("")
+    const [pwcheck, setpwcheck] = useState("")
 
     const formatPhoneNumber = (value: string) => {
         const numericValue = value.replace(/\D/g, ''); // 숫자 이외의 문자 제거
@@ -167,24 +167,24 @@ function SignInPage() {
         return parts.join('-');
     };
 
-    const handleChange = (e:ChangeEvent<HTMLInputElement>) => {
-        if(e.target.name=="phoneNumber"){
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        if (e.target.name == "phoneNumber") {
             setFormData((prevData) => ({
                 ...prevData,
                 ["phoneNumber"]: formatPhoneNumber(e.target.value),
             }));
-        }else{
+        } else {
             setFormData((prevData) => ({
                 ...prevData,
                 [e.target.name]: e.target.value,
             }));
         }
     };
-    const handlePwCheck=(e:ChangeEvent<HTMLInputElement>)=>{
+    const handlePwCheck = (e: ChangeEvent<HTMLInputElement>) => {
         setpwcheck(e.target.value)
     };
     const handleSubmit = () => {
-        if(formData.pwd!=pwcheck){
+        if (formData.pwd != pwcheck) {
             swal('비밀번호가 일치하지 않습니다.', "", 'error')
         }
         // Send a POST request to your endpoint with formData.
@@ -213,7 +213,7 @@ function SignInPage() {
         };
 
         axios.post('/user-service/emails/verification-requests', null, {
-            params:data,
+            params: data,
         })
             .then((response) => {
                 console.log({ message: response.data });
@@ -284,12 +284,11 @@ function SignInPage() {
         <WhiteBoxContainer className="WhiteBoxContainer">
 
             <TitleCenterBox>
-              <LoginImage src={LoginIMG} />
-              <TitleLg>MANAGEMENT PAGE</TitleLg>
+                <LoginImage src={LoginIMG} />
+                <TitleLg>MANAGEMENT PAGE</TitleLg>
             </TitleCenterBox>
 
-            <TextMd>Role</TextMd>
-                {/* <select
+            {/* <select
                     name="role"
                     value={formData.role}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
@@ -299,79 +298,79 @@ function SignInPage() {
                 </select> */}
 
             <SignInBox className="SignInBox">
-                    <SubInputForm className="SubInputFormWithButton">
-                        <TextMd>EMAIL</TextMd>
-                        <HorizontalBox>
-                            <InputText
-                                width={"100%"} height={""}
-                                name="email" value={formData.email}
-                                placeholder={"이메일을 입력하세요."}
-                                onChange={handleChange} data={formData}></InputText>
-                            <div style={{width:'1rem'}}/>
-                            <NewButton backcolor={theme.color.orange}
-                                textcolor={""} width={"10rem"} height={"2.2rem"}
-                                smallWidth={"5rem"} onClick={handleSendCode}>인증</NewButton>
-                        </HorizontalBox>
-                    </SubInputForm>
+                <SubInputForm className="SubInputFormWithButton">
+                    <TextMd>EMAIL</TextMd>
+                    <HorizontalBox>
+                        <InputText
+                            width={"100%"} height={""}
+                            name="email" value={formData.email}
+                            placeholder={"이메일을 입력하세요."}
+                            onChange={handleChange} data={formData}></InputText>
+                        <div style={{ width: '1rem' }} />
+                        <NewButton backcolor={theme.color.orange}
+                            textcolor={""} width={"10rem"} height={"2.2rem"}
+                            smallWidth={"5rem"} onClick={handleSendCode}>인증</NewButton>
+                    </HorizontalBox>
+                </SubInputForm>
 
-                    {isCodeSent && (
-                        <SubInputForm>
-                            <HorizontalBox>
-                                <TextMd>Email Verification Code</TextMd>
-                                {isTimerRunning && !isVerified && (
-                                    <TextMd>
-                                        {Math.floor(timeLeft / 60)}:
-                                        {timeLeft % 60 < 10 ? "0" + (timeLeft % 60).toString() : (timeLeft % 60).toString()}
-                                    </TextMd>
-                                )}
-                            </HorizontalBox>
-                            <HorizontalBox>
+                {isCodeSent && (
+                    <SubInputForm>
+                        <HorizontalBox>
+                            <TextMd>Email Verification Code</TextMd>
+                            {isTimerRunning && !isVerified && (
+                                <TextMd>
+                                    {Math.floor(timeLeft / 60)}:
+                                    {timeLeft % 60 < 10 ? "0" + (timeLeft % 60).toString() : (timeLeft % 60).toString()}
+                                </TextMd>
+                            )}
+                        </HorizontalBox>
+                        <HorizontalBox>
                             <InputText
                                 width={"100%"} height={""}
                                 name="verificationCode" value={formData.verificationCode}
                                 placeholder={"인증 코드를 입력하세요."}
-                                onChange={handleChange}/>
-                            <div style={{width:'1rem'}}/>
+                                onChange={handleChange} />
+                            <div style={{ width: '1rem' }} />
                             <NewButton onClick={handleVerifiyCode}
                                 backcolor={theme.color.orange} width={"10rem"}
                                 height={"2.2rem"} smallWidth={"5rem"} >확인</NewButton>
-                            </HorizontalBox>
-                        </SubInputForm>
-                    )}
-                    <SubInputForm className="SubInputForm">
-                        <TextMd>Password</TextMd>
-                        <InputText
-                                width={"100%"} height={""}
-                                name="pwd" value={formData.pwd}
-                                placeholder={"비밀번호를 입력하세요."}
-                                onChange={handleChange} type="password"/>
+                        </HorizontalBox>
                     </SubInputForm>
-                    <SubInputForm className="SubInputForm">
-                        <TextMd>Confirm Password</TextMd>
-                        <InputText width={"100%"} height={""}
-                                name="pwdcheck" value={pwcheck}
-                                placeholder={"동일한 비밀번호를 입력하세요."}
-                                onChange={handlePwCheck} type="password"/>
-                    </SubInputForm>
-                    
-                    <SubInputForm className="SubInputForm">
-                        <TextMd>Name</TextMd>
-                        <InputText
-                                width={"100%"} height={""}
-                                name="name" value={formData.name}
-                                placeholder={"이름을 입력하세요."}
-                                onChange={handleChange}/>
-                    </SubInputForm>
-                    <SubInputForm className="SubInputForm">
-                        <TextMd>Phone</TextMd>
-                        <InputText
-                                width={"100%"} height={""}
-                                name="phoneNumber" value={formData.phoneNumber}
-                                placeholder={"010-0000-0000"}
-                                onChange={handleChange} type="tel"/>
-                    </SubInputForm>
-                    <NewButton backcolor={theme.color.orange}
-                    width={"100%"} height={"2.2rem"} onClick={handleSubmit}>제출</NewButton>
+                )}
+                <SubInputForm className="SubInputForm">
+                    <TextMd>Password</TextMd>
+                    <InputText
+                        width={"98%"} height={""}
+                        name="pwd" value={formData.pwd}
+                        placeholder={"비밀번호를 입력하세요."}
+                        onChange={handleChange} type="password" />
+                </SubInputForm>
+                <SubInputForm className="SubInputForm">
+                    <TextMd>Confirm Password</TextMd>
+                    <InputText width={"98%"} height={""}
+                        name="pwdcheck" value={pwcheck}
+                        placeholder={"동일한 비밀번호를 입력하세요."}
+                        onChange={handlePwCheck} type="password" />
+                </SubInputForm>
+
+                <SubInputForm className="SubInputForm">
+                    <TextMd>Name</TextMd>
+                    <InputText
+                        width={"98%"} height={""}
+                        name="name" value={formData.name}
+                        placeholder={"이름을 입력하세요."}
+                        onChange={handleChange} />
+                </SubInputForm>
+                <SubInputForm className="SubInputForm">
+                    <TextMd>Phone</TextMd>
+                    <InputText
+                        width={"98%"} height={""}
+                        name="phoneNumber" value={formData.phoneNumber}
+                        placeholder={"하이픈(-)과 함께 입력해 주세요."}
+                        onChange={handleChange} type="tel" />
+                </SubInputForm>
+                <NewButton backcolor={theme.color.orange}
+                    width={"100%"} height={"2.2rem"} onClick={handleSubmit}>등록 신청</NewButton>
             </SignInBox>
 
         </WhiteBoxContainer>

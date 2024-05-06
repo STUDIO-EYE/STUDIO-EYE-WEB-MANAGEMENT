@@ -1,12 +1,15 @@
 import React, { useState, useEffect, ReactNode, useRef } from 'react';
 import styled from 'styled-components';
-import { FaEllipsisH } from 'react-icons/fa';
+import { FaEllipsisH, FaEllipsisV } from 'react-icons/fa';
+import { IoEllipsisHorizontalCircleSharp } from 'react-icons/io5';
+import { MdMenu } from "react-icons/md";
 
 const DropdownContainer = styled.div`
   position: relative;
 `;
 
 const DropdownButton = styled.button`
+font-size: 1.2rem;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -72,7 +75,7 @@ const Dropdown: React.FC<DropdownProps> = ({ children }) => {
   return (
     <DropdownContainer ref={dropdownRef}>
       <DropdownButton onClick={toggleDropdown}>
-        <FaEllipsisH />
+        <MdMenu />
       </DropdownButton>
       <DropdownMenu isOpen={isOpen}>{children}</DropdownMenu>
     </DropdownContainer>

@@ -32,10 +32,13 @@ const Wrapper = styled.div`
 
 const Container = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   position: relative;
+
   margin-left: 300px;
   width: calc(100% - 225px);
+  height: calc(100% - 4rem);
+  margin-top: -3.5rem;
 
   @media only screen and (max-width: 70rem){
     flex-direction:column;

@@ -8,124 +8,128 @@ import MyTable from "./MyTable";
 import { useNavigate } from "react-router-dom";
 
 interface RightBoardProps {
-    children: React.ReactNode;
-    isEditing?: boolean;
-  }
-
-interface Post{
-    category:string,
-    id:number,
-    title:string,
-    updatedDate:Date,
-    userName:string,
-    page:number,
+  children: React.ReactNode;
+  isEditing?: boolean;
 }
 
-const MyBoard=(project:any)=>{
-    const navigate = useNavigate();
-    const [postData, setPostData] = useState<Post[]>([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const postPerPage = 3;
-    const indexOfLastPost = currentPage * postPerPage;
-    const indexOfFirstPost = indexOfLastPost - postPerPage;
-    const currentPosts = postData.slice(
-        indexOfFirstPost,
-        indexOfLastPost
-    );
+interface Post {
+  category: string,
+  id: number,
+  title: string,
+  updatedDate: Date,
+  userName: string,
+  page: number,
+}
 
-    useEffect(() => {
-        const fetchPosts = async () => {
-          try {
-            const postResponse = await myPageApi.getBoardPost(project.project.projectId);
-            if (postResponse.data && postResponse.data.success) {
-                setPostData(postResponse.data.list);
-            } else if (postResponse.data.code === 7001) {
-              sessionStorage.removeItem("login-token");
-              delete axios.defaults.headers.common["Authorization"];
-              return;
-            }
-        }catch(error){
-            console.error("Error fetching myPage posts:", error);
-        }}
-        fetchPosts();
-    }, [project.project.projectId]);
+const MyBoard = (project: any) => {
+  const navigate = useNavigate();
+  const [postData, setPostData] = useState<Post[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const postPerPage = 3;
+  const indexOfLastPost = currentPage * postPerPage;
+  const indexOfFirstPost = indexOfLastPost - postPerPage;
+  const currentPosts = postData.slice(
+    indexOfFirstPost,
+    indexOfLastPost
+  );
 
-    const handleRowClick=(post:any)=>{
-      switch(post.category){
-        case "PLANNING":{
-          navigate(`/PlanMain/${project.project.projectId}/${post.id}`, { state: { name: project.project.name } })
-          break};
-        case "EDITING":{
-          navigate(`/EditMain/${project.project.projectId}/${post.id}`, { state: { name: project.project.name } })
-          break};
-        case "PRODUCTION":{
-          navigate(`/MakingMain/${project.project.projectId}/${post.id}`, { state: { name: project.project.name } })
-          break};
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const postResponse = await myPageApi.getBoardPost(project.project.projectId);
+        if (postResponse.data && postResponse.data.success) {
+          setPostData(postResponse.data.list);
+        } else if (postResponse.data.code === 7001) {
+          sessionStorage.removeItem("login-token");
+          delete axios.defaults.headers.common["Authorization"];
+          return;
+        }
+      } catch (error) {
+        console.error("Error fetching myPage posts:", error);
       }
     }
+    fetchPosts();
+  }, [project.project.projectId]);
 
-    const goToProjectPage=()=>{
-      navigate(`/Manage/${project.project.projectId}`)
-    }
-
-    const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-    const PageNumbers = () => {
-        const totalPages = Math.ceil(postData.length / postPerPage);
-        return (
-          <PaginationContainer>
-            <nav>
-              <ul className="pagination">
-                {currentPage > 1 && (
-                  <li className="page-item">
-                    <a
-                      onClick={() => paginate(currentPage - 1)}
-                      className="page-link"
-                    >
-                      &laquo;
-                    </a>
-                  </li>
-                )}
-    
-                <li className="page-item active">
-                  <a className="page-link">{currentPage}</a>
-                </li>
-    
-                {currentPage < totalPages && (
-                  <li className="page-item">
-                    <a
-                      onClick={() => paginate(currentPage + 1)}
-                      className="page-link"
-                    >
-                      &raquo;
-                    </a>
-                  </li>
-                )}
-              </ul>
-            </nav>
-          </PaginationContainer>
-        );
+  const handleRowClick = (post: any) => {
+    switch (post.category) {
+      case "PLANNING": {
+        navigate(`/PlanMain/${project.project.projectId}/${post.id}`, { state: { name: project.project.name } })
+        break
       };
-    
+      case "EDITING": {
+        navigate(`/EditMain/${project.project.projectId}/${post.id}`, { state: { name: project.project.name } })
+        break
+      };
+      case "PRODUCTION": {
+        navigate(`/MakingMain/${project.project.projectId}/${post.id}`, { state: { name: project.project.name } })
+        break
+      };
+    }
+  }
 
+  const goToProjectPage = () => {
+    navigate(`/Manage/${project.project.projectId}`)
+  }
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  const PageNumbers = () => {
+    const totalPages = Math.ceil(postData.length / postPerPage);
     return (
-        <RightboardBody>
-        <BoardTitleDiv>
-            {/**click 이벤트 연결할 것, project page로 이동하기*/}
-            <BoardTitleText onClick={goToProjectPage}><TitleSm>{project.project.name}</TitleSm></BoardTitleText>
-        </BoardTitleDiv>
-        <BoardContentDiv>
-            <MyTable tableData={currentPosts} onRowClick={handleRowClick}/>
-            <PageNumbers/>
-        </BoardContentDiv>
-        </RightboardBody>
+      <PaginationContainer>
+        <nav>
+          <ul className="pagination">
+            {currentPage > 1 && (
+              <li className="page-item">
+                <a
+                  onClick={() => paginate(currentPage - 1)}
+                  className="page-link"
+                >
+                  &laquo;
+                </a>
+              </li>
+            )}
+
+            <li className="page-item active">
+              <a className="page-link">{currentPage}</a>
+            </li>
+
+            {currentPage < totalPages && (
+              <li className="page-item">
+                <a
+                  onClick={() => paginate(currentPage + 1)}
+                  className="page-link"
+                >
+                  &raquo;
+                </a>
+              </li>
+            )}
+          </ul>
+        </nav>
+      </PaginationContainer>
     );
+  };
+
+
+  return (
+    <RightboardBody>
+      <BoardTitleDiv>
+        {/**click 이벤트 연결할 것, project page로 이동하기*/}
+        <BoardTitleText onClick={goToProjectPage}><TitleSm>{project.project.name}</TitleSm></BoardTitleText>
+      </BoardTitleDiv>
+      <BoardContentDiv>
+        <MyTable tableData={currentPosts} onRowClick={handleRowClick} />
+        {/* <PageNumbers/> */}
+      </BoardContentDiv>
+    </RightboardBody>
+  );
 };
 
 export default MyBoard;
 
 const RightboardBody = styled.div<RightBoardProps>`
   width: 90%;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
   margin-left: 2rem;
   flex-direction: column;
   background-color: white;
@@ -140,10 +144,10 @@ const RightboardBody = styled.div<RightBoardProps>`
 const BoardTitleDiv = styled.div`
   display: flex;
   text-align: center;
-  margin: 20px 20px 0px 20px;
+  margin: 20px 20px 10px 20px;
   height: 20%;
 `;
-const BoardTitleText=styled.div`
+const BoardTitleText = styled.div`
 cursor:pointer;
 &:hover{
   opacity:0.5;
@@ -153,7 +157,7 @@ cursor:pointer;
 const BoardContentDiv = styled.div`
   text-align: center;
   width: 100%;
-  margin: 0px 10px 0px 10px;
+  margin: 0px 10px 20px 10px;
 `;
 
 const PaginationContainer = styled.div`

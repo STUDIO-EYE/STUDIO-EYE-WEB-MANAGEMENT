@@ -12,9 +12,11 @@ import { media } from "Components/common/Font";
 const DashboardBox = styled.div`
   display: flex;
   flex-direction: column;
-  //min-width: 90%;
-  width: 100%;
-  margin: auto;
+  min-width: 90%;
+  padding: 20px;
+  @media ${media.half} {
+    overflow:visible;
+  }
 `;
 
 const Title = styled.div`
@@ -28,7 +30,9 @@ const Panel = styled.div<{ expanded: boolean }>`
   flex: 1;
   height: ${(props) => (props.expanded ? "1000px" : "500px")};
   transition: height 0.3s ease-in-out;
-
+  width: 100%;
+  height: auto;
+  margin-top: -4rem;
   @media ${media.half}{
     flex-direction:column;
   }
@@ -39,29 +43,11 @@ const LeftComponent = styled.div`
 `;
 
 const Left = styled.div<{ expanded: boolean }>`
-  padding: 20px;
+margin-top: 15px;
   flex-basis: 50%;
   height: ${(props) => (props.expanded ? "1000px" : "600px")};
-  //overflow-y: auto;
   display: flex;
   flex-direction: column;
-
-  &::-webkit-scrollbar {
-    width: 15px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: white;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 15px;
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.08);
-  }
 `;
 
 const NewPanel = styled.button`
@@ -69,18 +55,14 @@ const NewPanel = styled.button`
   width: 100%;
   background-color: blue;
   border-radius: 40px;
-  transition: height 0.3s ease-in-out; /* transition 추가 */
-`;
-
-const Right = styled.div`
-  margin-bottom: 5rem;
+  transition: height 0.3s ease-in-out;
 `;
 
 const Dashboard = ({ projectId }: { projectId: number }) => {
   const [expanded, setExpanded] = useState(false);
   const location = useLocation();
   const projectInfo = { ...location.state }
-  const [scrolled, setScrolled] = useState(false); /* 스크롤 여부 상태 */
+  const [scrolled, setScrolled] = useState(false);
 
   const [completedCount, setCompletedCount] = useState<number>(0);
   const [totalCount, setTotalCount] = useState<number>(0);
@@ -105,29 +87,27 @@ const Dashboard = ({ projectId }: { projectId: number }) => {
   }
 
   return (
+    // <div style={{ position: 'relative' }}>
+    //   {modaldiv ? <div style={{ position: 'fixed', backgroundColor: "black", zIndex: 999, width: '100%', height: '100%', marginTop: '0', opacity: '0.3', top: 0, left: 0, touchAction: 'none' }} />
+    //     : null}
     <DashboardBox>
-      <div style={{ position: 'relative' }}>
-        {modaldiv ? <div style={{ position: 'fixed', backgroundColor: "black", zIndex: 999, width: '100%', height: '100%', marginTop: '0', opacity: '0.3', top: 0, left: 0, touchAction: 'none' }} />
-          : null}
-        <DashboardBody onScroll={() => handleScroll}> {/* 스크롤 이벤트 핸들러 추가 */}
-          <Panel expanded={expanded}>
-            <Left expanded={expanded}>
-              <LeftComponent>
-                <WeekCalendar projectId={projectId} onDarkBackground={onDarkBackground} />
-                {/* <ProjectProgress completedCount={completedCount} totalCount={totalCount} /> */}
-                <CheckList projectId={projectId} updateProgress={updateProgress} />
-              </LeftComponent>
-            </Left>
-            <RightDashboard
-              projectData={projectInfo}
-              projectId={projectId}
-              completedCount={completedCount}
-              totalCount={totalCount}
-            />
-          </Panel>
-          {expanded && <NewPanel />}
-        </DashboardBody>
-      </div>
+      <DashboardBody onScroll={() => handleScroll}>
+        <Panel expanded={expanded}>
+          <Left expanded={expanded}>
+            <LeftComponent>
+              <WeekCalendar projectId={projectId} onDarkBackground={onDarkBackground} />
+              <CheckList projectId={projectId} updateProgress={updateProgress} />
+            </LeftComponent>
+          </Left>
+          <RightDashboard
+            projectData={projectInfo}
+            projectId={projectId}
+            completedCount={completedCount}
+            totalCount={totalCount}
+          />
+        </Panel>
+        {expanded && <NewPanel />}
+      </DashboardBody>
     </DashboardBox>
   );
 };
