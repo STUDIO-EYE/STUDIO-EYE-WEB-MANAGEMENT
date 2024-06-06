@@ -6,6 +6,8 @@ import { FaPen, FaTrash } from "react-icons/fa";
 import checkTodoApi from "../../../api/checkTodoApi";
 import { TextSm, TitleSm } from "Components/common/Font";
 import { FaPenToSquare } from "react-icons/fa6";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { modalOn } from "recoil/atoms";
 
 interface TodoItem {
   todoIndex: number;
@@ -192,6 +194,8 @@ const EditModalButton = styled.button`
 function CheckList({ projectId, updateProgress }: { projectId: number, updateProgress: (completed: number, total: number) => void }) {
   const [items, setItems] = useState<TodoItem[]>([]);
   const [message, setMessage] = useState<string>("");
+  const onModal = useRecoilValue(modalOn);
+  const setOnModal=useSetRecoilState(modalOn);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -245,6 +249,7 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
   };
 
   const handleDelete = async (todoIndex: number) => {
+    if(window.confirm("삭제하시겠습니까?")){
     const filteredItems = items.filter((item) => item.todoIndex !== todoIndex);
     setItems(filteredItems);
 
@@ -252,7 +257,7 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
       await checkTodoApi.deleteCheckTodo(todoIndex);
     } catch (error) {
       console.error("Error deleting item", error);
-    }
+    }}
   };
 
   const handleAdd = async () => {
@@ -317,6 +322,13 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
   const [editIndex, setEditIndex] = useState<number>(-1);
   const [isUrgent, setIsUrgent] = useState<boolean>(false);
 
+  useEffect(()=>{
+    setOnModal(showModal)
+  },[showModal])
+  useEffect(()=>{
+    setOnModal(showEditModal)
+  },[showEditModal])
+
   const sortedItems = [...items].sort((a, b) => {
     if (a.checked && !b.checked) return 1;
     if (!a.checked && b.checked) return -1;
@@ -336,7 +348,7 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
     <Container>
       <List>
         <TitleSm>ToDo</TitleSm>
-        <AddButton type="button" onClick={() => setShowModal(true)}>
+        <AddButton type="button" onClick={() => !onModal?setShowModal(true):null}>
           <FaPenToSquare />
         </AddButton>
       </List>
@@ -346,11 +358,14 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
             <Checkbox
               type="checkbox"
               checked={item.checked}
-              onChange={() => handleCheck(item.todoIndex)}
+              onChange={() => !onModal?handleCheck(item.todoIndex):null}
             />
             {item.todoEmergency ? <UrgencyLabel>[긴급]</UrgencyLabel> : null}
-            <ItemContent onClick={() => { setEditIndex(item.todoIndex); setEditText(item.todoContent); setEditModal(true); }}>{item.todoContent}</ItemContent>
-            <DeleteButton onClick={() => handleDelete(item.todoIndex)}>
+            <ItemContent onClick={() => {
+              if(!onModal){
+                setEditIndex(item.todoIndex); setEditText(item.todoContent); setEditModal(true);
+              }}}>{item.todoContent}</ItemContent>
+            <DeleteButton onClick={() => !onModal?handleDelete(item.todoIndex):null}>
               <FaTrash />
             </DeleteButton>
           </Item>

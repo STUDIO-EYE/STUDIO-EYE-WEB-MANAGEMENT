@@ -11,6 +11,8 @@ import Calendar from "react-calendar";
 import moment from "moment";
 import { FaPenToSquare } from "react-icons/fa6";
 import MyManage from "./MyManage";
+import { useSetRecoilState } from "recoil";
+import { modalOn } from "recoil/atoms";
 
 const Container = styled.div`
   font-family: 'Pretendard';
@@ -259,8 +261,15 @@ const MyCalendar = ({ onDarkBackground }: { onDarkBackground: any }) => {
   const [selectDate, setSelectDate] = useState<Date>(new Date());
   const [criterion, setCriterion] = useState<string>("day");
   const [showManageModal, setShowManageModal] = useState(false);
-  const handleOpenManageModal = () => setShowManageModal(true);
-  const handleCloseManageModal = () => setShowManageModal(false);
+  const setOnModal=useSetRecoilState(modalOn);
+  const handleOpenManageModal = () => {
+    setOnModal(true)
+    setShowManageModal(true)
+  };
+  const handleCloseManageModal = () => {
+    setOnModal(false)
+    setShowManageModal(false)
+  };
 
   const navigate = useNavigate();
 
@@ -296,10 +305,17 @@ const MyCalendar = ({ onDarkBackground }: { onDarkBackground: any }) => {
     if (events != null) {
       return events.filter((e) => {
         if (criterion == "day" || criterion == "week" || criterion == "month") {
-          const target = moment(targetDate)
-          const eventStartDate = moment(e.startDate).startOf(criterion)
-          const eventEndDate = moment(e.endDate).endOf(criterion)
-          return target >= eventStartDate && target <= eventEndDate;
+          if(criterion==="week"){
+            const target = moment(targetDate).subtract(1,"day")
+            const eventStartDate = moment(e.startDate).subtract(1,"day").startOf("week")
+            const eventEndDate = moment(e.endDate).subtract(1,"day").endOf("week")
+            return target >= eventStartDate && target <= eventEndDate;
+          }else{
+            const target = moment(targetDate)
+            const eventStartDate = moment(e.startDate).startOf(criterion)
+            const eventEndDate = moment(e.endDate).endOf(criterion)
+            return target >= eventStartDate && target <= eventEndDate;
+          }
         }
       });
     } else return [];
@@ -363,7 +379,7 @@ const MyCalendar = ({ onDarkBackground }: { onDarkBackground: any }) => {
   }
 
   const getCurrentweek: () => string = () => {
-    var now = moment(selectDate).week()
+    var now = moment(selectDate).subtract(1,"day").week()
     var lastmonthweek = moment(selectDate).subtract(1, 'months').endOf('month').week()
     return moment(selectDate).format("YYYY년 MM월 ") + (now - lastmonthweek + 1).toString() + "주차"
   }

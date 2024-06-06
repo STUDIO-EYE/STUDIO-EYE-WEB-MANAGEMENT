@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import styled from "styled-components";
 import scheduleApi from "../../../api/scheduleApi";
 import { Refresh } from "@mui/icons-material";
+import { modalOn } from "recoil/atoms";
+import { useSetRecoilState } from "recoil";
 
 const TotalContainer = styled.div`
   display: flex;
@@ -43,9 +45,9 @@ const StyledInput = styled.input`
   margin-right: 10px;
 `;
 
-const StyledTextArea = styled.textarea`
+const StyledTextArea = styled.input`
   width: 100%;
-  min-height: 100px;
+  min-height: 30px;
   border: 1px solid #ccc;
   border-radius: 4px;
   resize: none;
@@ -101,9 +103,17 @@ const Manage: React.FC<{ projectId: number; onClose: () => void }> = ({ projectI
   const [startDate, setStartDate] = useState(toKoreanTime(new Date()));
   const [endDate, setEndDate] = useState(toKoreanTime(new Date()));
   const [eventText, setEventText] = useState("");
+  const setOnModal=useSetRecoilState(modalOn);
+  
+  const focusSchedule=useRef();
 
   const handleSave = async () => {
     // 이벤트 저장 로직
+
+    if(eventText!==null){
+      
+    }
+
     if (new Date(startDate) > new Date(endDate)) {
       alert("시작 날짜가 종료 날짜보다 이후입니다.");
       return;
@@ -127,6 +137,7 @@ const Manage: React.FC<{ projectId: number; onClose: () => void }> = ({ projectI
     } catch (error) {
       console.error("일정 저장 중 오류", error);
     }
+    setOnModal(false)
   };
 
   return (
@@ -151,6 +162,7 @@ const Manage: React.FC<{ projectId: number; onClose: () => void }> = ({ projectI
           placeholder="일정을 입력하세요."
           value={eventText}
           onChange={(e) => setEventText(e.target.value)}
+          ref={()=>focusSchedule}
         />
         <ButtonContainer>
           <StyledButton onClick={handleSave}>저장</StyledButton>

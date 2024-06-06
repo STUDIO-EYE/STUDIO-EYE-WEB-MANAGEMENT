@@ -4,6 +4,8 @@ import styled from "styled-components";
 import { useLocation } from "react-router-dom";
 import myPageApi from "../../api/myPageApi";
 import axios from "axios";
+import { useSetRecoilState } from "recoil";
+import { modalOn } from "recoil/atoms";
 
 const TotalContainer = styled.div`
   display: flex;
@@ -102,6 +104,7 @@ function toKoreanTime(date: Date): string {
 const MyManage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [startDate, setStartDate] = useState(toKoreanTime(new Date()));
   const [endDate, setEndDate] = useState(toKoreanTime(new Date()));
+  const setOnModal=useSetRecoilState(modalOn);
 
   const [eventText, setEventText] = useState("");
   const navigate = useNavigate();
@@ -151,6 +154,7 @@ const MyManage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     } catch (error) {
       alert("프로젝트 일정 내용을 입력해주세요.");
     }
+    setOnModal(false)
   };
 
   return (

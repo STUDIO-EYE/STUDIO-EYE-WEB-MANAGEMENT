@@ -6,6 +6,8 @@ import { FaPen, FaTrash } from "react-icons/fa";
 import myPageApi from "../../api/myPageApi";
 import { TextSm, TitleSm } from "Components/common/Font";
 import { FaPenToSquare } from "react-icons/fa6";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { modalOn } from "recoil/atoms";
 
 interface TodoItem {
   userTodoId: number;
@@ -192,6 +194,8 @@ const EditModalButton = styled.button`
 function MyTodo() {
   const [items, setItems] = useState<TodoItem[]>([]);
   const [message, setMessage] = useState<string>("");
+  const onModal = useRecoilValue(modalOn);
+  const setOnModal=useSetRecoilState(modalOn);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -287,6 +291,7 @@ function MyTodo() {
     setInputText("");
     setIsUrgent(false);
     setShowModal(false);
+    setOnModal(false)
   };
 
   const handleEdit = async (todoIndex: number, updatedContent: string) => {
@@ -309,6 +314,7 @@ function MyTodo() {
     }
 
     setEditModal(false);
+    setOnModal(false)
   };
 
 
@@ -318,6 +324,13 @@ function MyTodo() {
   const [editText, setEditText] = useState<string>(inputText);
   const [editIndex, setEditIndex] = useState<number>(-1);
   const [isUrgent, setIsUrgent] = useState<boolean>(false);
+
+  useEffect(()=>{
+    setOnModal(showModal)
+  },[showModal])
+  useEffect(()=>{
+    setOnModal(showEditModal)
+  },[showEditModal])
 
   const emergenSort=[...items].sort((a,b)=>{
     if(a.todoEmergency&&!b.todoEmergency)return -1;
@@ -334,7 +347,7 @@ function MyTodo() {
     <Container>
       <List>
         <TitleSm>ToDo</TitleSm>
-        <AddButton type="button" onClick={() => setShowModal(true)}>
+        <AddButton type="button" onClick={() => !onModal?setShowModal(true):null}>
           <FaPenToSquare />
         </AddButton>
       </List>
@@ -344,11 +357,14 @@ function MyTodo() {
             <Checkbox
               type="checkbox"
               checked={item.checked}
-              onChange={() => handleCheck(item.userTodoId)}
+              onChange={() => !onModal?handleCheck(item.userTodoId):null}
             />
             {item.todoEmergency ? <UrgencyLabel>[긴급]</UrgencyLabel> : null}
-            <ItemContent onClick={() => { setEditIndex(item.userTodoId); setEditText(item.todoContent); setEditModal(true); }}>{item.todoContent}</ItemContent>
-            <DeleteButton onClick={() => handleDelete(item.userTodoId)}>
+            <ItemContent onClick={() => {
+              if(!onModal){
+                setEditIndex(item.userTodoId); setEditText(item.todoContent); setEditModal(true);
+              }}}>{item.todoContent}</ItemContent>
+            <DeleteButton onClick={() => !onModal?handleDelete(item.userTodoId):null}>
               <FaTrash />
             </DeleteButton>
           </Item>
