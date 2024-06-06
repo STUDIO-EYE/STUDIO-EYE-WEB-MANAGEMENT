@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import styled from "styled-components";
 import scheduleApi from "../../../api/scheduleApi";
 import { Refresh } from "@mui/icons-material";
+import { modalOn } from "recoil/atoms";
+import { useSetRecoilState } from "recoil";
 
 const TotalContainer = styled.div`
   display: flex;
@@ -43,9 +45,9 @@ const StyledInput = styled.input`
   margin-right: 10px;
 `;
 
-const StyledTextArea = styled.textarea`
+const StyledTextArea = styled.input`
   width: 100%;
-  min-height: 100px;
+  min-height: 30px;
   border: 1px solid #ccc;
   border-radius: 4px;
   resize: none;
@@ -100,10 +102,19 @@ function toKoreanTime(date: Date) {
 const Manage: React.FC<{ projectId: number; onClose: () => void }> = ({ projectId, onClose }) => {
   const [startDate, setStartDate] = useState(toKoreanTime(new Date()));
   const [endDate, setEndDate] = useState(toKoreanTime(new Date()));
-  const [eventText, setEventText] = useState("");
+  const [eventText, setEventText] = useState<string>("");
+  const setOnModal=useSetRecoilState(modalOn);
+  
+  const focusSchedule=useRef<HTMLInputElement>(null);
 
   const handleSave = async () => {
     // 이벤트 저장 로직
+
+    if(!eventText){
+      focusSchedule.current?.focus();
+      return;
+    }
+
     if (new Date(startDate) > new Date(endDate)) {
       alert("시작 날짜가 종료 날짜보다 이후입니다.");
       return;
@@ -127,6 +138,7 @@ const Manage: React.FC<{ projectId: number; onClose: () => void }> = ({ projectI
     } catch (error) {
       console.error("일정 저장 중 오류", error);
     }
+    setOnModal(false)
   };
 
   return (
@@ -148,9 +160,11 @@ const Manage: React.FC<{ projectId: number; onClose: () => void }> = ({ projectI
         </DateContainer>
 
         <StyledTextArea
-          placeholder="일정을 입력하세요."
+          placeholder="일정을 입력하세요. (최대 30자)"
           value={eventText}
-          onChange={(e) => setEventText(e.target.value)}
+          onChange={(e) => {e.target.value.length<=30?setEventText(e.target.value):alert("일정은 30자 이내로 입력해주세요.")}}
+          ref={focusSchedule}
+          maxLength={30}
         />
         <ButtonContainer>
           <StyledButton onClick={handleSave}>저장</StyledButton>
