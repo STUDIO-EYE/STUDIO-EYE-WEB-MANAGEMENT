@@ -192,39 +192,7 @@ const EditModalButton = styled.button`
 function CheckList({ projectId, updateProgress }: { projectId: number, updateProgress: (completed: number, total: number) => void }) {
   const [items, setItems] = useState<TodoItem[]>([]);
   const [message, setMessage] = useState<string>("");
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await checkTodoApi.getProjectTodo(projectId);
-        if (response.data && response.data.success === false) {
-          if (response.data.code === 5005) {
-            setMessage(response.data.message); // "내용이 존재하지 않습니다."
-          } else if (response.data.code === 7000) {
-            alert("로그인을 먼저 진행시켜 주시길 바랍니다.");
-            navigate("/LoginPage");
-          } else if (response.data.code === 7001) {
-            alert("세션이 만료되었습니다. 다시 로그인 해주세요.");
-            // 토큰 제거
-            sessionStorage.removeItem("login-token");
-            delete axios.defaults.headers.common["Authorization"];
-            navigate("/LoginPage");
-          } else if (response.data.code === 8000) {
-            alert(
-              "해당 사용자는 권한이 없어 프로젝트 내용을 볼 수 없습니다."
-            );
-            navigate("/");
-          }
-          return;
-        }
-        setItems(response.data.list);
-      } catch (error) {
-        console.error("Error fetching data", error);
-      }
-    };
-    fetchData();
-  }, [navigate, projectId]);
 
   const handleCheck = async (id: number) => {
     try {

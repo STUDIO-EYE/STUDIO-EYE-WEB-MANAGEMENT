@@ -2,93 +2,97 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { useNavigate } from "react-router-dom";
-import CommentForm from "./CommentForm";
-import CommentList from "./CommentList"; // Quill Editor의 스타일을 불러옵니다.
+import { useNavigate, useParams } from "react-router-dom";
 import "react-quill/dist/quill.snow.css";
 import boardApi from "../../api/boardApi";
-import commentApi from "../../api/commentApi";
 import HorizontalLine from "Components/common/HorizontalLine"
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 import { Dropdown, DropdownItem } from "Components/common/DropDownBox";
-import { FaBackward, FaEdit, FaTrash } from "react-icons/fa";
-// WritingMainPage.js
-
-interface PostInfo {
-  id: number
-  title: string
-  content: string
-  userName: string
-  startDate: string
-  commentSum: number
-  category: string,
-  updatedAt: string
-}
+import { FaEdit, FaTrash } from "react-icons/fa";
+import NewButton from "Components/common/NewButton";
+import { theme } from "LightTheme";
 
 const FormContainer = styled.div`
+  display: flex;
+  flex-direction: column;
   max-height: 30rem;
-  max-width: 70rem;
-  padding-left: 1%;
-  padding-right: 1%;
-  overflow-y: auto;
-  margin-bottom: 2rem;
+  padding: 0 0.5rem;
+  //overflow-y: auto;
 `;
 
 const TitleInput = styled.input`
-  border: none; /* 기본 테두리 제거 */
+  border: none;
   width: 99%;
   height: 2rem;
-  font-size: 1.3rem;
+  font-size: 1rem;
+  font-weight: 600;
   margin-bottom: 1rem;
   border-bottom: 2px solid #ccc;
   outline: none;
 `;
+
 const CustomQuillEditor = styled(ReactQuill)`
-  /* 퀼 에디터의 커스텀 스타일 */
+  resize: none;
+  margin-top: 1rem;
 
   .ql-editor {
-    min-height: 28rem; /* 최소 높이 설정 */
+    height: 50vh;
+    overflow: auto;
   }
 
   .ql-container {
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    border: 1px solid ${theme.color.gray20};
+    border-radius: 0 0 10px 10px;
   }
 
   .ql-toolbar {
-    /* 툴바 스타일 설정 */
-    background-color: #ccc; /* 툴바 배경색을 파란색으로 변경 */
-    border-radius: 5px; /* 툴바 테두리 모서리 둥글게 설정 */
+    background-color: rgba(0, 0, 0, 0.03);
+    border: 1px solid ${theme.color.gray20};
+    border-radius: 10px 10px 0 0;
   }
+
+  .ql-size-huge {
+    font-size: 2.5em;
+  }
+  .ql-size-large {
+    font-size: 1.5em;
+  }
+  .ql-size-small {
+    font-size: 0.75em;
+  }
+  .ql-bold {
+    font-weight: 800;
+  }
+  .ql-italic {
+    font-style: italic;
+  }
+  .ql-underline {
+    text-decoration: underline;
+  }
+  .ql-strike {
+    text-decoration: overline;
+}
 `;
 
-////////////버튼/////////////
+const FileButtonWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+`;
+
 const PostsButtonContainer = styled.div`
+  width: 50%;
+  gap: 1rem;
   display: flex;
   justify-content: flex-end;
 `;
-const PostsButton = styled.button`
-  width: 5.5rem;
-  height: 2rem;
-  margin: 0.5%;
-  font-size: 1rem;
-  border-radius: 1rem;
-  background-color: #ff530e;
-  color: white;
-  font-weight: bold;
-  border: none;
-  transition: background-color 0.3s;
 
-  /* 마우스를 가져다 대었을 때의 스타일 */
-
-  &:hover {
-    background-color: #ff7c7c;
-    color: white;
-    cursor: pointer;
-  }
+const FileContainer = styled.div`
+  width: 50%;
 `;
-//////////글쓰기 조회//////////
+
 const ViewTitleInput = styled.div`
   display: flex;
   flex-direction: column;
@@ -100,25 +104,35 @@ const ViewTitleInput = styled.div`
 const Title = styled.span`
   font-size: 1.3rem;
   font-weight: 600;
-  margin: 0.5rem 0 0.5rem 0;
+  margin: 0.5rem 0 0 0;
+`;
+
+const AuthorDateDropDownContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
 `;
 
 const AuthorAndDate = styled.span`
-  font-size: 0.7rem;
-  color: rgba(0, 0, 0, 0.5);
+  font-size: 0.9rem;
+  color: gray;
   display: flex;
   align-items: top;
 `;
-//////내용부분/////////////
+
+const DropDownWrapper = styled.div`
+  position: relative;
+  bottom: 0.2rem;
+`
+
 const Content = styled.div`
   padding-right: 1rem;
   padding-left: 1rem;
   margin-top: 0.1rem;
   margin-bottom: 0.1rem;
   min-height: 10rem;
-  .ql-font-serif {
-    font-family: 'Pretendard'
-  }
+  white-space: nowrap;
+
   .ql-size-huge {
     font-size: 2.5em;
   }
@@ -128,6 +142,18 @@ const Content = styled.div`
   .ql-size-small {
     font-size: 0.75em;
   }
+  .ql-bold {
+    font-weight: 800;
+  }
+  .ql-italic {
+    font-style: italic;
+  }
+  .ql-underline {
+    text-decoration: underline;
+  }
+  .ql-strike {
+    text-decoration: overline;
+}
 `;
 
 const FileInput = styled.input`
@@ -145,8 +171,14 @@ const SelectedFilePreview = styled.div`
 `;
 
 const DeleteFileButton = styled.button`
-  margin-top: 0.5rem;
+  margin-left: 0.5rem;
+  background-color: transparent;
+  border: none;
   color: red;
+  cursor: pointer;
+  &:hover {
+    font-weight: 600;
+  }
 `;
 
 const FileNameLink = styled.a`
@@ -165,12 +197,13 @@ const FileNameLink = styled.a`
 
 const ViewWritingPage = ({ selectedRowId, projectId, postId }
   : { selectedRowId: number, projectId: number, postId: number }) => {
-  const [editorHtml, setEditorHtml] = useState(""); // Quill Editor의 HTML 내용을 저장하는 상태
-  const [title, setTitle] = useState(""); // 제목을 저장하는 상태
+  const [editorHtml, setEditorHtml] = useState("");
+  const [title, setTitle] = useState("");
   const [showViewWriting, setShowViewWriting] = useState(true);
   const [showPutWriting, setShowPutWriting] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [existingFiles, setExistingFiles] = useState<File[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
   const [selectedPost, setSelectedPost] = useState({
     commentId: 0,
     title: "",
@@ -181,6 +214,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     category: "",
     updatedAt: ""
   });
+  const { category } = useParams();
   const navigate = useNavigate();
 
   const [tokenUserName, setTokenUserName] = useState("");
@@ -192,7 +226,6 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     }
   }, []);
 
-
   const [filePaths, setFilePaths] = useState<string[]>([]);
   const [fileNames, setFileNames] = useState<string[]>([]);
 
@@ -202,127 +235,167 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
         const response = await axios.get(`/api/posts/files?projectId=${projectId}&postId=${postId}`);
         const files = response.data.list;
 
-        // 기존 파일 목록을 File 객체로 변환하고 existingFiles에 저장
-        const existingFilesArray = files.map((file: any) => new File([], file.fileName));
-        setExistingFiles(existingFilesArray); // 기존 파일 상태 업데이트
+        if (!Array.isArray(files)) {
+          throw new Error("Files 응답이 배열이 아닙니다");
+        }
 
-        const paths = files.map((file: any) => file.filePath);
-        const names = files.map((file: any) => file.fileName);
+        const existingFilesArray = files.map((file: { fileName: string, filePath: string }) => {
+          if (!file.fileName || !file.filePath) {
+            throw new Error("파일 객체에 예상된 속성이 없습니다");
+          }
+          return new File([], file.fileName);
+        });
+
+        setExistingFiles(existingFilesArray);
+
+        const paths = files.map((file: { filePath: string }) => file.filePath);
+        const names = files.map((file: { fileName: string }) => file.fileName);
         setFilePaths(paths);
         setFileNames(names);
       } catch (error) {
-        console.error("Error fetching files:", error);
+        console.error("파일을 가져오는 중 오류 발생:", error);
       }
     };
 
     fetchFiles();
   }, [projectId, selectedRowId]);
 
+
   const goToPreviousPage = () => {
-    setTimeout(function () {
+    setTimeout(() => {
       window.location.reload();
     }, 100);
   };
-  const goToHome = () => {
-    navigate(`/Manage/${projectId}`);
-  };
 
-  const putWriting = () => {
+  const putWriting = async () => {
     if (!title.trim() || !editorHtml.trim()) {
       alert("제목과 내용을 모두 입력해주세요.");
       return;
     }
 
     const updatedPostData = {
-      projectId: projectId,
-      postId: selectedRowId,
+      projectId: projectId.toString(),
       title: title,
+      postId: selectedRowId,
       content: editorHtml,
       category: selectedPost.category,
       updatedAt: selectedPost.updatedAt,
     };
 
+    const formData = new FormData();
+
     const json = JSON.stringify(updatedPostData);
     const blob = new Blob([json], { type: 'application/json' });
 
-    const formData = new FormData();
     formData.append("updatePostRequestDto", blob);
 
-    // 기존 파일과 새로 선택한 파일을 모두 합쳐서 formData에 추가
     const allFiles = [...existingFiles, ...selectedFiles];
-    allFiles.forEach((file) => formData.append("files", file));
 
-    boardApi
-      .putBoard(formData)
-      .then((response) => {
-        alert("게시글이 성공적으로 업데이트 되었습니다.");
+    if (selectedFiles) {
+      allFiles.forEach(file => {
+        formData.append("files", file);
+      })
+    } else if (existingFiles) {
+      existingFiles.forEach(file => {
+        formData.append("files", file);
+      })
+    } else {
+      formData.append("files", "");
+    }
+
+    try {
+      const response = await boardApi.putBoard(formData);
+      if (response.data.success) {
+        alert("게시글이 성공적으로 수정되었습니다.");
         setTitle("");
         setEditorHtml("");
         setSelectedFiles([]);
-        goToHome();
-      })
-      .catch((error) => {
-        console.error("Error updating post:", error);
-        alert("게시글 업데이트 중 오류가 발생했습니다.");
-      });
+        goToPreviousPage();
+      } else {
+        alert("게시글 수정 중 오류가 발생했습니다.");
+      }
+    } catch (error) {
+      console.error("Error modifying post:", error);
+      alert("각 게시글은 100MB 이하의 용량만 수용 가능합니다.");
+    }
   };
 
-  //게시글 삭제 함수
-  const deletePost = () => {
+  const deletePost = async () => {
     const token = sessionStorage.getItem('login-token');
-    console.log(token);
-  
     if (!token) {
       alert('로그인이 필요합니다.');
       return;
     }
-  
+
     const confirmDelete = window.confirm("정말로 게시글을 삭제하시겠습니까?");
     if (!confirmDelete) {
       return;
     }
-  
-    boardApi
-      .deleteBoard({
-        data: {
-          projectId: projectId,
-          postId: selectedRowId
-        }
-      })
-      .then(() => {
-        alert("게시글이 성공적으로 삭제되었습니다.");
-        if (postId) {
-          goToHome();
-        } else {
-          goToPreviousPage();
-        }
-      })
-      .catch((error) => {
-        console.error("게시글 삭제 중 오류 발생:", error);
-        alert("게시글 삭제 중 오류가 발생했습니다.");
+
+    try {
+      await boardApi.deleteBoard({
+        data: { projectId, postId: selectedRowId }
       });
+      alert("게시글이 성공적으로 삭제되었습니다.");
+
+      let redirectPath = '';
+      switch (selectedPost.category) {
+        case 'MAKING':
+          redirectPath = `MakingMain`;
+          break;
+        case 'EDITING':
+          redirectPath = `EditingMain`;
+          break;
+        case 'PLANNING':
+          redirectPath = `PlanMain`;
+          break;
+      }
+      navigate(`/${redirectPath}/${projectId}`);
+      window.location.reload(); // ...
+    } catch (error) {
+      console.error("게시글 삭제 중 오류 발생:", error);
+      alert("게시글 삭제 중 오류가 발생했습니다.");
+    }
   };
-  
 
   const changePutView = () => {
     setTitle(selectedPost.title);
     setEditorHtml(selectedPost.content);
-
+    setIsEditing(true);
     setShowViewWriting(false);
     setShowPutWriting(true);
   };
-  // 게시글 내용을 담을 객체 나중에 DB연결하면 내용 set해주기
+
+  const handleCancel = () => {
+    if (isEditing) {
+      const confirmCancel = window.confirm("작성 중인 내용이 있습니다. 그래도 나가시겠습니까?");
+      if (confirmCancel) {
+        setIsEditing(false);
+        let redirectPath = '';
+        switch (selectedPost.category) {
+          case 'MAKING':
+            redirectPath = `MakingMain`;
+            break;
+          case 'EDITING':
+            redirectPath = `EditingMain`;
+            break;
+          case 'PLANNING':
+            redirectPath = `PlanMain`;
+            break;
+        }
+        navigate(`/${redirectPath}/${projectId}`);
+        window.location.reload(); // ...
+      }
+    }
+  };
 
   useEffect(() => {
-    // 병렬로 API 호출을 수행하는 함수
     const fetchData = async () => {
       try {
         const [postResponse] = await Promise.all([
-          boardApi.getBoard({ projectId: projectId, postId: selectedRowId }),
+          boardApi.getBoard({ projectId, postId: selectedRowId }),
         ]);
-        // postResponse 처리
-
-        const postInfo: PostInfo = postResponse.data.data;
+        const postInfo = postResponse.data.data;
         setSelectedPost({
           commentId: postInfo.id,
           title: postInfo.title,
@@ -348,18 +421,24 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     }
   };
 
-  // 파일 삭제 핸들러
   const handleDeleteFile = (fileNameToDelete: string, isExistingFile: boolean) => {
-    if (isExistingFile) {
-      // 기존 파일 목록에서 파일을 삭제
-      setExistingFiles((prevFiles) => prevFiles.filter((file) => file.name !== fileNameToDelete));
-    } else {
-      // 새로 선택한 파일 목록에서 파일을 삭제
-      setSelectedFiles((prevFiles) => prevFiles.filter((file) => file.name !== fileNameToDelete));
+    const confirmDelete = window.confirm("정말로 해당 파일을 삭제하시겠습니까?");
+    if (!confirmDelete) {
+      return;
+    }
+
+    try {
+      if (isExistingFile) {
+        setExistingFiles((prevFiles) => prevFiles.filter((file) => file.name !== fileNameToDelete));
+      } else {
+        setSelectedFiles((prevFiles) => prevFiles.filter((file) => file.name !== fileNameToDelete));
+      }
+    } catch (error) {
+      console.error("게시글 삭제 중 오류 발생:", error);
+      alert("삭제 중 오류가 발생했습니다.");
     }
   };
 
-  // 수정 시간
   const updatedAtDate = new Date(selectedPost.updatedAt);
   const formattedUpdatedAt = `${updatedAtDate.getFullYear()}년 ${String(updatedAtDate.getMonth() + 1).padStart(2, '0')}월 ${String(updatedAtDate.getDate()).padStart(2, '0')}일 ${String(updatedAtDate.getHours()).padStart(2, '0')}:${String(updatedAtDate.getMinutes()).padStart(2, '0')}:${String(updatedAtDate.getSeconds()).padStart(2, '0')}`;
 
@@ -371,47 +450,41 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
           <FormContainer>
             <ViewTitleInput>
               <Title>{selectedPost.title}</Title>
-              <PostsButtonContainer>
+              <AuthorDateDropDownContainer>
+                <AuthorAndDate>
+                  작성자 {selectedPost.author} | 작성 {selectedPost.date} | 수정 {formattedUpdatedAt}
+                </AuthorAndDate>
                 {
                   tokenUserName === selectedPost.author && (
                     <>
-                      <Dropdown>
-                        <DropdownItem onClick={changePutView} style={{ color: 'green' }}>
-                          <FaEdit /> 수정
-                        </DropdownItem>
-                        <DropdownItem onClick={deletePost} style={{ color: 'red' }}>
-                          <FaTrash /> 삭제
-                        </DropdownItem>
-                        {postId ? (
-                          <DropdownItem onClick={goToHome}><FaBackward /> 취소</DropdownItem>
-                        ) : (
-                          <DropdownItem onClick={goToPreviousPage}><FaBackward /> 취소</DropdownItem>
-                        )}
-                      </Dropdown>
+                      <DropDownWrapper>
+                        <Dropdown>
+                          <DropdownItem onClick={changePutView} style={{ color: 'green' }}>
+                            <FaEdit /> 수정
+                          </DropdownItem>
+                          <DropdownItem onClick={deletePost} style={{ color: 'red' }}>
+                            <FaTrash /> 삭제
+                          </DropdownItem>
+                        </Dropdown>
+                      </DropDownWrapper>
                     </>
                   )}
-              </PostsButtonContainer>
-              <AuthorAndDate>
-                작성자 {selectedPost.author} | 작성 {selectedPost.date}
-              </AuthorAndDate>
-              <AuthorAndDate>
-                <span>수정: {formattedUpdatedAt}</span>
-              </AuthorAndDate>
+              </AuthorDateDropDownContainer>
             </ViewTitleInput>
             <HorizontalLine />
-            <Content dangerouslySetInnerHTML={{ __html: selectedPost.content }} />
-
+            <Content dangerouslySetInnerHTML={{ __html: selectedPost.content.replace(/\n/g, '<br>') }} />
             {fileNames.length > 0 && (
               <div>
                 <h4>첨부파일</h4>
                 {fileNames.map((fileName, index) => (
-                  <FileNameLink href={filePaths[index]} download>
-                    {fileName}
-                  </FileNameLink>
+                  <div key={fileName}>
+                    <FileNameLink href={filePaths[index]} download>
+                      {fileName}
+                    </FileNameLink>
+                  </div>
                 ))}
               </div>
             )}
-
           </FormContainer>
         </>
       ) : showPutWriting ? (
@@ -421,56 +494,54 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
               type="text"
               placeholder="제목을 입력하세요"
               value={title}
-              onChange={(e) => setTitle(e.target.value)} // 입력 값이 변경될 때마다 title 상태 업데이트
+              onChange={(e) => setTitle(e.target.value)}
             />
             <CustomQuillEditor
               value={editorHtml}
               onChange={setEditorHtml}
               modules={{
                 toolbar: [
-                  ["bold", "italic", "underline", "strike"], // 텍스트 스타일
-                  // [{'list': 'ordered'}, {'list': 'bullet'}],
-                  // ['image', 'video'], // 이미지와 동영상 추가
-                  [{ font: [] }], // 글꼴 선택
-                  [{ size: ["small", false, "large", "huge"] }], // 텍스트 크기
-                  ["clean"],
+                  ["bold", "italic", "underline", "strike"],
+                  ['video'],
+                  [{ size: ["small", false, "large", "huge"] }],
                 ],
               }}
             />
-            <FileInput
-              type="file"
-              id="file"
-              onChange={handleFileChange}
-              accept="image/*, application/pdf, application/ppt, application/pptx"
-              multiple
-            />
-            <SelectedFileLabel htmlFor="file">파일 선택</SelectedFileLabel>
-            <SelectedFilePreview>
-              {selectedFiles && selectedFiles.map(file => (
-                <div key={file.name}>
-                  {file.name}
-                  <DeleteFileButton onClick={() => handleDeleteFile(file.name, false)}>삭제</DeleteFileButton>
-                </div>
-              ))}
-            </SelectedFilePreview>
-            {/* 기존 파일 목록에서도 삭제 버튼 추가 */}
-            {existingFiles.map((file) => (
-              <div key={file.name}>
-                {file.name}
-                <DeleteFileButton
-                  onClick={() => handleDeleteFile(file.name, true)}
-                >
-                  삭제
-                </DeleteFileButton>
-              </div>
-            ))}
+            <FileButtonWrapper>
+              <FileContainer>
+                <FileInput
+                  type="file"
+                  id="file"
+                  onChange={handleFileChange}
+                  multiple
+                />
+                <SelectedFileLabel htmlFor="file">파일 선택</SelectedFileLabel>
+                <SelectedFilePreview>
+                  {selectedFiles && selectedFiles.map(file => (
+                    <div key={file.name}>
+                      {file.name}
+                      <DeleteFileButton onClick={() => handleDeleteFile(file.name, false)}>삭제</DeleteFileButton>
+                    </div>
+                  ))}
+                </SelectedFilePreview>
+                <SelectedFilePreview>
+                  {existingFiles.map((file) => (
+                    <div key={file.name}>
+                      {file.name}
+                      <DeleteFileButton onClick={() => handleDeleteFile(file.name, true)} > 삭제 </DeleteFileButton>
+                    </div>
+                  ))}
+                </SelectedFilePreview>
+              </FileContainer>
+              <PostsButtonContainer>
+                <NewButton onClick={putWriting} textcolor="white" backcolor={theme.color.orange} width={"6rem"} height={"2rem"} style={{ marginLeft: '1rem' }}>등록</NewButton>
+                <NewButton onClick={handleCancel} textcolor="black" backcolor={theme.color.white} width={"6rem"} height={"2rem"}>취소</NewButton>
+              </PostsButtonContainer>
+            </FileButtonWrapper>
           </FormContainer>
-          <PostsButtonContainer>
-            <PostsButton onClick={putWriting}>완료</PostsButton>
-            <PostsButton onClick={goToPreviousPage}>취소</PostsButton>
-          </PostsButtonContainer>
         </>
-      ) : null}
+      ) : null
+      }
     </>
   );
 };

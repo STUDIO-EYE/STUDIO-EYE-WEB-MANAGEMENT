@@ -19,7 +19,6 @@ interface Project {
   startDate: Date;
   finishDate: Date;
   description: string;
-  members: string[]; // 멤버 목록 추가
 }
 
 const AppContainer = styled.div`
@@ -262,6 +261,7 @@ function OngoingProject() {
   const projectsPerPage = 10;
   const [userName, setUserName] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
 
   const handleSearchChange = (e: { target: { value: React.SetStateAction<string>; }; }) => {
     setSearchQuery(e.target.value);
@@ -279,58 +279,8 @@ function OngoingProject() {
     }
   }, []);
 
-  const navigate = useNavigate();
-
-  const indexOfLastProject = currentPage * projectsPerPage;
-  const indexOfFirstProject = indexOfLastProject - projectsPerPage;
-  const currentProjects = projects.slice(
-    indexOfFirstProject,
-    indexOfLastProject
-  );
-
   // 토큰 정보 저장
   const [tokenUserId, setTokenUserId] = useState("");
-
-  // 페이지 번호를 렌더링하기 위한 컴포넌트
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-
-  const PageNumbers = () => {
-    const totalPages = Math.ceil(projects.length / projectsPerPage);
-
-    return (
-      <PaginationContainer>
-        <nav>
-          <ul className="pagination">
-            {currentPage > 1 && (
-              <li className="page-item">
-                <a
-                  onClick={() => paginate(currentPage - 1)}
-                  className="page-link"
-                >
-                  &laquo;
-                </a>
-              </li>
-            )}
-
-            <li className="page-item active">
-              <a className="page-link">{currentPage}</a>
-            </li>
-
-            {currentPage < totalPages && (
-              <li className="page-item">
-                <a
-                  onClick={() => paginate(currentPage + 1)}
-                  className="page-link"
-                >
-                  &raquo;
-                </a>
-              </li>
-            )}
-          </ul>
-        </nav>
-      </PaginationContainer>
-    );
-  };
 
   useEffect(() => {
     const closeDropdownMenu = (e: MouseEvent) => {
@@ -422,8 +372,14 @@ function OngoingProject() {
   };
 
   const handleRowClick = (projectId: number, projectName: string) => {
-    navigate(`/Manage/${projectId}`, { state: { name: projectName } });
+    const projectIndex = projects.findIndex(project => project.projectId === projectId);
+    if (projectIndex !== -1 && userInProjects[projectIndex]) {
+      navigate(`/Manage/${projectId}`, { state: { name: projectName } });
+    } else {
+      alert('상세 내용은 프로젝트에 속한 팀원만 확인할 수 있습니다.');
+    }
   };
+  
 
   const refresh = () => {
     setTimeout(function () {

@@ -1,16 +1,27 @@
 import { theme } from "LightTheme";
-import { ChangeEvent } from "jest-haste-map";
-import React from "react";
+import React, { ChangeEvent } from "react";
 import styled from "styled-components";
 
-
+interface InputTextProps {
+  width: string;
+  height: string;
+  value?: string;
+  onChange?: (value: any) => void;
+  placeholder: string;
+  name?: string;
+  type?: string;
+  onKeyDown?: (value: any) => void;
+  data?: any;
+  disabled?: boolean;
+}
 
 const StyledInputArea = styled.input<InputTextProps>`
   font-family: 'Pretendard';
   border-radius: 10px;
   width: ${(prop) => (prop.width)};
   height: ${(prop) => (prop.height)};
-  padding: 0.5rem;
+  min-height: 2rem;
+  padding: 0.5rem 0 0.5rem 1rem;
   margin-bottom: 0.3rem;
   outline: 1px solid ${theme.color.gray20};
   border:none;
@@ -23,7 +34,7 @@ const StyledInputArea = styled.input<InputTextProps>`
 
   @media only screen and (max-width:50rem){
     width:97%;
-}
+  }
 
   &:focus {
     outline: 2px solid ${theme.color.orange};
@@ -34,23 +45,11 @@ const StyledInputArea = styled.input<InputTextProps>`
   }
 `;
 
-interface InputTextProps {
-  width: string;
-  height: string;
-  value?: string;
-  onChange?: (value: any) => void;
-  placeholder: string;
-  name?: string;
-  type?: string;
-  onKeyDown?: (value: any) => void;
-  data?: any;
-}
-
 const InputText: React.FC<InputTextProps> = (props) => {
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     props.onChange?.(e);
   }
-  const handleOnKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleOnKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     props.onKeyDown?.(e);
   }
 
@@ -61,12 +60,12 @@ const InputText: React.FC<InputTextProps> = (props) => {
       value={props.value}
       onChange={handleChange}
       placeholder={props.placeholder}
-
       name={props.name}
       type={props.type}
       onKeyDown={handleOnKeyDown}
-      data={props.data} />
+      data={props.data}
+      disabled={props.disabled}
+    />
   );
 };
 export default InputText;
-
