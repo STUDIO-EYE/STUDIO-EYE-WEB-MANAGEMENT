@@ -1,21 +1,22 @@
-import React, { ReactNode,MouseEvent } from 'react';
+import React, { ReactNode, MouseEvent } from 'react';
 import styled from 'styled-components';
 import { media } from './Font';
 import { theme } from 'LightTheme';
 
-interface RectangleProps{
-  className?:string,
-  backcolor:string,
-  textcolor?:string,
-  width:string,
-  smallWidth?:string,
-  height:string,
-  children:ReactNode,
-  style?:any,
-  onClick?:(event:MouseEvent<HTMLDivElement>)=>void;
-  padding?:string;
-  fontSize?:string;
-  margin?:string;
+interface RectangleProps {
+  className?: string,
+  backcolor: string,
+  textcolor?: string,
+  width: string,
+  smallWidth?: string,
+  height: string,
+  children: ReactNode,
+  style?: any,
+  onClick?: (event: MouseEvent<HTMLDivElement>) => void;
+  padding?: string;
+  fontSize?: string;
+  margin?: string;
+  disabled?: boolean;
 }
 
 const StyledButton = styled.button<RectangleProps>`
@@ -23,15 +24,15 @@ const StyledButton = styled.button<RectangleProps>`
   border: none;
   border-radius: 10px;
   font-weight: 600;
-  font-size: ${(prop)=>prop?prop.fontSize:'1rem'};
-  padding: ${(prop)=>prop?prop.padding:'0.25rem 0'};
+  font-size: ${(prop) => prop ? prop.fontSize : '1rem'};
+  padding: ${(prop) => prop ? prop.padding : '0.25rem 0'};
   outline: none;
   cursor: pointer;
-  color: ${(prop)=>prop.textcolor||'white'};
-  background-color: ${(prop)=>prop.backcolor};
-  width: ${(prop)=>prop.width};
-  height: ${(prop)=>prop.height};
-  margin: ${(prop)=>prop.margin};
+  color: ${(prop) => prop.textcolor || 'white'};
+  background-color: ${(prop) => prop.backcolor};
+  width: ${(prop) => prop.width};
+  height: ${(prop) => prop.height};
+  margin: ${(prop) => prop.margin};
 
   &:hover {
     color: ${theme.color.orange};
@@ -39,22 +40,23 @@ const StyledButton = styled.button<RectangleProps>`
   }
 
   @media ${media.half}{
-    width:${(prop)=>prop.smallWidth};
+    width:${(prop) => prop.smallWidth};
   }
 `;
 
 const WhiteButton: React.FC<RectangleProps> = (props) => (
-    <StyledButton
-    padding='5px'
-    fontSize='1rem' 
+  <StyledButton
+    // padding='5px'
+    fontSize='0.9rem'
     textcolor={props.textcolor}
     backcolor={props.backcolor}
     width={props.width}
     smallWidth={props.smallWidth}
-    height={props.height} 
+    height={props.height}
     onClick={props.onClick}
-    style={{...props}}>
-      {props.children}</StyledButton>
+    style={{ ...props }}>
+    {props.children}
+    </StyledButton>
 );
 
 export default WhiteButton;

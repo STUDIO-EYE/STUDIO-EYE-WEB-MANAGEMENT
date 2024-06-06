@@ -7,6 +7,7 @@ import TextArea from "Components/common/TextArea";
 import NewButton from "Components/common/NewButton";
 import { orange } from "@mui/material/colors";
 import { theme } from "LightTheme";
+import { ContentState, EditorState, convertToRaw } from 'draft-js';
 
 const FormContainer = styled.div`
   display: flex;
@@ -20,24 +21,62 @@ const FormContainer = styled.div`
   border-radius: 10px;
 `;
 
-const StyledTextArea = styled(TextArea)`
-  width: 100%;
-  min-height: 100px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  padding: 0.5rem;
-  resize: none;
+const StyledButton = styled.button`
+  width: fit-content;
+  height: fit-content;
+  font-family: 'Pretendard';
+  font-size: 0.9rem;
+  border: none;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  background-color: transparent;
+  &:hover {
+    color: gray;
+  }
 `;
 
-const StyledButton = styled(NewButton)`
-  width: 40%;
-  min-height: 40px;
+const StyledTextArea = styled.textarea`
+font-family: 'pretendard';
+  width: 95%;
+  height: 3rem;
+  padding: 10px;
+  font-size: 1rem;
+  font-weight: 400;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: none;
+
+  &:focus {
+    outline: none;
+  }
 `;
+
+const TextButtonWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+`
+
+const TextCounter = styled.span`
+color: lightgray;
+  font-size: 0.9rem;
+`;
+
+const MAX_TEXT_LENGTH = 255;
 
 const CommentForm = ({ onAddComment, postId, selectedPost }: { onAddComment: any; postId: number; selectedPost: any }) => {
   const [content, setContent] = useState("");
   const [tokenUserName, setTokenUserName] = useState("");
   const token = sessionStorage.getItem("login-token");
+  const [textValue, setTextValue] = useState('');
+  const [textLength, setTextLength] = useState(0);
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newTextValue = e.target.value;
+    setTextValue(newTextValue);
+    setTextLength(newTextValue.length);
+  };
 
   useEffect(() => {
     if (token) {
@@ -48,7 +87,12 @@ const CommentForm = ({ onAddComment, postId, selectedPost }: { onAddComment: any
 
   const handleSubmit = async () => {
     try {
-      const response = await commentApi.postComment(postId, { content: content });
+      if (!textValue.trim()) {
+        alert("내용을 입력해주세요.");
+        return;
+      }
+
+      const response = await commentApi.postComment(postId, { content: textValue });
 
       const formatDate = () => {
         const date = new Date();
@@ -72,35 +116,31 @@ const CommentForm = ({ onAddComment, postId, selectedPost }: { onAddComment: any
 
       onAddComment(newComment);
       alert("댓글이 성공적으로 추가되었습니다.");
-      setContent("");
+      setTextValue("");
+      setTextLength(0);
     } catch (error) {
       console.error("댓글 추가 중 오류:", error);
       alert("댓글 추가 중 오류가 발생했습니다.");
     }
   };
 
-  const handleContentChange = (content: string) => {
-    setContent(content);
-  };
-
   return (
     <FormContainer>
       <StyledTextArea
-        width="98%"
-        height="100%"
-        value={content}
-        onChange={handleContentChange}
-        placeholder="내용을 입력하세요."
+        placeholder={'내용을 입력하세요.'}
+        value={textValue}
+        onChange={handleTextChange}
+        maxLength={MAX_TEXT_LENGTH}
+        style={{ whiteSpace: 'pre-wrap' }}
       />
-      <StyledButton
-        textcolor="black"
-        backcolor="transparent"
-        width={"50%"}
-        onClick={handleSubmit}
-        height={"120%"}
-      >
-        작성
-      </StyledButton>
+      <TextButtonWrapper>
+        <TextCounter>
+          {textLength}/{MAX_TEXT_LENGTH}자
+        </TextCounter>
+        <StyledButton onClick={handleSubmit}>
+          작성
+        </StyledButton>
+      </TextButtonWrapper>
     </FormContainer>
   );
 };

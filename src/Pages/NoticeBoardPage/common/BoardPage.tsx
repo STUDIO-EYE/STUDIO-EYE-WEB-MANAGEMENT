@@ -117,11 +117,39 @@ const BoardPage = ({ subTitle, tableData, fetchTable, writingButtonContent, proj
         setShowViewWritingPage(false);
     };
     const goToBoardPage = () => {
+        // let redirectPath = '';
+        // switch (category) {
+        //     case 'MAKING':
+        //         redirectPath = `MakingMain`;
+        //         break;
+        //     case 'EDITING':
+        //         redirectPath = `EditingMain`;
+        //         break;
+        //     case 'PLANNING':
+        //         redirectPath = `PlanMain`;
+        //         break;
+        // }
+        // navigate(`/${redirectPath}/${projectId}`);
+
         setShowTable(true);
         setShowWritingPage(false);
         setShowViewWritingPage(false);
     };
     const handleRowClick = (rowId: any) => {
+        // let redirectPath = '';
+        // switch (category) {
+        //     case 'MAKING':
+        //         redirectPath = `MakingMain`;
+        //         break;
+        //     case 'EDITING':
+        //         redirectPath = `EditingMain`;
+        //         break;
+        //     case 'PLANNING':
+        //         redirectPath = `PlanMain`;
+        //         break;
+        // }
+        // navigate(`/${redirectPath}/${projectId}/${rowId}`);
+
         setSelectedRowId(rowId);
         setShowTable(false);
         setShowWritingPage(false);
@@ -153,7 +181,6 @@ const BoardPage = ({ subTitle, tableData, fetchTable, writingButtonContent, proj
                                 </>
                             )
                         }
-
                     </Title>
                     <div className="content" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap' }}>
                         <Rectangle className="DashboardDiv" width={!showViewWritingPage ? '100%' : '60%'} margin="0 0.5rem 0.5rem 0">
