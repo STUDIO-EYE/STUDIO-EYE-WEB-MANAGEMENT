@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
@@ -101,13 +101,25 @@ const AddModal = styled.div`
   input {
     font-family: 'Pretendard';
     font-weight: 400;
-    border-color: rgba(0, 0, 0, 0.08);
     font-size: 1rem;
-    border-radius: 5px;
-    &:focus {
-      border-color: #ffa900;
-      outline: none;
-    }
+    width: 100%;
+    min-height: 30px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  input[type=checkbox]{
+    height: 15px;
+  }
+  div{
+    width: auto;
+    display:flex;
+    flex-direction:row;
+    justify-content: center;
+  }
+  label{
+    display: flex;
+    white-space:nowrap;
+    align-items: center;
   }
 `;
 
@@ -131,13 +143,11 @@ const EditModal = styled.div`
   input {
     font-family: 'Pretendard';
     font-weight: 400;
-    border-color: rgba(0, 0, 0, 0.08);
     font-size: 1rem;
-    border-radius: 5px;
-    &:focus {
-      border-color: #ffa900;
-      outline: none;
-    }
+    width: 100%;
+    min-height: 30px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
   }
 `;
 
@@ -194,9 +204,42 @@ const EditModalButton = styled.button`
 function CheckList({ projectId, updateProgress }: { projectId: number, updateProgress: (completed: number, total: number) => void }) {
   const [items, setItems] = useState<TodoItem[]>([]);
   const [message, setMessage] = useState<string>("");
+  const [isChange, setIsChange] = useState(false);
   const onModal = useRecoilValue(modalOn);
   const setOnModal=useSetRecoilState(modalOn);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await checkTodoApi.getProjectTodo(projectId);
+        if (response.data && response.data.success === false) {
+          if (response.data.code === 5005) {
+            setMessage(response.data.message); // "내용이 존재하지 않습니다."
+          } else if (response.data.code === 7000) {
+            alert("로그인을 먼저 진행시켜 주시길 바랍니다.");
+            navigate("/LoginPage");
+          } else if (response.data.code === 7001) {
+            alert("세션이 만료되었습니다. 다시 로그인 해주세요.");
+            // 토큰 제거
+            sessionStorage.removeItem("login-token");
+            delete axios.defaults.headers.common["Authorization"];
+            navigate("/LoginPage");
+          } else if (response.data.code === 8000) {
+            alert(
+              "해당 사용자는 권한이 없어 프로젝트 내용을 볼 수 없습니다."
+            );
+            navigate("/");
+          }
+          return;
+        }
+        setItems(response.data.list);
+      } catch (error) {
+        console.error("Error fetching data", error);
+      }
+    };
+    fetchData();
+  }, [navigate]);
 
   const handleCheck = async (id: number) => {
     try {
@@ -229,6 +272,12 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
   };
 
   const handleAdd = async () => {
+
+    if(!inputText){
+      focusTodo.current?.focus()
+      return
+    }
+
     const newId = items.length
       ? Math.max(...items.map((item) => item.todoIndex)) + 1
       : 1;
@@ -258,9 +307,16 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
     setInputText("");
     setIsUrgent(false);
     setShowModal(false);
+    setOnModal(false)
   };
 
   const handleEdit = async (todoIndex: number, updatedContent: string) => {
+
+    if(!updatedContent){
+      focusEditTodo.current?.focus()
+      return
+    }
+
     try {
       const response = await checkTodoApi.updateCheckTodo(todoIndex, {
         todoContent: updatedContent,
@@ -280,6 +336,8 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
     }
 
     setEditModal(false);
+    setIsChange(false);
+    setOnModal(false);
   };
 
 
@@ -289,6 +347,8 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
   const [editText, setEditText] = useState<string>(inputText);
   const [editIndex, setEditIndex] = useState<number>(-1);
   const [isUrgent, setIsUrgent] = useState<boolean>(false);
+  const focusTodo=useRef<HTMLInputElement>(null);
+  const focusEditTodo=useRef<HTMLInputElement>(null);
 
   useEffect(()=>{
     setOnModal(showModal)
@@ -344,7 +404,10 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
           <h3>ToDo 추가</h3>
           <input
             value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
+            onChange={(e) => e.target.value.length<=30?setInputText(e.target.value):alert("할 일은 30자 이내로 입력해주세요.")}
+            placeholder="할 일을 입력하세요. (최대 30자)"
+            maxLength={30}
+            ref={focusTodo}
           />
           <div>
             <label>
@@ -357,7 +420,7 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
             </label>
           </div>
           <AddModalButton onClick={handleAdd}>추가</AddModalButton>
-          <AddModalButton onClick={() => setShowModal(false)}>취소</AddModalButton>
+          <AddModalButton onClick={() => {setInputText(""); setShowModal(false);}}>취소</AddModalButton>
         </AddModal>
       )}
       {showEditModal && (
@@ -365,13 +428,29 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
           <h3>ToDo 수정</h3>
           <input
             value={editText}
-            onChange={(e) => setEditText(e.target.value)}
+            onChange={(e) => {
+              e.target.value.length<=30?setEditText(e.target.value):alert("할 일은 30자 이내로 입력해주세요.")
+              setIsChange(true)}}
+            ref={focusEditTodo}
+            maxLength={30}
           />
           <div>
 
           </div>
           <EditModalButton onClick={() => handleEdit(editIndex, editText)}>Save</EditModalButton>
-          <EditModalButton onClick={() => setEditModal(false)}>Cancel</EditModalButton>
+          <EditModalButton onClick={() => {
+            if(isChange){
+              if(window.confirm("변경 사항이 있습니다. 변경사항을 삭제하시겠습니까?")){
+                setEditModal(false);
+              setIsChange(false);
+              setOnModal(false);
+              }else return
+            }else{
+              setIsChange(false)
+              setEditModal(false)
+              setOnModal(false);
+            }
+            }}>Cancel</EditModalButton>
         </EditModal>
       )}
 

@@ -102,16 +102,17 @@ function toKoreanTime(date: Date) {
 const Manage: React.FC<{ projectId: number; onClose: () => void }> = ({ projectId, onClose }) => {
   const [startDate, setStartDate] = useState(toKoreanTime(new Date()));
   const [endDate, setEndDate] = useState(toKoreanTime(new Date()));
-  const [eventText, setEventText] = useState("");
+  const [eventText, setEventText] = useState<string>("");
   const setOnModal=useSetRecoilState(modalOn);
   
-  const focusSchedule=useRef();
+  const focusSchedule=useRef<HTMLInputElement>(null);
 
   const handleSave = async () => {
     // 이벤트 저장 로직
 
-    if(eventText!==null){
-      
+    if(!eventText){
+      focusSchedule.current?.focus();
+      return;
     }
 
     if (new Date(startDate) > new Date(endDate)) {
@@ -159,10 +160,11 @@ const Manage: React.FC<{ projectId: number; onClose: () => void }> = ({ projectI
         </DateContainer>
 
         <StyledTextArea
-          placeholder="일정을 입력하세요."
+          placeholder="일정을 입력하세요. (최대 30자)"
           value={eventText}
-          onChange={(e) => setEventText(e.target.value)}
-          ref={()=>focusSchedule}
+          onChange={(e) => {e.target.value.length<=30?setEventText(e.target.value):alert("일정은 30자 이내로 입력해주세요.")}}
+          ref={focusSchedule}
+          maxLength={30}
         />
         <ButtonContainer>
           <StyledButton onClick={handleSave}>저장</StyledButton>

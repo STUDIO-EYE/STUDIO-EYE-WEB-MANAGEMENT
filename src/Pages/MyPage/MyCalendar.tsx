@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { FaPen, FaArrowLeft, FaArrowRight } from "react-icons/fa";
@@ -188,6 +188,7 @@ const Modal = styled.div`
   text-align: start;
   position: fixed;
   width: 30%;
+  min-width: 400px;
   height: auto;
   overflow-x: hidden;
   top: 40%;
@@ -271,6 +272,8 @@ const MyCalendar = ({ onDarkBackground }: { onDarkBackground: any }) => {
     setShowManageModal(false)
   };
 
+  const focusSchedule=useRef<HTMLTextAreaElement>(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -352,6 +355,11 @@ const MyCalendar = ({ onDarkBackground }: { onDarkBackground: any }) => {
 
   const handleEditEventSave = async (scheduleId: number, newText: string) => {
     const eventToUpdate = events.find((e) => e.userScheduleId === scheduleId);
+
+    if(!newText){
+      focusSchedule.current?.focus();
+      return;
+    }
 
     if (eventToUpdate) {
       try {
@@ -461,15 +469,22 @@ const MyCalendar = ({ onDarkBackground }: { onDarkBackground: any }) => {
                   style={{ width: '100%', height: '4rem', marginBottom: '0.5rem', resize: 'none', border: '0.001rem solid', borderRadius: '3px', fontFamily: 'Pretendard', fontSize: '1rem' }}
                   value={editingEvent.content}
                   onChange={(e) => {
-                    if (editingEvent) {
-                      const updatedEvent: Event = {
-                        ...editingEvent,
-                        content: e.target.value,
-                      };
-                      setEditingEvent(updatedEvent);
-                      setIsChange(true)
+                    if(e.target.value.length<=30){
+                      if (editingEvent) {
+                        const updatedEvent: Event = {
+                          ...editingEvent,
+                          content: e.target.value,
+                        };
+                        setEditingEvent(updatedEvent);
+                        setIsChange(true)
+                      }
+                    }else{
+                      alert("일정은 30자 이내로 입력해주세요.")
                     }
                   }}
+                  placeholder="일정을 입력하세요. (최대 30자)"
+                  maxLength={30}
+                  ref={focusSchedule}
                 />
                 <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"49%"} height={""} margin="0 2% 0.3rem 0"
                   onClick={() => {

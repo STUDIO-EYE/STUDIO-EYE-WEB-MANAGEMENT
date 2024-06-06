@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useLocation } from "react-router-dom";
@@ -47,9 +47,9 @@ const StyledInput = styled.input`
   margin-right: 10px;
 `;
 
-const StyledTextArea = styled.textarea`
+const StyledTextArea = styled.input`
   width: 100%;
-  min-height: 100px;
+  min-height: 30px;
   border: 1px solid #ccc;
   border-radius: 4px;
   resize: none;
@@ -106,12 +106,19 @@ const MyManage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [endDate, setEndDate] = useState(toKoreanTime(new Date()));
   const setOnModal=useSetRecoilState(modalOn);
 
+  const focusSchedule=useRef<HTMLInputElement>(null);
+
   const [eventText, setEventText] = useState("");
   const navigate = useNavigate();
 
   const handleSave = async () => {
     const start = new Date(startDate);
     const end = new Date(endDate);
+
+    if(!eventText){
+      focusSchedule.current?.focus();
+      return;
+    }
 
     if (start > end) {
       alert("시작 날짜는 종료 날짜보다 이전이어야 합니다.");
@@ -176,9 +183,11 @@ const MyManage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         </DateContainer>
 
         <StyledTextArea
-          placeholder="일정을 입력하세요."
+          placeholder="일정을 입력하세요. (최대 30자)"
           value={eventText}
-          onChange={(e) => setEventText(e.target.value)}
+          onChange={(e) => {e.target.value.length<=30?setEventText(e.target.value):alert("일정은 30자 이내로 입력해주세요.")}}
+          maxLength={30}
+          ref={focusSchedule}
         />
         <ButtonContainer>
           <StyledButton onClick={handleSave}>저장</StyledButton>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
@@ -101,13 +101,25 @@ const AddModal = styled.div`
   input {
     font-family: 'Pretendard';
     font-weight: 400;
-    border-color: rgba(0, 0, 0, 0.08);
     font-size: 1rem;
-    border-radius: 5px;
-    &:focus {
-      border-color: #ffa900;
-      outline: none;
-    }
+    width: 100%;
+    min-height: 30px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  input[type=checkbox]{
+    height: 15px;
+  }
+  div{
+    width: auto;
+    display:flex;
+    flex-direction:row;
+    justify-content: center;
+  }
+  label{
+    display: flex;
+    white-space:nowrap;
+    align-items: center;
   }
 `;
 
@@ -131,13 +143,11 @@ const EditModal = styled.div`
   input {
     font-family: 'Pretendard';
     font-weight: 400;
-    border-color: rgba(0, 0, 0, 0.08);
     font-size: 1rem;
-    border-radius: 5px;
-    &:focus {
-      border-color: #ffa900;
-      outline: none;
-    }
+    width: 100%;
+    min-height: 30px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
   }
 `;
 
@@ -194,6 +204,7 @@ const EditModalButton = styled.button`
 function MyTodo() {
   const [items, setItems] = useState<TodoItem[]>([]);
   const [message, setMessage] = useState<string>("");
+  const [isChange, setIsChange] = useState(false);
   const onModal = useRecoilValue(modalOn);
   const setOnModal=useSetRecoilState(modalOn);
   const navigate = useNavigate();
@@ -262,6 +273,12 @@ function MyTodo() {
   };
 
   const handleAdd = async () => {
+
+    if(!inputText){
+      focusTodo.current?.focus()
+      return
+    }
+
     const newId = items.length
       ? Math.max(...items.map((item) => item.userTodoId)) + 1
       : 1;
@@ -295,6 +312,12 @@ function MyTodo() {
   };
 
   const handleEdit = async (todoIndex: number, updatedContent: string) => {
+
+    if(!updatedContent){
+      focusEditTodo.current?.focus()
+      return
+    }
+
     try {
       const response = await myPageApi.updateToto(todoIndex, {
         todoContent: updatedContent,
@@ -314,7 +337,8 @@ function MyTodo() {
     }
 
     setEditModal(false);
-    setOnModal(false)
+    setOnModal(false);
+    setIsChange(false);
   };
 
 
@@ -324,6 +348,8 @@ function MyTodo() {
   const [editText, setEditText] = useState<string>(inputText);
   const [editIndex, setEditIndex] = useState<number>(-1);
   const [isUrgent, setIsUrgent] = useState<boolean>(false);
+  const focusTodo=useRef<HTMLInputElement>(null);
+  const focusEditTodo=useRef<HTMLInputElement>(null);
 
   useEffect(()=>{
     setOnModal(showModal)
@@ -377,7 +403,10 @@ function MyTodo() {
           <h3>ToDo 추가</h3>
           <input
             value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
+            onChange={(e) => e.target.value.length<=30?setInputText(e.target.value):alert("할 일은 30자 이내로 입력해주세요.")}
+            placeholder="할 일을 입력하세요. (최대 30자)"
+            maxLength={30}
+            ref={focusTodo}
           />
           <div>
             <label>
@@ -398,13 +427,30 @@ function MyTodo() {
           <h3>ToDo 수정</h3>
           <input
             value={editText}
-            onChange={(e) => setEditText(e.target.value)}
+            onChange={(e) => {
+              e.target.value.length<=30?setEditText(e.target.value)
+              :alert("할 일은 30자 이내로 입력해주세요.")
+              setIsChange(true)}}
+            ref={focusEditTodo}
+            maxLength={30}
           />
           <div>
 
           </div>
           <EditModalButton onClick={() => handleEdit(editIndex, editText)}>Save</EditModalButton>
-          <EditModalButton onClick={() => setEditModal(false)}>Cancel</EditModalButton>
+          <EditModalButton onClick={() => {
+            if(isChange){
+              if(window.confirm("변경 사항이 있습니다. 변경사항을 삭제하시겠습니까?")){
+                setEditModal(false);
+              setIsChange(false);
+              setOnModal(false);
+              }else return
+            }else{
+              setIsChange(false)
+              setEditModal(false)
+              setOnModal(false);
+            }
+            }}>Cancel</EditModalButton>
         </EditModal>
       )}
 
