@@ -55,7 +55,6 @@ const ItemsList = styled.ul`
 
 const ItemContent = styled.span`
 margin-left: 5px;
-  cursor: pointer;
 `;
 
 const Item = styled.li<{ completed: boolean }>`
@@ -70,6 +69,7 @@ const Item = styled.li<{ completed: boolean }>`
   text-decoration: ${(props) => (props.completed ? "line-through" : "none")};
   //overflow-x: auto;
   //white-space: nowrap;
+  cursor: pointer;
 
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.08) white;
@@ -379,17 +379,17 @@ function MyTodo() {
       </List>
       <ItemsList>
         {sortedItems.map((item) => (
-          <Item key={item.userTodoId} completed={item.checked}>
+          <Item key={item.userTodoId} completed={item.checked} onClick={() => {
+            if(!onModal){
+              setEditIndex(item.userTodoId); setEditText(item.todoContent); setEditModal(true);
+            }}}>
             <Checkbox
               type="checkbox"
               checked={item.checked}
               onChange={() => !onModal?handleCheck(item.userTodoId):null}
             />
             {item.todoEmergency ? <UrgencyLabel>[긴급]</UrgencyLabel> : null}
-            <ItemContent onClick={() => {
-              if(!onModal){
-                setEditIndex(item.userTodoId); setEditText(item.todoContent); setEditModal(true);
-              }}}>{item.todoContent}</ItemContent>
+            <ItemContent>{item.todoContent}</ItemContent>
             <DeleteButton onClick={() => !onModal?handleDelete(item.userTodoId):null}>
               <FaTrash />
             </DeleteButton>
@@ -437,7 +437,7 @@ function MyTodo() {
           <div>
 
           </div>
-          <EditModalButton onClick={() => handleEdit(editIndex, editText)}>Save</EditModalButton>
+          <EditModalButton onClick={() => handleEdit(editIndex, editText)}>저장</EditModalButton>
           <EditModalButton onClick={() => {
             if(isChange){
               if(window.confirm("변경 사항이 있습니다. 변경사항을 삭제하시겠습니까?")){
@@ -450,7 +450,7 @@ function MyTodo() {
               setEditModal(false)
               setOnModal(false);
             }
-            }}>Cancel</EditModalButton>
+            }}>취소</EditModalButton>
         </EditModal>
       )}
 

@@ -116,7 +116,11 @@ const MyTable = ({ tableData, onRowClick }
                     sendDataBoard(row)
                   }
                 >
-                  <TableCell><text style={{ fontSize: '0.8rem' }}>{row.category}</text></TableCell>
+                  <TableCell><text style={{ fontSize: '0.8rem' }}>{
+                    row.category==="PLANNING"?"기획":(
+                      row.category==="EDITING"?"편집":"제작"
+                    )
+                  }</text></TableCell>
                   <TableCell>{row.title}</TableCell>
                   <TableCell>{changeDate(row.updatedDate)}</TableCell>
                 </tr>

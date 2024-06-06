@@ -27,11 +27,13 @@ const MyBoard = (project: any) => {
   const navigate = useNavigate();
   const onModal = useRecoilValue(modalOn);
   const [postData, setPostData] = useState<Post[]>([]);
+  const [realData, setRealData] = useState<Post[]>([]);
+  
   const [currentPage, setCurrentPage] = useState(1);
   const postPerPage = 3;
   const indexOfLastPost = currentPage * postPerPage;
   const indexOfFirstPost = indexOfLastPost - postPerPage;
-  const currentPosts = postData.slice(
+  const currentPosts = realData.slice(
     indexOfFirstPost,
     indexOfLastPost
   );
@@ -53,6 +55,13 @@ const MyBoard = (project: any) => {
     }
     fetchPosts();
   }, [project.project.projectId]);
+  useEffect(()=>{
+      const data=postData.sort((a:Post,b:Post)=>
+        new Date(b.updatedDate.toString()).getTime()-new Date(a.updatedDate.toString()).getTime()
+    )
+      setRealData(data)
+      console.log(realData)
+  },[postData])
 
   const handleRowClick = (post: any) => {
     if(!onModal){
@@ -124,7 +133,7 @@ const MyBoard = (project: any) => {
       </BoardTitleDiv>
       <BoardContentDiv>
         <MyTable tableData={currentPosts} onRowClick={handleRowClick} />
-        {/* <PageNumbers/> */}
+        <PageNumbers/>
       </BoardContentDiv>
     </RightboardBody>
   );
