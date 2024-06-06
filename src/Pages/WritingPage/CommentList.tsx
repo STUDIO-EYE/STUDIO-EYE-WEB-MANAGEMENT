@@ -89,7 +89,6 @@ font-family: 'Pretendard';
   }
 `;
 
-
 const CommentList = ({
     selectedPost,
     comments,
@@ -106,6 +105,23 @@ const CommentList = ({
     const [tokenUserName, setTokenUserName] = useState("");
     const [tokenUserId, setTokenUserId] = useState("");
     const [tokenUserEmail, setTokenUserEmail] = useState("");
+    const [isEditing, setIsEditing] = useState(false);
+
+    const handleCancel = () => {
+        if (isEditing) {
+            const confirmCancel = window.confirm("작성 중인 내용이 있습니다. 그래도 나가시겠습니까?");
+            if (confirmCancel) {
+                setIsEditing(false);
+                setEditingCommentId(0);
+            }
+        }
+    };
+
+    const startEditing = (commentId: number, content: string) => {
+        setEditingCommentId(commentId);
+        setEditedContent(content);
+        setIsEditing(true);
+    };
 
     const deleteComment = (commentId: number) => {
         commentApi
@@ -124,11 +140,6 @@ const CommentList = ({
                 console.error("Error deleting comment:", error);
                 alert("댓글 삭제 중 오류가 발생했습니다.");
             });
-    };
-
-    const startEditing = (commentId: number, content: string) => {
-        setEditingCommentId(commentId);
-        setEditedContent(content);
     };
 
     useEffect(() => {
@@ -159,6 +170,7 @@ const CommentList = ({
                 alert("댓글 수정 중 오류가 발생했습니다.");
             });
     };
+
     return (
         <>
             <CommentTitle>댓글 {comments.length}</CommentTitle>
@@ -170,40 +182,41 @@ const CommentList = ({
                         <ButtonContainer>
                             {tokenUserName === comment.userName && (
                                 <>
-                                    <CommentButton onClick={() => deleteComment(comment.id)}>
-                                        삭제
-                                    </CommentButton>
                                     {editingCommentId === comment.id ? (
-                                        <CommentButton onClick={() => finishEditing(comment.id)}>
-                                            완료
-                                        </CommentButton>
+                                        <>
+                                            <CommentButton onClick={handleCancel}>
+                                                취소
+                                            </CommentButton>
+                                            <CommentButton onClick={() => finishEditing(comment.id)}>
+                                                완료
+                                            </CommentButton>
+                                        </>
                                     ) : (
-                                        <CommentButton
-                                            onClick={() =>
-                                                startEditing(comment.id, comment.content)
-                                            }
-                                        >
-                                            수정
-                                        </CommentButton>
+                                        <>
+                                            <CommentButton onClick={() => startEditing(comment.id, comment.content)} >
+                                                수정
+                                            </CommentButton>
+                                            <CommentButton onClick={() => deleteComment(comment.id)}>
+                                                삭제
+                                            </CommentButton>
+                                        </>
                                     )}
                                 </>
                             )}
                         </ButtonContainer>
                     </ButtonAuthorContainer>
-
                     {editingCommentId === comment.id ? (
                         <CommentTextarea
                             value={editedContent}
                             onChange={(e) => setEditedContent(e.target.value)}
                         />
                     ) : (
-                        <Content>{comment.content}</Content>
+                        <Content>{comment.content.includes('\n') ? comment.content.split('\n').map((line, index) => <div key={index}>{line}</div>) : comment.content}</Content>
                     )}
                     <Date>
                         {comment.updatedAt ? comment.updatedAt.toString() + "(수정됨)"
                             : comment.createdAt.toString()}
                     </Date>
-
                 </FormContainer>
             ))}
         </>
