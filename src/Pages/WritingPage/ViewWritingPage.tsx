@@ -252,8 +252,20 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
         const names = files.map((file: { fileName: string }) => file.fileName);
         setFilePaths(paths);
         setFileNames(names);
+
+        // 파일이 있는 경우 처리 로직 추가
+        // if (response.data.mainImg) {
+        //   try {
+        //     const mainImgFile = await urlToFile(response.data.mainImg + '?t=' + Date.now(), `${response.data.mainImg}.png`);
+        //     setMainImage(mainImgFile);
+        //     console.log(mainImgFile, 'main ImgFile Blob');
+        //   } catch (error) {
+        //     console.error('Main image fetching error:', error);
+        //   }
+        // }
+
       } catch (error) {
-        console.error("파일을 가져오는 중 오류 발생:", error);
+        console.error('파일을 가져오는 중 오류 발생:', error);
       }
     };
 
@@ -273,6 +285,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
       return;
     }
 
+    const formData = new FormData();
     const updatedPostData = {
       projectId: projectId.toString(),
       title: title,
@@ -281,26 +294,17 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
       category: selectedPost.category,
       updatedAt: selectedPost.updatedAt,
     };
-
-    const formData = new FormData();
-
-    const json = JSON.stringify(updatedPostData);
-    const blob = new Blob([json], { type: 'application/json' });
-
-    formData.append("updatePostRequestDto", blob);
-
-    const allFiles = [...existingFiles, ...selectedFiles];
+    formData.append("updatePostRequestDto", new Blob([JSON.stringify(updatedPostData)], { type: 'application/json' }));
 
     if (selectedFiles) {
-      allFiles.forEach(file => {
+      selectedFiles.forEach(file => {
         formData.append("files", file);
       })
-    } else if (existingFiles) {
+    }
+    if (existingFiles) {
       existingFiles.forEach(file => {
         formData.append("files", file);
       })
-    } else {
-      formData.append("files", "");
     }
 
     try {
@@ -476,11 +480,16 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
             {fileNames.length > 0 && (
               <div>
                 <h4>첨부파일</h4>
-                {fileNames.map((fileName, index) => (
+                {/* {fileNames.map((fileName, index) => (
                   <div key={fileName}>
                     <FileNameLink href={filePaths[index]} download>
                       {fileName}
                     </FileNameLink>
+                  </div>
+                ))} */}
+                {filePaths.map((filePath, index) => (
+                  <div key={filePath}>
+                    <img src={filePath} alt={fileNames[index]} />
                   </div>
                 ))}
               </div>
