@@ -1,31 +1,17 @@
 import commentApi from "api/commentApi";
 import React from "react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from "styled-components";
 import CommentList from "./CommentList";
 import CommentForm from "./CommentForm";
+import Pagination from "Components/common/Pagination";
+import { Comment, ICommentPaginationData } from '../../types/comment';
 
-interface Comment {
-  id: number
-  userName: string
-  content: string
-  createdAt: Date
-  updatedAt: Date
-  isNew: boolean
-}
-
-const CommentContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items:stretch;
-  min-height: 10rem;
-  padding-bottom: 1rem;
-`;
-
-const CommentPage = ({ selectedRowId, projectId, postId }
-  : { selectedRowId: number, projectId: number, postId: number }) => {
+const CommentPage = ({ selectedRowId, projectId, postId }: { selectedRowId: number, projectId: number, postId: number }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [comments, setComments] = useState<Comment[]>([]);
   const [showViewWriting, setShowViewWriting] = useState(true);
   const [selectedPost, setSelectedPost] = useState({
     commentId: 0,
@@ -36,60 +22,110 @@ const CommentPage = ({ selectedRowId, projectId, postId }
     commentSum: 0,
     category: "",
   });
-  const [comments, setComments] = useState<Comment[]>([]);
-  const navigate = useNavigate();
-
-  const handleAddComment = (newComment: any) => {
-    fetchData()
-    // setComments((prevComments) => [...prevComments, newComment]); //댓글 최신게 나중에 보여주기
-    // setSelectedPost((prevPost) => ({
-    //   ...prevPost,
-    //   commentSum: prevPost.commentSum + 1,
-    // }));
-    //이런 로직 쓸거면 한 다음에 댓글 수 서버에 저장?하는 기능도 필요할듯
-  };
-  const handleDeleteComment = () => {
-    fetchData()
-    // setSelectedPost((prevPost) => ({
-    //   ...prevPost,
-    //   commentSum: prevPost.commentSum - 1,
-    // }));
-  };
+  const [commentsData, setCommentsData] = useState({
+    content: [],
+    pageable: {
+      sort: [],
+      pageNumber: 0,
+      pageSize: 5,
+      offset: 0,
+      paged: true,
+      unpaged: false,
+    },
+    totalPages: 0,
+    totalElements: 0,
+    last: false,
+    pageSize: 5,
+    number: 0,
+    sort: [],
+    numberOfElements: 0,
+    first: true,
+    empty: true,
+  });
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    // 병렬로 API 호출을 수행하는 함수
-    fetchData();
-  }, [selectedRowId, projectId]);
+    const queryParams = new URLSearchParams(location.search);
+    const page = parseInt(queryParams.get('page') || '1', 10);
+    setCurrentPage(page);
+    fetchData(page - 1, commentsData.pageSize);
+  }, [location.search]);
 
-  const fetchData = async () => {
+  const fetchData = async (page: number = 0, pageSize: number = 5) => {
     try {
-      const [commentsResponse] = await Promise.all([
-        commentApi.getCommentList(selectedRowId),
-      ]);
-      // postResponse 처리
+      const response = await commentApi.getCommentList(selectedRowId, page, pageSize);
+      console.log("Fetched comments data:", response.data);
 
-      if (commentsResponse.data.success) {
-        setComments(commentsResponse.data.data);
+      if (response.data.success) {
+        const commentsContent = response.data.data.commentResponses;
+        console.log("Comments content:", commentsContent);
+
+        setComments(commentsContent);
+        setCommentsData({
+          content: commentsContent,
+          pageable: {
+            sort: [],
+            pageNumber: response.data.data.currentPageNumber,
+            pageSize: response.data.data.pageSize,
+            offset: 0,
+            paged: true,
+            unpaged: false,
+          },
+          totalPages: response.data.data.totalPages,
+          totalElements: response.data.data.totalElements,
+          last: response.data.data.currentPageNumber === response.data.data.totalPages,
+          pageSize: response.data.data.pageSize,
+          number: response.data.data.currentPageNumber,
+          sort: [],
+          numberOfElements: commentsContent.length,
+          first: response.data.data.currentPageNumber === 1,
+          empty: commentsContent.length === 0,
+        });
       }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
+
+  const handleAddComment = () => {
+    fetchData(currentPage - 1, commentsData.pageSize);
+  };
+
+  const handleDeleteComment = () => {
+    fetchData(currentPage - 1, commentsData.pageSize);
+  };
+
+  const paginate = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    navigate(`?page=${pageNumber}`);
+  };
+
+  useEffect(() => {
+    console.log("Comments state updated:", comments);
+  }, [comments]);
+
   return (
     <>
       {showViewWriting ? (
         <CommentContainer>
-          <CommentList
-            comments={comments}
-            selectedPost={selectedPost}
-            setComments={setComments}
-            onDeleteComment={handleDeleteComment}
-          />
           <CommentForm
             postId={selectedRowId}
             onAddComment={handleAddComment}
             selectedPost={selectedPost}
+          />
+          <CommentList
+            comments={comments}
+            selectedPost={selectedPost}
+            setComments={(newComments) => setComments(newComments)}
+            onDeleteComment={handleDeleteComment}
+            totalElements={commentsData.totalElements}
+          />
+
+          <Pagination
+            postsPerPage={commentsData.pageSize}
+            totalPosts={commentsData.totalElements}
+            paginate={paginate}
           />
         </CommentContainer>
       ) : null}
@@ -98,3 +134,12 @@ const CommentPage = ({ selectedRowId, projectId, postId }
 };
 
 export default CommentPage;
+
+const CommentContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items:stretch;
+  min-height: 10rem;
+  padding-bottom: 1rem;
+`;

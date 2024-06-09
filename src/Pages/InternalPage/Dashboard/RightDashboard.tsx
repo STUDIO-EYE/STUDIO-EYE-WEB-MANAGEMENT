@@ -8,6 +8,8 @@ import { IoFileTrayFullSharp, IoAddCircle } from "react-icons/io5";
 import { FaPenToSquare } from "react-icons/fa6";
 import ProjectProgress from "./ProjectProgress";
 import { MdDriveFileMoveOutline } from "react-icons/md";
+import { useRecoilValue } from "recoil";
+import { modalOn } from "recoil/atoms";
 
 interface Post {
   id: number;
@@ -150,6 +152,7 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId, comp
   const [planData, setPlanData] = useState<Post[]>([]);
   const [productionDate, setProductionDate] = useState<Post[]>([]);
   const [editData, setEditData] = useState<Post[]>([]);
+  const onModal = useRecoilValue(modalOn);
 
   const goToPlanPage = () => {
     navigate(`/PlanMain/${projectId}`, { state: { name: projectData.name } });
@@ -227,7 +230,7 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId, comp
 
   return (
     <RightDashboardBox>
-      <GoToFilePageButton onClick={goToFilePage}>
+      <GoToFilePageButton onClick={()=>!onModal?goToFilePage():null}>
         <MdDriveFileMoveOutline />
         <FileButton>파일 페이지로 이동</FileButton>
       </GoToFilePageButton>
@@ -237,8 +240,8 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId, comp
 
       <RightboardBody>
         <BoardTitleDiv>
-          <BoardTitleText><TitleSm onClick={goToPlanPage}>기획</TitleSm></BoardTitleText>
-          <PlusButton onClick={goToPlanWritingPage}><FaPenToSquare /></PlusButton>
+          <BoardTitleText><TitleSm onClick={()=>!onModal?goToPlanPage():null}>기획</TitleSm></BoardTitleText>
+          <PlusButton onClick={()=>!onModal?goToPlanWritingPage():null}><FaPenToSquare /></PlusButton>
         </BoardTitleDiv>
         <BoardContentDiv>
           {planData.length === 0 ? (
@@ -247,7 +250,7 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId, comp
             planData.map((plan) => (
               <ContentDiv
                 key={plan.id}
-                onClick={() => handlePostClick(plan.id, "plan")}
+                onClick={() => !onModal?handlePostClick(plan.id, "plan"):null}
               >
                 <Text>{plan.title}</Text>
               </ContentDiv>
@@ -257,8 +260,8 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId, comp
       </RightboardBody>
       <RightboardBody>
         <BoardTitleDiv>
-          <BoardTitleText><TitleSm onClick={goToMakingPage}>제작</TitleSm></BoardTitleText>
-          <PlusButton onClick={goToMakingWritingPage}><FaPenToSquare /></PlusButton>
+          <BoardTitleText><TitleSm onClick={()=>!onModal?goToMakingPage():null}>제작</TitleSm></BoardTitleText>
+          <PlusButton onClick={()=>!onModal?goToMakingWritingPage():null}><FaPenToSquare /></PlusButton>
         </BoardTitleDiv>
         <BoardContentDiv>
           {productionDate.length === 0 ? (
@@ -267,7 +270,7 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId, comp
             productionDate.map((production) => (
               <ContentDiv
                 key={production.id}
-                onClick={() => handlePostClick(production.id, "production")}
+                onClick={() => !onModal?handlePostClick(production.id, "production"):null}
               >
                 <Text>{production.title}</Text>
               </ContentDiv>
@@ -277,8 +280,8 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId, comp
       </RightboardBody>
       <RightboardBody isEditing>
         <BoardTitleDiv>
-          <BoardTitleText><TitleSm onClick={goToEditPage}>편집</TitleSm></BoardTitleText>
-          <PlusButton onClick={goToEditWritingPage}><FaPenToSquare /></PlusButton>
+          <BoardTitleText><TitleSm onClick={()=>!onModal?goToEditPage():null}>편집</TitleSm></BoardTitleText>
+          <PlusButton onClick={()=>!onModal?goToEditWritingPage():null}><FaPenToSquare /></PlusButton>
         </BoardTitleDiv>
         <BoardContentDiv>
           {editData.length === 0 ? (
@@ -287,7 +290,7 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId, comp
             editData.map((edit) => (
               <ContentDiv
                 key={edit.id}
-                onClick={() => handlePostClick(edit.id, "edit")}
+                onClick={() => !onModal?handlePostClick(edit.id, "edit"):null}
               >
                 <Text>{edit.title}</Text>
               </ContentDiv>

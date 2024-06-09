@@ -17,6 +17,7 @@ export const TitleLg = styled.span`
 `;
 
 export const TitleMd = styled.span`
+  font-family: 'pretendard';
   font-size: 2.25rem;
   font-weight: 600;
 
@@ -67,7 +68,7 @@ export const TextMd = styled.span`
 
 export const TextSm = styled.span`
   font-size: 0.875rem;
-  font-weight: bold;
+  font-weight: 600;
   @media ${media.mobile} {
     font-size: 1rem;
     font-weight: normal;

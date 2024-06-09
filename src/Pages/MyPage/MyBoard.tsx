@@ -6,6 +6,8 @@ import styled from "styled-components";
 import Selector from "Components/common/Selector";
 import MyTable from "./MyTable";
 import { useNavigate } from "react-router-dom";
+import { useRecoilValue } from "recoil";
+import { modalOn } from "recoil/atoms";
 
 interface RightBoardProps {
   children: React.ReactNode;
@@ -23,12 +25,15 @@ interface Post {
 
 const MyBoard = (project: any) => {
   const navigate = useNavigate();
+  const onModal = useRecoilValue(modalOn);
   const [postData, setPostData] = useState<Post[]>([]);
+  const [realData, setRealData] = useState<Post[]>([]);
+  
   const [currentPage, setCurrentPage] = useState(1);
   const postPerPage = 3;
   const indexOfLastPost = currentPage * postPerPage;
   const indexOfFirstPost = indexOfLastPost - postPerPage;
-  const currentPosts = postData.slice(
+  const currentPosts = realData.slice(
     indexOfFirstPost,
     indexOfLastPost
   );
@@ -50,21 +55,30 @@ const MyBoard = (project: any) => {
     }
     fetchPosts();
   }, [project.project.projectId]);
+  useEffect(()=>{
+      const data=postData.sort((a:Post,b:Post)=>
+        new Date(b.updatedDate.toString()).getTime()-new Date(a.updatedDate.toString()).getTime()
+    )
+      setRealData(data)
+      console.log(realData)
+  },[postData])
 
   const handleRowClick = (post: any) => {
-    switch (post.category) {
-      case "PLANNING": {
-        navigate(`/PlanMain/${project.project.projectId}/${post.id}`, { state: { name: project.project.name } })
-        break
-      };
-      case "EDITING": {
-        navigate(`/EditMain/${project.project.projectId}/${post.id}`, { state: { name: project.project.name } })
-        break
-      };
-      case "PRODUCTION": {
-        navigate(`/MakingMain/${project.project.projectId}/${post.id}`, { state: { name: project.project.name } })
-        break
-      };
+    if(!onModal){
+      switch (post.category) {
+        case "PLANNING": {
+          navigate(`/PlanMain/${project.project.projectId}/${post.id}`, { state: { name: project.project.name } })
+          break
+        };
+        case "EDITING": {
+          navigate(`/EditMain/${project.project.projectId}/${post.id}`, { state: { name: project.project.name } })
+          break
+        };
+        case "PRODUCTION": {
+          navigate(`/MakingMain/${project.project.projectId}/${post.id}`, { state: { name: project.project.name } })
+          break
+        };
+      }
     }
   }
 
@@ -72,7 +86,7 @@ const MyBoard = (project: any) => {
     navigate(`/Manage/${project.project.projectId}`)
   }
 
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber: number) => !onModal?setCurrentPage(pageNumber):null;
   const PageNumbers = () => {
     const totalPages = Math.ceil(postData.length / postPerPage);
     return (
@@ -115,11 +129,11 @@ const MyBoard = (project: any) => {
     <RightboardBody>
       <BoardTitleDiv>
         {/**click 이벤트 연결할 것, project page로 이동하기*/}
-        <BoardTitleText onClick={goToProjectPage}><TitleSm>{project.project.name}</TitleSm></BoardTitleText>
+        <BoardTitleText onClick={()=>!onModal?goToProjectPage():null}><TitleSm>{project.project.name}</TitleSm></BoardTitleText>
       </BoardTitleDiv>
       <BoardContentDiv>
         <MyTable tableData={currentPosts} onRowClick={handleRowClick} />
-        {/* <PageNumbers/> */}
+        <PageNumbers/>
       </BoardContentDiv>
     </RightboardBody>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { FaPen, FaArrowLeft, FaArrowRight } from "react-icons/fa";
@@ -11,6 +11,8 @@ import Calendar from "react-calendar";
 import moment from "moment";
 import { FaPenToSquare } from "react-icons/fa6";
 import MyManage from "./MyManage";
+import { useSetRecoilState } from "recoil";
+import { modalOn } from "recoil/atoms";
 
 const Container = styled.div`
   font-family: 'Pretendard';
@@ -186,6 +188,7 @@ const Modal = styled.div`
   text-align: start;
   position: fixed;
   width: 30%;
+  min-width: 400px;
   height: auto;
   overflow-x: hidden;
   top: 40%;
@@ -259,8 +262,17 @@ const MyCalendar = ({ onDarkBackground }: { onDarkBackground: any }) => {
   const [selectDate, setSelectDate] = useState<Date>(new Date());
   const [criterion, setCriterion] = useState<string>("day");
   const [showManageModal, setShowManageModal] = useState(false);
-  const handleOpenManageModal = () => setShowManageModal(true);
-  const handleCloseManageModal = () => setShowManageModal(false);
+  const setOnModal=useSetRecoilState(modalOn);
+  const handleOpenManageModal = () => {
+    setOnModal(true)
+    setShowManageModal(true)
+  };
+  const handleCloseManageModal = () => {
+    setOnModal(false)
+    setShowManageModal(false)
+  };
+
+  const focusSchedule=useRef<HTMLTextAreaElement>(null);
 
   const navigate = useNavigate();
 
@@ -296,10 +308,17 @@ const MyCalendar = ({ onDarkBackground }: { onDarkBackground: any }) => {
     if (events != null) {
       return events.filter((e) => {
         if (criterion == "day" || criterion == "week" || criterion == "month") {
-          const target = moment(targetDate)
-          const eventStartDate = moment(e.startDate).startOf(criterion)
-          const eventEndDate = moment(e.endDate).endOf(criterion)
-          return target >= eventStartDate && target <= eventEndDate;
+          if(criterion==="week"){
+            const target = moment(targetDate).subtract(1,"day")
+            const eventStartDate = moment(e.startDate).subtract(1,"day").startOf("week")
+            const eventEndDate = moment(e.endDate).subtract(1,"day").endOf("week")
+            return target >= eventStartDate && target <= eventEndDate;
+          }else{
+            const target = moment(targetDate)
+            const eventStartDate = moment(e.startDate).startOf(criterion)
+            const eventEndDate = moment(e.endDate).endOf(criterion)
+            return target >= eventStartDate && target <= eventEndDate;
+          }
         }
       });
     } else return [];
@@ -337,6 +356,11 @@ const MyCalendar = ({ onDarkBackground }: { onDarkBackground: any }) => {
   const handleEditEventSave = async (scheduleId: number, newText: string) => {
     const eventToUpdate = events.find((e) => e.userScheduleId === scheduleId);
 
+    if(!newText){
+      focusSchedule.current?.focus();
+      return;
+    }
+
     if (eventToUpdate) {
       try {
         const updatedData: Event = { ...eventToUpdate, content: newText };
@@ -363,7 +387,7 @@ const MyCalendar = ({ onDarkBackground }: { onDarkBackground: any }) => {
   }
 
   const getCurrentweek: () => string = () => {
-    var now = moment(selectDate).week()
+    var now = moment(selectDate).subtract(1,"day").week()
     var lastmonthweek = moment(selectDate).subtract(1, 'months').endOf('month').week()
     return moment(selectDate).format("YYYY년 MM월 ") + (now - lastmonthweek + 1).toString() + "주차"
   }
@@ -445,15 +469,22 @@ const MyCalendar = ({ onDarkBackground }: { onDarkBackground: any }) => {
                   style={{ width: '100%', height: '4rem', marginBottom: '0.5rem', resize: 'none', border: '0.001rem solid', borderRadius: '3px', fontFamily: 'Pretendard', fontSize: '1rem' }}
                   value={editingEvent.content}
                   onChange={(e) => {
-                    if (editingEvent) {
-                      const updatedEvent: Event = {
-                        ...editingEvent,
-                        content: e.target.value,
-                      };
-                      setEditingEvent(updatedEvent);
-                      setIsChange(true)
+                    if(e.target.value.length<=30){
+                      if (editingEvent) {
+                        const updatedEvent: Event = {
+                          ...editingEvent,
+                          content: e.target.value,
+                        };
+                        setEditingEvent(updatedEvent);
+                        setIsChange(true)
+                      }
+                    }else{
+                      alert("일정은 30자 이내로 입력해주세요.")
                     }
                   }}
+                  placeholder="일정을 입력하세요. (최대 30자)"
+                  maxLength={30}
+                  ref={focusSchedule}
                 />
                 <NewButton backcolor={theme.color.lightOrange} textcolor={theme.color.darkOrange} width={"49%"} height={""} margin="0 2% 0.3rem 0"
                   onClick={() => {

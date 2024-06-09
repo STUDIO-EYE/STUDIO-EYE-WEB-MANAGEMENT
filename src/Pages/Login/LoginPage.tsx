@@ -141,16 +141,15 @@ function LoginPage() {
           axios.defaults.headers.common["Authorization"] =
             "Bearer " + accessToken; // 토큰을 HTTP 헤더에 포함
           sessionStorage.setItem("login-token", accessToken);
+          console.log(accessToken);
 
-
-          swal('로그인 성공!', "", 'success')
-            .then(function () { navigate("/"); })
+          navigate("/");
         } else {
-          swal('로그인 실패', "관리자의 승인이 필요한 계정입니다.", 'warning')
+          swal('', "아이디 또는 비밀번호가 올바르지 않습니다.", 'warning')
         }
       })
       .catch((error) => {
-        alert("로그인 실패");
+        swal('', "아이디 또는 비밀번호가 올바르지 않습니다.", 'warning')
         console.error("API 요청 중 오류 발생:", error);
       });
   };

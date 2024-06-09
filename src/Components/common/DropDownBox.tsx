@@ -9,10 +9,11 @@ const DropdownContainer = styled.div`
 `;
 
 const DropdownButton = styled.button`
-font-size: 1.2rem;
+  font-size: 1.2rem;
   background: transparent;
   border: none;
   cursor: pointer;
+  color: gray;
   &:hover {
     color: #ccc;
   }

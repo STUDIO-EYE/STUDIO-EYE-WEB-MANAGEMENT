@@ -1,52 +1,81 @@
-import React, { useEffect, useState } from "react";
-import Body from "../../Components/common/Body";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { useNavigate } from "react-router-dom";
+import { NavigateOptions, useNavigate } from "react-router-dom";
 import boardApi from "../../api/boardApi";
 import axios from "axios";
-import { TableText, TextMd } from "Components/common/Font";
 import InputText from "Components/common/InputText";
-import Button from "Components/common/Button";
 import NewButton from "Components/common/NewButton";
 import { theme } from "LightTheme";
-import { left } from "@popperjs/core";
 
 const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
   max-height: 30rem;
-  max-width: 70rem;
   padding: 0 0.5rem;
   //overflow-y: auto;
 `;
 
 const CustomQuillEditor = styled(ReactQuill)`
   resize: none;
+  margin-top: 1rem;
 
   .ql-editor {
-    min-height: 20rem;
+    height: 50vh;
+    overflow: auto;
   }
 
   .ql-container {
-    border: 1px solid #ccc;
+    border: 1px solid ${theme.color.gray20};
+    border-radius: 0 0 10px 10px;
   }
 
   .ql-toolbar {
     background-color: rgba(0, 0, 0, 0.03);
+    border: 1px solid ${theme.color.gray20};
+    border-radius: 10px 10px 0 0;
   }
+
+  .ql-size-huge {
+    font-size: 2.5em;
+  }
+  .ql-size-large {
+    font-size: 1.5em;
+  }
+  .ql-size-small {
+    font-size: 0.75em;
+  }
+  .ql-bold {
+    font-weight: 800;
+  }
+  .ql-italic {
+    font-style: italic;
+  }
+  .ql-underline {
+    text-decoration: underline;
+  }
+  .ql-strike {
+    text-decoration: overline;
+}
 `;
 
-const WritingTitle = styled.span`
-  font-size: 1rem;
-  font-weight: 600;
-  color: black;
+const FileButtonWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
 `;
 
 const PostsButtonContainer = styled.div`
+  width: 50%;
+  gap: 1rem;
   display: flex;
   justify-content: flex-end;
+`;
+
+const FileContainer = styled.div`
+  width: 50%;
 `;
 
 const FileInput = styled.input`
@@ -56,7 +85,10 @@ const FileInput = styled.input`
 const SelectedFileLabel = styled.label`
   display: block;
   cursor: pointer;
-  margin-top: 0.5rem;
+  font-weight: 600;
+  &:hover {
+    font-weight: 800;
+  }
 `;
 
 const SelectedFilePreview = styled.div`
@@ -64,8 +96,14 @@ const SelectedFilePreview = styled.div`
 `;
 
 const DeleteFileButton = styled.button`
-  margin-top: 0.5rem;
+  margin-left: 0.5rem;
+  background-color: transparent;
+  border: none;
   color: red;
+  cursor: pointer;
+  &:hover {
+    font-weight: 600;
+  }
 `;
 
 const WritingPage = ({ projectId, category, onBack }: { projectId: number, category: string, onBack: any; }) => {
@@ -73,18 +111,79 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
   const [editorHtml, setEditorHtml] = useState("");
   const [title, setTitle] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-
+  const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
+  // const [isDirty, setIsDirty] = useState(false);
+
+  // const beforeUnloadHandler = useCallback(
+  //   (event: BeforeUnloadEvent) => {
+  //     // 페이지를 벗어나지 않아야 하는 경우
+  //     if (isDirty) {
+  //       event.preventDefault();
+  //       event.returnValue = true;
+  //     }
+  //   },
+  //   [isDirty],
+  // );
+  
+  // useEffect(() => {
+  //   const originalPush = router.push;
+  //   const newPush = (
+  //     href: string,
+  //     options?: NavigateOptions | undefined,
+  //   ): void => {
+  //     // 페이지를 벗어나지 않아야 하는 경우
+  //     if (isDirty && href === '/' && !confirm('')) {
+  //       return;
+  //     }
+  
+  //     originalPush(href, options);
+  //     return;
+  //   };
+  //   router.push = newPush;
+  //   window.onbeforeunload = beforeUnloadHandler;
+  //   return () => {
+  //     router.push = originalPush;
+  //     window.onbeforeunload = null;
+  //   };
+  // }, [isDirty, router, beforeUnloadHandler]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (title.trim() || editorHtml.trim() || selectedFiles.length > 0) {
+        event.preventDefault();
+        event.returnValue = "작성 중인 내용이 있습니다. 페이지를 떠나시겠습니까?";
+        return "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [title, editorHtml, selectedFiles]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const filesToAdd = Array.from(e.target.files);
+      const totalFileSize = filesToAdd.reduce((acc, file) => acc + file.size, 0);
+      const maxSize = 100 * 1024 * 1024;
+
+      if (totalFileSize > maxSize) {
+        alert('파일 크기는 100MB를 초과할 수 없습니다.');
+        e.target.value = "";
+        return;
+      }
+
       setSelectedFiles((prevFiles) => [...prevFiles, ...filesToAdd]);
     }
   };
 
+
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTitle(e.target.value);
+    setIsEditing(true);
   };
 
   const goToHome = () => {
@@ -92,20 +191,17 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
   };
 
   const addPost = async () => {
-    // HTML 태그 제거하기 위한 정규식
     const strippedHtml = editorHtml.replace(/<[^>]+>/g, "");
 
-    // 제목 또는 에디터 내용이 비어있는지 확인
     if (!title.trim() || !strippedHtml.trim()) {
       alert("제목과 내용을 모두 입력해주세요.");
-      return; // 함수 실행 종료
+      return;
     }
 
-    // FormData 생성
     const data: { [key: string]: string } = {
       projectId: projectId.toString(),
       title: title,
-      content: strippedHtml,
+      content: editorHtml,
       category: category,
     }
 
@@ -113,6 +209,7 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
 
     const json = JSON.stringify(data);
     const blob = new Blob([json], { type: 'application/json' });
+    
     formData.append("createPostDto", blob);
     if (selectedFiles) {
       selectedFiles.forEach(file => {
@@ -123,7 +220,6 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
     }
 
     try {
-      // 백엔드 API 호출하여 게시글 작성
       const response = await boardApi.postBoard(formData);
       if (response.data.success) {
         alert("게시글이 성공적으로 작성되었습니다.");
@@ -131,20 +227,6 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
         setEditorHtml("");
         setSelectedFiles([]);
         goToHome();
-
-      } else if (response.data.success === false) {
-        if (response.data.code === 7000) {
-          alert("로그인을 먼저 진행시켜 주시길 바랍니다.");
-          navigate("/LoginPage");
-        } else if (response.data.code === 7001) {
-          alert("세션이 만료되었습니다. 다시 로그인 해주세요.");
-          // 토큰 제거
-          sessionStorage.removeItem("login-token");
-          delete axios.defaults.headers.common["Authorization"];
-          navigate("/LoginPage");
-        } else if (response.data.code === 8000) {
-          alert("해당 사용자는" + response.data.message);
-        }
       } else {
         alert("게시글 작성 중 오류가 발생했습니다.");
       }
@@ -158,6 +240,16 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
     setSelectedFiles((prevFiles) => prevFiles.filter(file => file.name !== fileNameToDelete));
   };
 
+  const handleCancel = () => {
+    if (isEditing) {
+      const confirmCancel = window.confirm("작성 중인 내용이 있습니다. 그래도 나가시겠습니까?");
+      if (confirmCancel) {
+        setIsEditing(false);
+        goToHome();
+      }
+    }
+  };
+
   return (
     <>
       <FormContainer>
@@ -166,7 +258,7 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
           value={title}
           onChange={handleContentChange}
           width={"98.5%"}
-          height="2rem"
+          height="3rem"
         />
         <CustomQuillEditor
           value={editorHtml}
@@ -174,34 +266,36 @@ const WritingPage = ({ projectId, category, onBack }: { projectId: number, categ
           modules={{
             toolbar: [
               ["bold", "italic", "underline", "strike"],
-              ["video"],
-              [{ font: [] }],
+              ['video'],
               [{ size: ["small", false, "large", "huge"] }],
-              ["clean"],
             ],
           }}
         />
-        <FileInput
-          type="file"
-          id="file"
-          onChange={handleFileChange}
-          accept="image/*, application/pdf"
-          multiple
-        />
-        <SelectedFileLabel htmlFor="file">파일 선택</SelectedFileLabel>
-        <SelectedFilePreview>
-          {selectedFiles && selectedFiles.map(file => (
-            <div key={file.name}>
-              {file.name}
-              <DeleteFileButton onClick={() => handleDeleteFile(file.name)}>삭제</DeleteFileButton>
-            </div>
-          ))}
-        </SelectedFilePreview>
+        <FileButtonWrapper>
+          <FileContainer>
+            <FileInput
+              type="file"
+              id="file"
+              onChange={handleFileChange}
+              multiple
+            />
+            <SelectedFileLabel htmlFor="file">파일 선택</SelectedFileLabel>
+            <SelectedFilePreview>
+              {selectedFiles && selectedFiles.map(file => (
+                <div key={file.name}>
+                  {file.name}
+                  <DeleteFileButton onClick={() => handleDeleteFile(file.name)}>삭제</DeleteFileButton>
+                </div>
+              ))}
+            </SelectedFilePreview>
+          </FileContainer>
+          <PostsButtonContainer>
+            <NewButton onClick={addPost} textcolor="white" backcolor={theme.color.orange} width={"6rem"} height={"2rem"} style={{ marginLeft: '1rem' }}>등록</NewButton>
+            <NewButton onClick={handleCancel} textcolor="black" backcolor={theme.color.white} width={"6rem"} height={"2rem"}>취소</NewButton>
+          </PostsButtonContainer>
+        </FileButtonWrapper>
       </FormContainer>
-      <PostsButtonContainer>
-        <NewButton onClick={addPost} textcolor="white" backcolor={theme.color.orange} width={"6rem"} height={"2rem"} style={{ marginLeft: '1rem' }}>등록</NewButton>
-        <NewButton onClick={onBack} textcolor="black" backcolor={theme.color.white} width={"6rem"} height={"2rem"}>취소</NewButton>
-      </PostsButtonContainer>
+
     </>
   );
 };

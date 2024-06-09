@@ -9,20 +9,6 @@ import NewButton from "Components/common/NewButton";
 import { theme } from "LightTheme";
 import swal from 'sweetalert';
 
-const SignInContainer = styled.div`
-  background: #FAFAFA;
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* 수평 가운데 정렬 */
-  align-items: center; /* 수직 가운데 정렬 */
-  height: 100vh;
-
-  @media ${media.mobile}{
-    display: block;
-    background-color: #FFFFFF;
-  }
-`;
-
 const WhiteBoxContainer = styled.div`
     // padding: 32px 256px 32px 256px;
     height:100vh;
@@ -64,71 +50,10 @@ const SignInBox = styled.div`
   }
 `;
 
-const SignInForm = styled.div`
-  margin: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
 const SubInputForm = styled.div`
   width:100%;
   align-items: flex-start;
   padding: 0.5rem;
-`;
-
-const InputSize = styled.input`
-  border: none;
-  border-bottom: 1px solid #000000;
-  width: 288px;
-  height: 32px;
-  margin: 8px 0px;
-
-  &:focus{
-    outline: none;
-  }
-`;
-
-const InputSizeWithBtn = styled.input`
-  border: none;
-  border-bottom: 1px solid #000000;
-  width: 192px;
-  margin: 8px 4px 8px 0px;
-
-  &:focus{
-    outline: none;
-  }
-`;
-
-const SignInPageButton = styled.button`
-  background-color: #EB3225;
-  color: #FFFFFF;
-  width: 100%;
-  padding: 8px 20px;
-  border: none;
-  border-radius: 32px;
-  cursor: pointer;
-  transition: background-color 0.3s ease; /* 배경색 변화 시 부드러운 전환 효과 */
-  margin: 0.5rem;
-  height: 48px;
-  &:hover {
-    background-color: #cccccc;
-    color: black;
-  }
-`;
-
-const BtnWithInput = styled.button`
-  background-color: #EB3225;
-  color: #fff;
-  width: 90px;
-  padding: 8px 20px;
-  border: none;
-  border-radius: 32px;
-  cursor: pointer;
-  transition: background-color 0.3s ease; /* 배경색 변화 시 부드러운 전환 효과 */
-  &:hover {
-    background-color: #cccccc;
-  }
 `;
 
 const HorizontalBox = styled.div`
@@ -147,10 +72,17 @@ function SignInPage() {
         phoneNumber: "",
         verificationCode: ""
     });
-    const [pwcheck, setpwcheck] = useState("")
+    const [pwcheck, setPwcheck] = useState("")
+    const [isPasswordMatch, setIsPasswordMatch] = useState(true);
+    const [isCapsLockActive, setIsCapsLockActive] = useState(false);
+    const [isNameValid, setIsNameValid] = useState(true);
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        setIsCapsLockActive(e.getModifierState("CapsLock"));
+    };
 
     const formatPhoneNumber = (value: string) => {
-        const numericValue = value.replace(/\D/g, ''); // 숫자 이외의 문자 제거
+        const numericValue = value.replace(/\D/g, '');
         const formattedValue = numericValue.slice(0, 11);
 
         const parts = [];
@@ -168,6 +100,18 @@ function SignInPage() {
     };
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        if (name === "name") {
+            if (value.length > 17) {
+                return;
+            }
+            setIsNameValid(value.length >= 2);
+        }
+        setFormData(prevData => ({
+            ...prevData,
+            [name]: value,
+        }));
+
         if (e.target.name == "phoneNumber") {
             setFormData((prevData) => ({
                 ...prevData,
@@ -180,23 +124,34 @@ function SignInPage() {
             }));
         }
     };
+
     const handlePwCheck = (e: ChangeEvent<HTMLInputElement>) => {
-        setpwcheck(e.target.value)
+        setPwcheck(e.target.value);
+        setIsPasswordMatch(formData.pwd === e.target.value);
     };
+
     const handleSubmit = () => {
-        if (formData.pwd != pwcheck) {
-            swal('비밀번호가 일치하지 않습니다.', "", 'error')
+        if (!isPasswordMatch) {
+            swal('비밀번호가 일치하지 않습니다.', "", 'error');
+            return;
         }
-        // Send a POST request to your endpoint with formData.
         axios.post('/user-service/register', formData)
             .then((response) => {
-                console.log({ message: response.data });
-                alert("회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.")
-                navigate('/LoginPage');
-                //이전 페이지로 이동
+                if (response.status === 200) {
+                    alert("회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.")
+                    navigate('/LoginPage');
+                }
             })
             .catch((error) => {
-                console.error('API 요청 중 오류 발생:', error);
+                if (error.response) {
+                    if (error.response.status === 409) {
+                        alert('이미 사용 중인 번호입니다.');
+                    } else {
+                        console.error('API 요청 중 오류 발생:', error.response.status, error.response.data);
+                    }
+                } else {
+                    console.error('API 요청 중 오류 발생:', error.message);
+                }
             });
     };
 
@@ -209,23 +164,31 @@ function SignInPage() {
 
     const handleSendCode = () => {
         const data = {
-            email: formData.email // 실제 이메일 값을 사용
+            email: formData.email
         };
 
         axios.post('/user-service/emails/verification-requests', null, {
             params: data,
         })
             .then((response) => {
-                console.log({ message: response.data });
-                alert("입력하신 이메일로 인증코드가 전송되었습니다.");
-                setIsCodeSent(true);
-                startTimer();
+                if (response.status === 200) {
+                    alert("입력하신 이메일로 인증코드가 전송되었습니다.");
+                    setIsCodeSent(true);
+                    startTimer();
+                } 
             })
             .catch((error) => {
-                console.error('API 요청 중 오류 발생:', error);
+                if (error.response) {
+                    if (error.response.status === 409) {
+                        alert("이미 사용 중인 이메일입니다.");
+                    } else {
+                        console.error('API 요청 중 오류 발생:', error.response.status, error.response.data);
+                    }
+                } else {
+                    console.error('API 요청 중 오류 발생:', error.message);
+                }
             });
-    }
-
+    };
 
     const startTimer = () => {
         setIsTimerRunning(true);
@@ -256,14 +219,13 @@ function SignInPage() {
 
 
     const handleVerifiyCode = () => {
-
         const email = formData.email;
         const authCode = formData.verificationCode;
 
         axios.get(`/user-service/emails/verifications?email=${email}&code=${authCode}`)
             .then((response) => {
                 console.log({ message: response.data });
-                alert(response.data.message);
+                alert('인증에 성공하였습니다.');
                 if (response.data.verificationStatus) {
                     setIsCodeSent(false);
                     setIsVerified(true);
@@ -278,8 +240,6 @@ function SignInPage() {
             });
     }
 
-    //-----------------------------phoneNum--------------------------
-
     return (
         <WhiteBoxContainer className="WhiteBoxContainer">
 
@@ -288,28 +248,33 @@ function SignInPage() {
                 <TitleLg>MANAGEMENT PAGE</TitleLg>
             </TitleCenterBox>
 
-            {/* <select
-                    name="role"
-                    value={formData.role}
-                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                >
-                    <option value="USER">사용자</option>
-                    <option value="ADMIN">관리자</option>
-                </select> */}
-
             <SignInBox className="SignInBox">
                 <SubInputForm className="SubInputFormWithButton">
                     <TextMd>EMAIL</TextMd>
                     <HorizontalBox>
                         <InputText
-                            width={"100%"} height={""}
-                            name="email" value={formData.email}
+                            width={"100%"}
+                            height={""}
+                            name="email"
+                            value={formData.email}
                             placeholder={"이메일을 입력하세요."}
-                            onChange={handleChange} data={formData}></InputText>
+                            onChange={handleChange}
+                            data={formData}
+                            disabled={isVerified}
+                        />
                         <div style={{ width: '1rem' }} />
-                        <NewButton backcolor={theme.color.orange}
-                            textcolor={""} width={"10rem"} height={"2.2rem"}
-                            smallWidth={"5rem"} onClick={handleSendCode}>인증</NewButton>
+                        {!isVerified && (
+                            <NewButton
+                                backcolor={theme.color.orange}
+                                textcolor={""}
+                                width={"10rem"}
+                                height={"3rem"}
+                                smallWidth={"5rem"}
+                                onClick={handleSendCode}
+                            >
+                                {isCodeSent ? "재전송" : "인증"}
+                            </NewButton>
+                        )}
                     </HorizontalBox>
                 </SubInputForm>
 
@@ -333,7 +298,7 @@ function SignInPage() {
                             <div style={{ width: '1rem' }} />
                             <NewButton onClick={handleVerifiyCode}
                                 backcolor={theme.color.orange} width={"10rem"}
-                                height={"2.2rem"} smallWidth={"5rem"} >확인</NewButton>
+                                height={"3rem"} smallWidth={"5rem"} >확인</NewButton>
                         </HorizontalBox>
                     </SubInputForm>
                 )}
@@ -343,30 +308,40 @@ function SignInPage() {
                         width={"98%"} height={""}
                         name="pwd" value={formData.pwd}
                         placeholder={"비밀번호를 입력하세요."}
-                        onChange={handleChange} type="password" />
+                        onChange={handleChange} type="password"
+                        onKeyDown={handleKeyDown} />
                 </SubInputForm>
                 <SubInputForm className="SubInputForm">
                     <TextMd>Confirm Password</TextMd>
                     <InputText width={"98%"} height={""}
                         name="pwdcheck" value={pwcheck}
                         placeholder={"동일한 비밀번호를 입력하세요."}
-                        onChange={handlePwCheck} type="password" />
+                        onChange={handlePwCheck} type="password"
+                        onKeyDown={handleKeyDown} />
+                    {!isPasswordMatch && (
+                        <TextSm style={{ color: 'red' }}>비밀번호가 일치하지 않습니다.</TextSm>
+                    )}
+                    {isCapsLockActive && (
+                        <TextSm>Caps Lock이 켜져 있습니다. 비밀번호를 정확히 입력하세요.</TextSm>
+                    )}
                 </SubInputForm>
-
                 <SubInputForm className="SubInputForm">
                     <TextMd>Name</TextMd>
                     <InputText
                         width={"98%"} height={""}
                         name="name" value={formData.name}
-                        placeholder={"이름을 입력하세요."}
+                        placeholder={"이름을 입력하세요.(2-17자)"}
                         onChange={handleChange} />
+                    {!isNameValid && (
+                        <TextSm style={{ color: 'red' }}>이름은 2자 이상 17자 이하여야 합니다.</TextSm>
+                    )}
                 </SubInputForm>
                 <SubInputForm className="SubInputForm">
                     <TextMd>Phone</TextMd>
                     <InputText
                         width={"98%"} height={""}
                         name="phoneNumber" value={formData.phoneNumber}
-                        placeholder={"하이픈(-)과 함께 번호를 입력하세요."}
+                        placeholder={"번호를 입력하세요."}
                         onChange={handleChange} type="tel" />
                 </SubInputForm>
                 <NewButton backcolor={theme.color.orange}

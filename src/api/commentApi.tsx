@@ -9,7 +9,7 @@ interface CommentApi {
   postComment: (postId: number, data: any) => Promise<AxiosResponse>;
   putComment: (commentId: number, data: any) => Promise<AxiosResponse>;
   deleteComment: (commentId: number) => Promise<AxiosResponse>;
-  getCommentList: (postId: number) => Promise<AxiosResponse>;
+  getCommentList: (postId: number, page: number, pageSize: number) => Promise<AxiosResponse>;
 }
 
 const commentApi: CommentApi = {
@@ -25,10 +25,15 @@ const commentApi: CommentApi = {
     const response = await axios.delete(`/api/comment/${commentId}`);
     return response;
   },
-  getCommentList: async (postId) => {
-    const response = await axios.get(`/api/posts/${postId}/comments`);
+  getCommentList: async (postId, page = 0, pageSize = 5) => {
+    const params: any = {};
+    if (page !== 0) params.page = page + 1; // 1을 더해서 1부터 시작하도록 변경
+    if (pageSize !== 5) params.size = pageSize;
+
+    const response = await axios.get(`/api/posts/${postId}/comments`, { params });
     return response;
-  },
+},
+
 };
 
 export default commentApi;
