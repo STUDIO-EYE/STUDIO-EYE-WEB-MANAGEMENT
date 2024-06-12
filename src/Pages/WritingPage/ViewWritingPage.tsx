@@ -202,6 +202,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   const [showViewWriting, setShowViewWriting] = useState(true);
   const [showPutWriting, setShowPutWriting] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [tempExistingFiles, setTempExistingFiles]=useState<File[]>([]);
   const [existingFiles, setExistingFiles] = useState<File[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedPost, setSelectedPost] = useState({
@@ -229,6 +230,19 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   const [filePaths, setFilePaths] = useState<string[]>([]);
   const [fileNames, setFileNames] = useState<string[]>([]);
 
+  // async function urlToFile(url: string, fileName: string):Promise<File> {
+  //   try {
+  //     console.log("경로"+url)
+  //     const response = await fetch(url);
+  //     const blob = await response.blob();
+  //     console.log(blob)
+  //     return new File([blob], fileName);
+  //   } catch (error) {
+  //     console.error('Error URL to file:', error);
+  //     throw error;
+  //   }
+  // }
+
   useEffect(() => {
     const fetchFiles = async () => {
       try {
@@ -245,6 +259,17 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
           }
           return new File([], file.fileName);
         });
+
+            //   const existingFilesArray = await Promise.all(
+    //     files.map(async (file: { fileName: string, filePath: string }) => {
+    //     if (!file.fileName || !file.filePath) {
+    //       throw new Error("파일 객체에 예상된 속성이 없습니다");
+    //     }
+    //     const splitUrl=file.filePath.split("/")
+    //     const convertedFile=await urlToFile(splitUrl[splitUrl.length-1],file.fileName)
+    //     console.log(convertedFile)
+    //     return convertedFile;
+    //   }),)
 
         setExistingFiles(existingFilesArray);
 
@@ -271,7 +296,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
 
     fetchFiles();
   }, [projectId, selectedRowId]);
-
+  
 
   const goToPreviousPage = () => {
     setTimeout(() => {
@@ -421,6 +446,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const filesToAdd = Array.from(e.target.files);
+      console.log(filesToAdd)
       setSelectedFiles((prevFiles) => [...prevFiles, ...filesToAdd]);
     }
   };
@@ -505,6 +531,10 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
+            <button onClick={()=>{
+          console.log(selectedFiles)
+          console.log(existingFiles)
+        }}>흥냥냐</button>
             <CustomQuillEditor
               value={editorHtml}
               onChange={setEditorHtml}
