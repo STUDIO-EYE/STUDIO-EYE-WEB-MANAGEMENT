@@ -202,6 +202,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   const [showViewWriting, setShowViewWriting] = useState(true);
   const [showPutWriting, setShowPutWriting] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [tempExistingFiles, setTempExistingFiles]=useState<File[]>([]);
   const [existingFiles, setExistingFiles] = useState<File[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedPost, setSelectedPost] = useState({
@@ -229,37 +230,77 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   const [filePaths, setFilePaths] = useState<string[]>([]);
   const [fileNames, setFileNames] = useState<string[]>([]);
 
+  // async function urlToFile(url: string, fileName: string):Promise<File> {
+  //   try {
+  //     console.log("경로"+url)
+  //     const response = await fetch(url);
+  //     const blob = await response.blob();
+  //     console.log(blob)
+  //     return new File([blob], fileName);
+  //   } catch (error) {
+  //     console.error('Error URL to file:', error);
+  //     throw error;
+  //   }
+  // }
+
   useEffect(() => {
-    const fetchFiles = async () => {
-      try {
-        const response = await axios.get(`/api/posts/files?projectId=${projectId}&postId=${postId}`);
-        const files = response.data.list;
-
-        if (!Array.isArray(files)) {
-          throw new Error("Files 응답이 배열이 아닙니다");
-        }
-
-        const existingFilesArray = files.map((file: { fileName: string, filePath: string }) => {
-          if (!file.fileName || !file.filePath) {
-            throw new Error("파일 객체에 예상된 속성이 없습니다");
-          }
-          return new File([], file.fileName);
-        });
-
-        setExistingFiles(existingFilesArray);
-
-        const paths = files.map((file: { filePath: string }) => file.filePath);
-        const names = files.map((file: { fileName: string }) => file.fileName);
-        setFilePaths(paths);
-        setFileNames(names);
-      } catch (error) {
-        console.error("파일을 가져오는 중 오류 발생:", error);
-      }
-    };
-
     fetchFiles();
   }, [projectId, selectedRowId]);
 
+  const fetchFiles = async () => {
+    try {
+      const response = await axios.get(`/api/posts/files?projectId=${projectId}&postId=${postId}`);
+      const files = response.data.list;
+
+      if (!Array.isArray(files)) {
+        throw new Error("Files 응답이 배열이 아닙니다");
+      }
+
+      const existingFilesArray = files.map((file: { fileName: string, filePath: string }) => {
+        if (!file.fileName || !file.filePath) {
+          throw new Error("파일 객체에 예상된 속성이 없습니다");
+        }
+        return new File([], file.fileName);
+      });
+
+      setExistingFiles(existingFilesArray);
+
+      const paths = files.map((file: { filePath: string }) => file.filePath);
+      const names = files.map((file: { fileName: string }) => file.fileName);
+      setFilePaths(paths);
+      setFileNames(names);
+    } catch (error) {
+      console.error("파일을 가져오는 중 오류 발생:", error);
+    }
+
+    // try {
+    //   const response = await axios.get(`/api/posts/files?projectId=${projectId}&postId=${postId}`);
+    //   const files = response.data.list;
+    //   if (!Array.isArray(files)) {
+    //     throw new Error("Files 응답이 배열이 아닙니다");
+    //   }
+    //   const existingFilesArray = await Promise.all(
+    //     files.map(async (file: { fileName: string, filePath: string }) => {
+    //     if (!file.fileName || !file.filePath) {
+    //       throw new Error("파일 객체에 예상된 속성이 없습니다");
+    //     }
+    //     const splitUrl=file.filePath.split("/")
+    //     const convertedFile=await urlToFile(splitUrl[splitUrl.length-1],file.fileName)
+    //     console.log(convertedFile)
+    //     return convertedFile;
+    //   }),)
+
+    //   setExistingFiles(existingFilesArray);
+
+    //   const paths = files.map((file: { filePath: string }) => file.filePath);
+    //   const names = files.map((file: { fileName: string }) => file.fileName);
+    //   setFilePaths(paths);
+    //   setFileNames(names);
+    // } catch (error) {
+    //   console.error("파일을 가져오는 중 오류 발생:", error);
+    // }
+  };
+  
 
   const goToPreviousPage = () => {
     setTimeout(() => {
@@ -417,6 +458,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const filesToAdd = Array.from(e.target.files);
+      console.log(filesToAdd)
       setSelectedFiles((prevFiles) => [...prevFiles, ...filesToAdd]);
     }
   };
@@ -496,6 +538,10 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
+            <button onClick={()=>{
+          console.log(selectedFiles)
+          console.log(existingFiles)
+        }}>흥냥냐</button>
             <CustomQuillEditor
               value={editorHtml}
               onChange={setEditorHtml}

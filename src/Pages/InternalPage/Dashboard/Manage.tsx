@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import scheduleApi from "../../../api/scheduleApi";
 import { Refresh } from "@mui/icons-material";
@@ -99,9 +99,9 @@ function toKoreanTime(date: Date) {
   return localDate.toISOString().substr(0, 10);
 }
 
-const Manage: React.FC<{ projectId: number; onClose: () => void }> = ({ projectId, onClose }) => {
-  const [startDate, setStartDate] = useState(toKoreanTime(new Date()));
-  const [endDate, setEndDate] = useState(toKoreanTime(new Date()));
+const Manage: React.FC<{ projectId: number; onClose: () => void; date:Date }> = ({ projectId, onClose, date }) => {
+  const [startDate, setStartDate] = useState(toKoreanTime(date));
+  const [endDate, setEndDate] = useState(toKoreanTime(date));
   const [eventText, setEventText] = useState<string>("");
   const setOnModal=useSetRecoilState(modalOn);
   
@@ -109,6 +109,7 @@ const Manage: React.FC<{ projectId: number; onClose: () => void }> = ({ projectI
 
   const handleSave = async () => {
     // 이벤트 저장 로직
+    console.log(startDate+" "+endDate)
 
     if(!eventText){
       focusSchedule.current?.focus();
