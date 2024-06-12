@@ -244,42 +244,23 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   // }
 
   useEffect(() => {
-    fetchFiles();
-  }, [projectId, selectedRowId]);
+    const fetchFiles = async () => {
+      try {
+        const response = await axios.get(`/api/posts/files?projectId=${projectId}&postId=${postId}`);
+        const files = response.data.list;
 
-  const fetchFiles = async () => {
-    try {
-      const response = await axios.get(`/api/posts/files?projectId=${projectId}&postId=${postId}`);
-      const files = response.data.list;
-
-      if (!Array.isArray(files)) {
-        throw new Error("Files 응답이 배열이 아닙니다");
-      }
-
-      const existingFilesArray = files.map((file: { fileName: string, filePath: string }) => {
-        if (!file.fileName || !file.filePath) {
-          throw new Error("파일 객체에 예상된 속성이 없습니다");
+        if (!Array.isArray(files)) {
+          throw new Error("Files 응답이 배열이 아닙니다");
         }
-        return new File([], file.fileName);
-      });
 
-      setExistingFiles(existingFilesArray);
+        const existingFilesArray = files.map((file: { fileName: string, filePath: string }) => {
+          if (!file.fileName || !file.filePath) {
+            throw new Error("파일 객체에 예상된 속성이 없습니다");
+          }
+          return new File([], file.fileName);
+        });
 
-      const paths = files.map((file: { filePath: string }) => file.filePath);
-      const names = files.map((file: { fileName: string }) => file.fileName);
-      setFilePaths(paths);
-      setFileNames(names);
-    } catch (error) {
-      console.error("파일을 가져오는 중 오류 발생:", error);
-    }
-
-    // try {
-    //   const response = await axios.get(`/api/posts/files?projectId=${projectId}&postId=${postId}`);
-    //   const files = response.data.list;
-    //   if (!Array.isArray(files)) {
-    //     throw new Error("Files 응답이 배열이 아닙니다");
-    //   }
-    //   const existingFilesArray = await Promise.all(
+            //   const existingFilesArray = await Promise.all(
     //     files.map(async (file: { fileName: string, filePath: string }) => {
     //     if (!file.fileName || !file.filePath) {
     //       throw new Error("파일 객체에 예상된 속성이 없습니다");
@@ -290,16 +271,31 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     //     return convertedFile;
     //   }),)
 
-    //   setExistingFiles(existingFilesArray);
+        setExistingFiles(existingFilesArray);
 
-    //   const paths = files.map((file: { filePath: string }) => file.filePath);
-    //   const names = files.map((file: { fileName: string }) => file.fileName);
-    //   setFilePaths(paths);
-    //   setFileNames(names);
-    // } catch (error) {
-    //   console.error("파일을 가져오는 중 오류 발생:", error);
-    // }
-  };
+        const paths = files.map((file: { filePath: string }) => file.filePath);
+        const names = files.map((file: { fileName: string }) => file.fileName);
+        setFilePaths(paths);
+        setFileNames(names);
+
+        // 파일이 있는 경우 처리 로직 추가
+        // if (response.data.mainImg) {
+        //   try {
+        //     const mainImgFile = await urlToFile(response.data.mainImg + '?t=' + Date.now(), `${response.data.mainImg}.png`);
+        //     setMainImage(mainImgFile);
+        //     console.log(mainImgFile, 'main ImgFile Blob');
+        //   } catch (error) {
+        //     console.error('Main image fetching error:', error);
+        //   }
+        // }
+
+      } catch (error) {
+        console.error('파일을 가져오는 중 오류 발생:', error);
+      }
+    };
+
+    fetchFiles();
+  }, [projectId, selectedRowId]);
   
 
   const goToPreviousPage = () => {
@@ -314,6 +310,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
       return;
     }
 
+    const formData = new FormData();
     const updatedPostData = {
       projectId: projectId.toString(),
       title: title,
@@ -322,26 +319,17 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
       category: selectedPost.category,
       updatedAt: selectedPost.updatedAt,
     };
-
-    const formData = new FormData();
-
-    const json = JSON.stringify(updatedPostData);
-    const blob = new Blob([json], { type: 'application/json' });
-
-    formData.append("updatePostRequestDto", blob);
-
-    const allFiles = [...existingFiles, ...selectedFiles];
+    formData.append("updatePostRequestDto", new Blob([JSON.stringify(updatedPostData)], { type: 'application/json' }));
 
     if (selectedFiles) {
-      allFiles.forEach(file => {
+      selectedFiles.forEach(file => {
         formData.append("files", file);
       })
-    } else if (existingFiles) {
+    }
+    if (existingFiles) {
       existingFiles.forEach(file => {
         formData.append("files", file);
       })
-    } else {
-      formData.append("files", "");
     }
 
     try {
@@ -518,11 +506,16 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
             {fileNames.length > 0 && (
               <div>
                 <h4>첨부파일</h4>
-                {fileNames.map((fileName, index) => (
+                {/* {fileNames.map((fileName, index) => (
                   <div key={fileName}>
                     <FileNameLink href={filePaths[index]} download>
                       {fileName}
                     </FileNameLink>
+                  </div>
+                ))} */}
+                {filePaths.map((filePath, index) => (
+                  <div key={filePath}>
+                    <img src={filePath} alt={fileNames[index]} />
                   </div>
                 ))}
               </div>

@@ -82,7 +82,7 @@ function SignInPage() {
     };
 
     const formatPhoneNumber = (value: string) => {
-        const numericValue = value.replace(/\D/g, ''); // 숫자 이외의 문자 제거
+        const numericValue = value.replace(/\D/g, '');
         const formattedValue = numericValue.slice(0, 11);
 
         const parts = [];
@@ -135,15 +135,23 @@ function SignInPage() {
             swal('비밀번호가 일치하지 않습니다.', "", 'error');
             return;
         }
-
         axios.post('/user-service/register', formData)
             .then((response) => {
-                console.log({ message: response.data });
-                alert("회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.")
-                navigate('/LoginPage');
+                if (response.status === 200) {
+                    alert("회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.")
+                    navigate('/LoginPage');
+                }
             })
             .catch((error) => {
-                console.error('API 요청 중 오류 발생:', error);
+                if (error.response) {
+                    if (error.response.status === 409) {
+                        alert('이미 사용 중인 번호입니다.');
+                    } else {
+                        console.error('API 요청 중 오류 발생:', error.response.status, error.response.data);
+                    }
+                } else {
+                    console.error('API 요청 중 오류 발생:', error.message);
+                }
             });
     };
 
@@ -167,11 +175,7 @@ function SignInPage() {
                     alert("입력하신 이메일로 인증코드가 전송되었습니다.");
                     setIsCodeSent(true);
                     startTimer();
-                } else if (response.status === 409) {
-                    alert("이미 사용 중인 이메일입니다.");
-                } else {
-                    console.error('Unexpected status code:', response.status);
-                }
+                } 
             })
             .catch((error) => {
                 if (error.response) {
@@ -185,7 +189,6 @@ function SignInPage() {
                 }
             });
     };
-
 
     const startTimer = () => {
         setIsTimerRunning(true);

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
   margin-left: 225px;
@@ -13,7 +14,7 @@ const Table = styled.table`
   border-collapse: collapse;
 `;
 
-const Th = styled.th`
+const StyledTh = styled.th`
   border-bottom: 2px solid #ddd;
   padding: 15px 20px;
   text-align: left;
@@ -22,7 +23,7 @@ const Th = styled.th`
   }
 `;
 
-const Td = styled.td`
+const StyledTd = styled.td`
   border-bottom: 1px solid #ddd;
   padding: 10px 20px;
   &:last-child {
@@ -63,31 +64,6 @@ const ToggleSwitch = styled.div<{ approved: boolean }>`
   left: ${(props) => (props.approved ? '5px' : '80px')};
 `;
 
-const Button = styled.button<{ primary?: boolean; isWide?: boolean }>`
-  font-family: 'Pretendard';
-  font-weight: 600;
-  font-size: 1rem;
-
-  transition: background-color 0.3s;
-
-  width: 7rem;
-  height: 3rem;
-
-  padding: 8px 12px;
-  background-color: ${(props) => (props.primary ? '#FFC83D' : 'black')};
-  color: ${(props) => (props.primary ? 'black' : '#FFC83D')};
-  border: none;
-  cursor: pointer;
-  border-radius: 15px 0 15px 0;
-
-  align-items: center;
-  
-  &:hover {
-    background-color: ${(props) => (props.primary ? 'black' : '#FFC83D')};
-    color: ${(props) => (props.primary ? '#FFC83D' : 'black')};
-  }
-`;
-
 interface Account {
   id: string;
   name: string;
@@ -99,15 +75,39 @@ interface Account {
 
 const AccountPage: React.FC = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const token = sessionStorage.getItem("login-token");
+      if (!token) {
+        alert("로그인이 필요합니다.");
+        navigate("/LoginPage");
+      } else {
+        fetchAccounts();
+      }
+    };
+
+    checkLoginStatus();
+  }, []);
 
   const fetchAccounts = async () => {
     try {
       const response = await axios.get('/user-service/users');
+      if (response.data && response.data.success === false) {
+        if (response.data.code === 7000) {
+          alert("세션이 만료되었습니다. 다시 로그인 해주세요.");
+          sessionStorage.removeItem("login-token");
+          delete axios.defaults.headers.common["Authorization"];
+          navigate("/LoginPage");
+          return;
+        }
+      }
       setAccounts(response.data);
     } catch (error) {
       alert('사용자 목록을 불러오는 데 실패했습니다.');
     }
-  };
+  };  
 
   const toggleApproval = async (account: Account) => {
     const newApprovedStatus = !account.approved;
@@ -135,41 +135,40 @@ const AccountPage: React.FC = () => {
       alert('계정을 삭제하는 데 실패했습니다.');
     }
   };
-  
 
-  useEffect(() => {
-    fetchAccounts();
-  }, []);
+  // useEffect(() => {
+  //   fetchAccounts();
+  // }, []);
 
   return (
     <Container>
       <Table>
         <thead>
           <tr>
-            <Th>이름</Th>
-            <Th>계정 생성일</Th>
-            <Th>이메일</Th>
-            <Th>전화번호</Th>
-            <Th>상태</Th>
-            <Th> </Th>
+            <StyledTh>이름</StyledTh>
+            <StyledTh>계정 생성일</StyledTh>
+            <StyledTh>이메일</StyledTh>
+            <StyledTh>전화번호</StyledTh>
+            <StyledTh>상태</StyledTh>
+            <StyledTh> </StyledTh>
           </tr>
         </thead>
         <tbody>
           {accounts.map((account, index) => (
             <tr key={index}>
-              <Td>{account.name}</Td>
-              <Td>{account.createdAt}</Td>
-              <Td>{account.email}</Td>
-              <Td>{account.phoneNumber}</Td>
-              <Td>
+              <StyledTd>{account.name}</StyledTd>
+              <StyledTd>{account.createdAt}</StyledTd>
+              <StyledTd>{account.email}</StyledTd>
+              <StyledTd>{account.phoneNumber}</StyledTd>
+              <StyledTd>
                 <SwitchContainer approved={account.approved} onClick={() => toggleApproval(account)}>
                   <SwitchText approved={account.approved}>{account.approved ? '승인' : '미승인'}</SwitchText>
                   <ToggleSwitch approved={account.approved} />
                 </SwitchContainer>
-              </Td>
-              <Td>
+              </StyledTd>
+              {/* <Td>
                 <Button isWide onClick={() => deleteAccount(account.id)}>계정 삭제</Button>
-              </Td>
+              </Td> */}
             </tr>
           ))}
         </tbody>
