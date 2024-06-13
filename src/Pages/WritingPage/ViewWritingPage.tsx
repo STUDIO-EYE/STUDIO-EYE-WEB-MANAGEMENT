@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -181,7 +181,7 @@ const DeleteFileButton = styled.button`
   }
 `;
 
-const FileNameLink = styled.a`
+const FileNameLink = styled.div`
   color: black;
   font-size: 1rem;
   width: 80%;
@@ -191,6 +191,7 @@ const FileNameLink = styled.a`
   overflow: hidden;
   text-overflow: ellipsis;
   &:hover {
+    cursor:pointer;
     text-decoration: underline;
   }
 `;
@@ -230,18 +231,18 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   const [filePaths, setFilePaths] = useState<string[]>([]);
   const [fileNames, setFileNames] = useState<string[]>([]);
 
-  // async function urlToFile(url: string, fileName: string):Promise<File> {
-  //   try {
-  //     console.log("경로"+url)
-  //     const response = await fetch(url);
-  //     const blob = await response.blob();
-  //     console.log(blob)
-  //     return new File([blob], fileName);
-  //   } catch (error) {
-  //     console.error('Error URL to file:', error);
-  //     throw error;
-  //   }
-  // }
+  async function urlToFile(url: string, fileName: string):Promise<File> {
+    try {
+      console.log("경로"+url)
+      const response = await fetch(url);
+      const blob = await response.blob();
+      console.log(blob)
+      return new File([blob], fileName);
+    } catch (error) {
+      console.error('Error URL to file:', error);
+      throw error;
+    }
+  }
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -252,24 +253,16 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
         if (!Array.isArray(files)) {
           throw new Error("Files 응답이 배열이 아닙니다");
         }
-
-        const existingFilesArray = files.map((file: { fileName: string, filePath: string }) => {
-          if (!file.fileName || !file.filePath) {
-            throw new Error("파일 객체에 예상된 속성이 없습니다");
-          }
-          return new File([], file.fileName);
-        });
-
-            //   const existingFilesArray = await Promise.all(
-    //     files.map(async (file: { fileName: string, filePath: string }) => {
-    //     if (!file.fileName || !file.filePath) {
-    //       throw new Error("파일 객체에 예상된 속성이 없습니다");
-    //     }
-    //     const splitUrl=file.filePath.split("/")
-    //     const convertedFile=await urlToFile(splitUrl[splitUrl.length-1],file.fileName)
-    //     console.log(convertedFile)
-    //     return convertedFile;
-    //   }),)
+        
+        const existingFilesArray = await Promise.all(
+        files.map(async (file: { fileName: string, filePath: string }) => {
+        if (!file.fileName || !file.filePath) {
+          throw new Error("파일 객체에 예상된 속성이 없습니다");
+        }
+        const convertedFile=await urlToFile(file.filePath,file.fileName)
+        console.log(convertedFile)
+        return convertedFile;
+      }),)
 
         setExistingFiles(existingFilesArray);
 
@@ -469,6 +462,24 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     }
   };
 
+  const onClickImgLink = useCallback((srcUrl: string, name: string) => {
+    fetch(srcUrl, { method: 'GET' }).then((res) => res.blob()).then((blob) => {
+       const url = window.URL.createObjectURL(blob);
+       //다운로드 링크 설정을 위해 fetch를 다시하고 있지만 가능하면 한 번 불러온 existFileList에서 활용하고싶음
+       const a = document.createElement('a');
+       a.href = url;
+       a.download = name;
+       document.body.appendChild(a);
+       a.click();
+       setTimeout((_) => {
+       window.URL.revokeObjectURL(url);
+       }, 1000);
+       a.remove();
+    }).catch((err) => {
+       console.error('err', err);
+    });
+ }, []);
+
   const updatedAtDate = new Date(selectedPost.updatedAt);
   const formattedUpdatedAt = `${updatedAtDate.getFullYear()}년 ${String(updatedAtDate.getMonth() + 1).padStart(2, '0')}월 ${String(updatedAtDate.getDate()).padStart(2, '0')}일 ${String(updatedAtDate.getHours()).padStart(2, '0')}:${String(updatedAtDate.getMinutes()).padStart(2, '0')}:${String(updatedAtDate.getSeconds()).padStart(2, '0')}`;
 
@@ -506,18 +517,18 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
             {fileNames.length > 0 && (
               <div>
                 <h4>첨부파일</h4>
-                {/* {fileNames.map((fileName, index) => (
+                {fileNames.map((fileName, index) => (
                   <div key={fileName}>
-                    <FileNameLink href={filePaths[index]} download>
+                    <FileNameLink onClick={()=>onClickImgLink(filePaths[index],fileName)}>
                       {fileName}
                     </FileNameLink>
                   </div>
-                ))} */}
-                {filePaths.map((filePath, index) => (
+                ))}
+                {/* {filePaths.map((filePath, index) => (
                   <div key={filePath}>
                     <img src={filePath} alt={fileNames[index]} />
                   </div>
-                ))}
+                ))} */}
               </div>
             )}
           </FormContainer>

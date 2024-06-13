@@ -259,16 +259,17 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
     }
   };
 
-  const handleDelete = async (todoIndex: number) => {
+  const handleDelete = async (e:React.MouseEvent,todoIndex: number) => {
     if(window.confirm("삭제하시겠습니까?")){
     const filteredItems = items.filter((item) => item.todoIndex !== todoIndex);
     setItems(filteredItems);
-
+    e.stopPropagation()
     try {
       await checkTodoApi.deleteCheckTodo(todoIndex);
     } catch (error) {
       console.error("Error deleting item", error);
     }}
+    e.stopPropagation()
   };
 
   const handleAdd = async () => {
@@ -357,7 +358,17 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
     setOnModal(showEditModal)
   },[showEditModal])
 
-  const sortedItems = [...items].sort((a, b) => {
+  const idSort=[...items].sort((a,b)=>{
+    if(a.todoIndex>b.todoIndex)return 1;
+    if(a.todoIndex<b.todoIndex)return -1;
+    return 0;
+  })
+  const emergenSort=[...idSort].sort((a,b)=>{
+    if(a.todoEmergency&&!b.todoEmergency)return -1;
+    if(!a.todoEmergency&&b.todoEmergency)return 1;
+    return 0;
+  })
+  const sortedItems = [...emergenSort].sort((a, b) => {
     if (a.checked && !b.checked) return 1;
     if (!a.checked && b.checked) return -1;
     return 0;
@@ -393,7 +404,7 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
             />
             {item.todoEmergency ? <UrgencyLabel>[긴급]</UrgencyLabel> : null}
             <ItemContent>{item.todoContent}</ItemContent>
-            <DeleteButton onClick={() => !onModal?handleDelete(item.todoIndex):null}>
+            <DeleteButton onClick={(e) => !onModal?handleDelete(e,item.todoIndex):null}>
               <FaTrash />
             </DeleteButton>
           </Item>
