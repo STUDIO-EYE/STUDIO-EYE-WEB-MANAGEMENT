@@ -220,11 +220,11 @@ const RightDashboard: React.FC<DashboardProps> = ({ projectData, projectId, comp
 
   const handlePostClick = (id: number, type: string) => {
     if (type === "plan") {
-      navigate(`/PlanMain/${projectId}/${id}`);
+      navigate(`/PlanMain/${projectId}/${id}`, { state: { name: projectData.name } });
     } else if (type === "production") {
-      navigate(`/MakingMain/${projectId}/${id}`);
+      navigate(`/MakingMain/${projectId}/${id}`, { state: { name: projectData.name } });
     } else if (type === "edit") {
-      navigate(`/EditMain/${projectId}/${id}`);
+      navigate(`/EditMain/${projectId}/${id}`, { state: { name: projectData.name } });
     }
   };
 
