@@ -543,7 +543,7 @@ const WeekCalendar: React.FC<WeekCalendarProps> = ({ projectId, onDarkBackground
 
         {showManageModal && (
           <Modal>
-            <Manage projectId={projectId} onClose={handleCloseManageModal} />
+            <Manage projectId={projectId} onClose={handleCloseManageModal} date={selectDate} />
           </Modal>
         )}
       </Container>

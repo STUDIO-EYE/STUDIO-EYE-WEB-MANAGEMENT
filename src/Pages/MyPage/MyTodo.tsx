@@ -259,17 +259,18 @@ function MyTodo() {
     }
   };
 
-  const handleDelete = async (todoIndex: number) => {
+  const handleDelete  = async (e:React.MouseEvent,todoIndex: number) => {
     if(window.confirm("삭제하시겠습니까?")){
       const filteredItems = items.filter((item) => item.userTodoId !== todoIndex);
       setItems(filteredItems);
-
+      e.stopPropagation()
       try {
         await myPageApi.deleteTodo(todoIndex);
       } catch (error) {
         console.error("Error deleting item", error);
       }
     }
+    e.stopPropagation()
   };
 
   const handleAdd = async () => {
@@ -358,7 +359,12 @@ function MyTodo() {
     setOnModal(showEditModal)
   },[showEditModal])
 
-  const emergenSort=[...items].sort((a,b)=>{
+  const idSort=[...items].sort((a,b)=>{
+    if(a.userTodoId>b.userTodoId)return 1;
+    if(a.userTodoId<b.userTodoId)return -1;
+    return 0;
+  })
+  const emergenSort=[...idSort].sort((a,b)=>{
     if(a.todoEmergency&&!b.todoEmergency)return -1;
     if(!a.todoEmergency&&b.todoEmergency)return 1;
     return 0;
@@ -390,7 +396,7 @@ function MyTodo() {
             />
             {item.todoEmergency ? <UrgencyLabel>[긴급]</UrgencyLabel> : null}
             <ItemContent>{item.todoContent}</ItemContent>
-            <DeleteButton onClick={() => !onModal?handleDelete(item.userTodoId):null}>
+            <DeleteButton onClick={(e) => !onModal?handleDelete(e,item.userTodoId):null}>
               <FaTrash />
             </DeleteButton>
           </Item>
