@@ -58,8 +58,6 @@ const CommentPage = ({ selectedRowId, projectId, postId }: { selectedRowId: numb
 
       if (response.data.success) {
         const commentsContent = response.data.data.commentResponses;
-        console.log("Comments content:", commentsContent);
-
         setComments(commentsContent);
         setCommentsData({
           content: commentsContent,
@@ -87,7 +85,6 @@ const CommentPage = ({ selectedRowId, projectId, postId }: { selectedRowId: numb
     }
   };
 
-
   const handleAddComment = () => {
     fetchData(currentPage - 1, commentsData.pageSize);
   };
@@ -100,10 +97,6 @@ const CommentPage = ({ selectedRowId, projectId, postId }: { selectedRowId: numb
     setCurrentPage(pageNumber);
     navigate(`?page=${pageNumber}`);
   };
-
-  useEffect(() => {
-    console.log("Comments state updated:", comments);
-  }, [comments]);
 
   return (
     <>
@@ -121,7 +114,6 @@ const CommentPage = ({ selectedRowId, projectId, postId }: { selectedRowId: numb
             onDeleteComment={handleDeleteComment}
             totalElements={commentsData.totalElements}
           />
-
           <Pagination
             postsPerPage={commentsData.pageSize}
             totalPosts={commentsData.totalElements}
@@ -139,7 +131,7 @@ const CommentContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  align-items:stretch;
+  align-items: stretch;
   min-height: 10rem;
   padding-bottom: 1rem;
 `;
