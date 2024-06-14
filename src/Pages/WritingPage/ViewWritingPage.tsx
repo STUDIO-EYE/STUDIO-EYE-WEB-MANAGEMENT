@@ -13,12 +13,12 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import NewButton from "Components/common/NewButton";
 import { theme } from "LightTheme";
 
-const FormContainer = styled.div`
+const FormContainer = styled.div<{ marginBottom: number }>`
   display: flex;
   flex-direction: column;
   max-height: 30rem;
   padding: 0 0.5rem;
-  //overflow-y: auto;
+  margin-bottom: ${(props) => props.marginBottom}rem;
 `;
 
 const TitleInput = styled.input`
@@ -203,7 +203,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   const [showViewWriting, setShowViewWriting] = useState(true);
   const [showPutWriting, setShowPutWriting] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [tempExistingFiles, setTempExistingFiles]=useState<File[]>([]);
+  const [tempExistingFiles, setTempExistingFiles] = useState<File[]>([]);
   const [existingFiles, setExistingFiles] = useState<File[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedPost, setSelectedPost] = useState({
@@ -216,7 +216,14 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     category: "",
     updatedAt: ""
   });
-  const { category } = useParams();
+
+  const [marginBottom, setMarginBottom] = useState(10);
+  useEffect(() => {
+    const totalFiles = selectedFiles.length + existingFiles.length;
+    const newMarginBottom = 10 + totalFiles * 0.5;
+    setMarginBottom(newMarginBottom);
+  }, [selectedFiles, existingFiles]);
+
   const navigate = useNavigate();
 
   const [tokenUserName, setTokenUserName] = useState("");
@@ -231,9 +238,9 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
   const [filePaths, setFilePaths] = useState<string[]>([]);
   const [fileNames, setFileNames] = useState<string[]>([]);
 
-  async function urlToFile(url: string, fileName: string):Promise<File> {
+  async function urlToFile(url: string, fileName: string): Promise<File> {
     try {
-      console.log("경로"+url)
+      console.log("경로" + url)
       const response = await fetch(url);
       const blob = await response.blob();
       console.log(blob)
@@ -253,16 +260,16 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
         if (!Array.isArray(files)) {
           throw new Error("Files 응답이 배열이 아닙니다");
         }
-        
+
         const existingFilesArray = await Promise.all(
-        files.map(async (file: { fileName: string, filePath: string }) => {
-        if (!file.fileName || !file.filePath) {
-          throw new Error("파일 객체에 예상된 속성이 없습니다");
-        }
-        const convertedFile=await urlToFile(file.filePath,file.fileName)
-        console.log(convertedFile)
-        return convertedFile;
-      }),)
+          files.map(async (file: { fileName: string, filePath: string }) => {
+            if (!file.fileName || !file.filePath) {
+              throw new Error("파일 객체에 예상된 속성이 없습니다");
+            }
+            const convertedFile = await urlToFile(file.filePath, file.fileName)
+            console.log(convertedFile)
+            return convertedFile;
+          }),)
 
         setExistingFiles(existingFilesArray);
 
@@ -270,18 +277,6 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
         const names = files.map((file: { fileName: string }) => file.fileName);
         setFilePaths(paths);
         setFileNames(names);
-
-        // 파일이 있는 경우 처리 로직 추가
-        // if (response.data.mainImg) {
-        //   try {
-        //     const mainImgFile = await urlToFile(response.data.mainImg + '?t=' + Date.now(), `${response.data.mainImg}.png`);
-        //     setMainImage(mainImgFile);
-        //     console.log(mainImgFile, 'main ImgFile Blob');
-        //   } catch (error) {
-        //     console.error('Main image fetching error:', error);
-        //   }
-        // }
-
       } catch (error) {
         console.error('파일을 가져오는 중 오류 발생:', error);
       }
@@ -289,7 +284,6 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
 
     fetchFiles();
   }, [projectId, selectedRowId]);
-  
 
   const goToPreviousPage = () => {
     setTimeout(() => {
@@ -464,21 +458,21 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
 
   const onClickImgLink = useCallback((srcUrl: string, name: string) => {
     fetch(srcUrl, { method: 'GET' }).then((res) => res.blob()).then((blob) => {
-       const url = window.URL.createObjectURL(blob);
-       //다운로드 링크 설정을 위해 fetch를 다시하고 있지만 가능하면 한 번 불러온 existFileList에서 활용하고싶음
-       const a = document.createElement('a');
-       a.href = url;
-       a.download = name;
-       document.body.appendChild(a);
-       a.click();
-       setTimeout((_) => {
-       window.URL.revokeObjectURL(url);
-       }, 1000);
-       a.remove();
+      const url = window.URL.createObjectURL(blob);
+      //다운로드 링크 설정을 위해 fetch를 다시하고 있지만 가능하면 한 번 불러온 existFileList에서 활용하고싶음
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout((_) => {
+        window.URL.revokeObjectURL(url);
+      }, 1000);
+      a.remove();
     }).catch((err) => {
-       console.error('err', err);
+      console.error('err', err);
     });
- }, []);
+  }, []);
 
   const updatedAtDate = new Date(selectedPost.updatedAt);
   const formattedUpdatedAt = `${updatedAtDate.getFullYear()}년 ${String(updatedAtDate.getMonth() + 1).padStart(2, '0')}월 ${String(updatedAtDate.getDate()).padStart(2, '0')}일 ${String(updatedAtDate.getHours()).padStart(2, '0')}:${String(updatedAtDate.getMinutes()).padStart(2, '0')}:${String(updatedAtDate.getSeconds()).padStart(2, '0')}`;
@@ -488,7 +482,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
     <>
       {showViewWriting ? (
         <>
-          <FormContainer>
+          <FormContainer marginBottom={marginBottom}>
             <ViewTitleInput>
               <Title>{selectedPost.title}</Title>
               <AuthorDateDropDownContainer>
@@ -519,33 +513,24 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
                 <h4>첨부파일</h4>
                 {fileNames.map((fileName, index) => (
                   <div key={fileName}>
-                    <FileNameLink onClick={()=>onClickImgLink(filePaths[index],fileName)}>
+                    <FileNameLink onClick={() => onClickImgLink(filePaths[index], fileName)}>
                       {fileName}
                     </FileNameLink>
                   </div>
                 ))}
-                {/* {filePaths.map((filePath, index) => (
-                  <div key={filePath}>
-                    <img src={filePath} alt={fileNames[index]} />
-                  </div>
-                ))} */}
               </div>
             )}
           </FormContainer>
         </>
       ) : showPutWriting ? (
         <>
-          <FormContainer>
+          <FormContainer marginBottom={marginBottom}>
             <TitleInput
               type="text"
               placeholder="제목을 입력하세요"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
-            <button onClick={()=>{
-          console.log(selectedFiles)
-          console.log(existingFiles)
-        }}>흥냥냐</button>
             <CustomQuillEditor
               value={editorHtml}
               onChange={setEditorHtml}
@@ -570,7 +555,7 @@ const ViewWritingPage = ({ selectedRowId, projectId, postId }
                   {selectedFiles && selectedFiles.map(file => (
                     <div key={file.name}>
                       {file.name}
-                      <DeleteFileButton onClick={() => handleDeleteFile(file.name, false)}>삭제</DeleteFileButton>
+                      <DeleteFileButton onClick={() => handleDeleteFile(file.name, false)}> 삭제 </DeleteFileButton>
                     </div>
                   ))}
                 </SelectedFilePreview>
