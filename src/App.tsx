@@ -9,17 +9,14 @@ import LoginPage from "./Pages/Login/LoginPage";
 import SignInPage from "./Pages/Login/SignInPage";
 import ProjectMain from "./Pages/ProjectPage/ProjectMain";
 import Project from "./Pages/ProjectPage/Project";
-import Manage from "./Pages/InternalPage/Dashboard/Manage";
 import ModifyProject from "./Pages/ProjectPage/ModifyProject";
 import { Routes, Route } from "react-router-dom";
 import MyPageMain from 'Pages/MyPage/MyPageMain';
-import MyManage from 'Pages/MyPage/MyManage';
 import AccountPageMain from 'Pages/Account/AccountPageMain';
 
 function App() {
   return (
       <Routes>
-        {/* <Route path="/" element={<ProjectMain />} /> */}
         <Route path="/" element={<ProjectMain />} />
         <Route path="/Manage/:projectId" element={<InternalMainpage />} />
         <Route path="/Manage/:projectId/files" element={<FileManagementMain />} />
@@ -30,8 +27,6 @@ function App() {
         <Route path="/SignInPage" element={<SignInPage />} />
         <Route path="/MyPage" element={<MyPageMain />} />
         <Route path="/Account" element={<AccountPageMain />} />
-        {/* <Route path="/manage" element={<Manage />} /> */}
-        {/* <Route path="/myManage" element={<MyManage/>}/> */}
         <Route path="/project" element={<Project />} />
         <Route path="/modify/:projectId" element={<ModifyProject />} />
       </Routes>
