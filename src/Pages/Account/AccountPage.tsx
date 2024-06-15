@@ -18,17 +18,11 @@ const StyledTh = styled.th`
   border-bottom: 2px solid #ddd;
   padding: 15px 20px;
   text-align: left;
-  &:last-child {
-    text-align: right;
-  }
 `;
 
 const StyledTd = styled.td`
   border-bottom: 1px solid #ddd;
   padding: 10px 20px;
-  &:last-child {
-    text-align: right;
-  }
 `;
 
 const SwitchContainer = styled.div<{ approved: boolean }>`
@@ -107,9 +101,25 @@ const AccountPage: React.FC = () => {
     } catch (error) {
       alert('사용자 목록을 불러오는 데 실패했습니다.');
     }
-  };  
+  };
 
   const toggleApproval = async (account: Account) => {
+    const userId = sessionStorage.getItem("user-id");
+    if (account.approved && userId === account.id?.toString()) {
+      alert("본인 계정은 비활성화할 수 없습니다.");
+      return;
+    }
+
+    let confirmed;
+    if (account.approved) {
+      confirmed = window.confirm('계정을 비활성화 하시겠습니까?');
+    } else {
+      confirmed = window.confirm('계정을 활성화 하시겠습니까?');
+    }
+    if (!confirmed) {
+      return;
+    }
+
     const newApprovedStatus = !account.approved;
     try {
       await axios.put(`/user-service/approve?userId=${account.id}&approved=${newApprovedStatus}`);
@@ -126,7 +136,7 @@ const AccountPage: React.FC = () => {
     if (!confirmed) {
       return;
     }
-  
+
     try {
       await axios.delete(`/user-service/unregister?userId=${userId}`);
       alert('계정이 삭제되었습니다.');
@@ -150,7 +160,6 @@ const AccountPage: React.FC = () => {
             <StyledTh>이메일</StyledTh>
             <StyledTh>전화번호</StyledTh>
             <StyledTh>상태</StyledTh>
-            <StyledTh> </StyledTh>
           </tr>
         </thead>
         <tbody>
