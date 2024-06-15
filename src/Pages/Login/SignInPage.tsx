@@ -137,7 +137,7 @@ function SignInPage() {
         }
         axios.post('/user-service/register', formData)
             .then((response) => {
-                if (response.status === 200) {
+                if (response.status === 201) {
                     alert("회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.")
                     navigate('/LoginPage');
                 }
