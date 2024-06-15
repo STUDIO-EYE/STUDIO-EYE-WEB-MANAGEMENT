@@ -138,18 +138,20 @@ function LoginPage() {
       .then((response) => {
         if (response.data.approved) {
           const accessToken = response.data.accessToken;
+          const userId = response.data.id;
+
           axios.defaults.headers.common["Authorization"] =
             "Bearer " + accessToken; // 토큰을 HTTP 헤더에 포함
           sessionStorage.setItem("login-token", accessToken);
-          console.log(accessToken);
+          sessionStorage.setItem("user-id", userId);
 
           navigate("/");
         } else {
-          swal('', "아이디 또는 비밀번호가 올바르지 않습니다.", 'warning')
+          swal('', "관리자의 승인이 필요합니다.", 'warning');
         }
       })
       .catch((error) => {
-        swal('', "아이디 또는 비밀번호가 올바르지 않습니다.", 'warning')
+        swal('', "아이디 또는 비밀번호가 올바르지 않습니다.", 'warning');
         console.error("API 요청 중 오류 발생:", error);
       });
   };

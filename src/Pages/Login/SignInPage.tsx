@@ -161,23 +161,28 @@ function SignInPage() {
     const [isTimerRunning, setIsTimerRunning] = useState(false);
     const [timeLeft, setTimeLeft] = useState(600); // 10분 = 600초
     const [isVerified, setIsVerified] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleSendCode = () => {
         const data = {
             email: formData.email
         };
 
+        setLoading(true);  // 로딩 시작
+
         axios.post('/user-service/emails/verification-requests', null, {
             params: data,
         })
             .then((response) => {
+                setLoading(false);  // 로딩 종료
                 if (response.status === 200) {
                     alert("입력하신 이메일로 인증코드가 전송되었습니다.");
                     setIsCodeSent(true);
                     startTimer();
-                } 
+                }
             })
             .catch((error) => {
+                setLoading(false);  // 로딩 종료
                 if (error.response) {
                     if (error.response.status === 409) {
                         alert("이미 사용 중인 이메일입니다.");
@@ -250,6 +255,7 @@ function SignInPage() {
 
             <SignInBox className="SignInBox">
                 <SubInputForm className="SubInputFormWithButton">
+                    {loading && <p>로딩 중...</p>}
                     <TextMd>EMAIL</TextMd>
                     <HorizontalBox>
                         <InputText
@@ -262,6 +268,7 @@ function SignInPage() {
                             data={formData}
                             disabled={isVerified}
                         />
+
                         <div style={{ width: '1rem' }} />
                         {!isVerified && (
                             <NewButton
@@ -345,7 +352,7 @@ function SignInPage() {
                         onChange={handleChange} type="tel" />
                 </SubInputForm>
                 <NewButton backcolor={theme.color.orange}
-                    width={"100%"} height={"2.2rem"} onClick={handleSubmit}>등록 신청</NewButton>
+                    width={"100%"} height={"2.2rem"} onClick={handleSubmit}>회원 가입</NewButton>
             </SignInBox>
 
         </WhiteBoxContainer>
