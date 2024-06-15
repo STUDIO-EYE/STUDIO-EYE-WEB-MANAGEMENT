@@ -524,7 +524,7 @@ const MyCalendar = ({ onDarkBackground }: { onDarkBackground: any }) => {
 
         {showManageModal && (
           <Modal>
-            <MyManage onClose={handleCloseManageModal} />
+            <MyManage onClose={handleCloseManageModal} date={selectDate}/>
           </Modal>
         )}
       </Container>
