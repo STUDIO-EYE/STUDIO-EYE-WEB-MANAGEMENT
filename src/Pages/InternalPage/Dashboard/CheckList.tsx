@@ -206,7 +206,7 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
   const [message, setMessage] = useState<string>("");
   const [isChange, setIsChange] = useState(false);
   const onModal = useRecoilValue(modalOn);
-  const setOnModal=useSetRecoilState(modalOn);
+  const setOnModal = useSetRecoilState(modalOn);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -241,7 +241,8 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
     fetchData();
   }, [navigate]);
 
-  const handleCheck = async (id: number) => {
+  const handleCheck = async (id: number, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent event from propagating to the parent Item
     try {
       const response = await checkTodoApi.completeCheckTodo(id);
       if (response.status === 200) {
@@ -259,22 +260,23 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
     }
   };
 
-  const handleDelete = async (e:React.MouseEvent,todoIndex: number) => {
-    if(window.confirm("삭제하시겠습니까?")){
-    const filteredItems = items.filter((item) => item.todoIndex !== todoIndex);
-    setItems(filteredItems);
-    e.stopPropagation()
-    try {
-      await checkTodoApi.deleteCheckTodo(todoIndex);
-    } catch (error) {
-      console.error("Error deleting item", error);
-    }}
+  const handleDelete = async (e: React.MouseEvent, todoIndex: number) => {
+    if (window.confirm("삭제하시겠습니까?")) {
+      const filteredItems = items.filter((item) => item.todoIndex !== todoIndex);
+      setItems(filteredItems);
+      e.stopPropagation()
+      try {
+        await checkTodoApi.deleteCheckTodo(todoIndex);
+      } catch (error) {
+        console.error("Error deleting item", error);
+      }
+    }
     e.stopPropagation()
   };
 
   const handleAdd = async () => {
 
-    if(!inputText){
+    if (!inputText) {
       focusTodo.current?.focus()
       return
     }
@@ -313,7 +315,7 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
 
   const handleEdit = async (todoIndex: number, updatedContent: string) => {
 
-    if(!updatedContent){
+    if (!updatedContent) {
       focusEditTodo.current?.focus()
       return
     }
@@ -335,12 +337,10 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
     } catch (error) {
       console.error("Error updating todo item", error);
     }
-
     setEditModal(false);
     setIsChange(false);
     setOnModal(false);
   };
-
 
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showEditModal, setEditModal] = useState<boolean>(false);
@@ -348,24 +348,24 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
   const [editText, setEditText] = useState<string>(inputText);
   const [editIndex, setEditIndex] = useState<number>(-1);
   const [isUrgent, setIsUrgent] = useState<boolean>(false);
-  const focusTodo=useRef<HTMLInputElement>(null);
-  const focusEditTodo=useRef<HTMLInputElement>(null);
+  const focusTodo = useRef<HTMLInputElement>(null);
+  const focusEditTodo = useRef<HTMLInputElement>(null);
 
-  useEffect(()=>{
+  useEffect(() => {
     setOnModal(showModal)
-  },[showModal])
-  useEffect(()=>{
+  }, [showModal])
+  useEffect(() => {
     setOnModal(showEditModal)
-  },[showEditModal])
+  }, [showEditModal])
 
-  const idSort=[...items].sort((a,b)=>{
-    if(a.todoIndex>b.todoIndex)return 1;
-    if(a.todoIndex<b.todoIndex)return -1;
+  const idSort = [...items].sort((a, b) => {
+    if (a.todoIndex > b.todoIndex) return 1;
+    if (a.todoIndex < b.todoIndex) return -1;
     return 0;
   })
-  const emergenSort=[...idSort].sort((a,b)=>{
-    if(a.todoEmergency&&!b.todoEmergency)return -1;
-    if(!a.todoEmergency&&b.todoEmergency)return 1;
+  const emergenSort = [...idSort].sort((a, b) => {
+    if (a.todoEmergency && !b.todoEmergency) return -1;
+    if (!a.todoEmergency && b.todoEmergency) return 1;
     return 0;
   })
   const sortedItems = [...emergenSort].sort((a, b) => {
@@ -387,24 +387,25 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
     <Container>
       <List>
         <TitleSm>ToDo</TitleSm>
-        <AddButton type="button" onClick={() => !onModal?setShowModal(true):null}>
+        <AddButton type="button" onClick={() => !onModal ? setShowModal(true) : null}>
           <FaPenToSquare />
         </AddButton>
       </List>
       <ItemsList>
         {sortedItems.map((item) => (
           <Item key={item.todoIndex} completed={item.checked} onClick={() => {
-            if(!onModal){
+            if (!onModal) {
               setEditIndex(item.todoIndex); setEditText(item.todoContent); setEditModal(true);
-            }}}>
+            }
+          }}>
             <Checkbox
               type="checkbox"
               checked={item.checked}
-              onChange={() => !onModal?handleCheck(item.todoIndex):null}
+              onClick={(e) => !onModal ? handleCheck(item.todoIndex, e) : null}
             />
             {item.todoEmergency ? <UrgencyLabel>[긴급]</UrgencyLabel> : null}
             <ItemContent>{item.todoContent}</ItemContent>
-            <DeleteButton onClick={(e) => !onModal?handleDelete(e,item.todoIndex):null}>
+            <DeleteButton onClick={(e) => !onModal ? handleDelete(e, item.todoIndex) : null}>
               <FaTrash />
             </DeleteButton>
           </Item>
@@ -415,7 +416,7 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
           <h3>ToDo 추가</h3>
           <input
             value={inputText}
-            onChange={(e) => e.target.value.length<=30?setInputText(e.target.value):alert("할 일은 30자 이내로 입력해주세요.")}
+            onChange={(e) => e.target.value.length <= 30 ? setInputText(e.target.value) : alert("할 일은 30자 이내로 입력해주세요.")}
             placeholder="할 일을 입력하세요. (최대 30자)"
             maxLength={30}
             ref={focusTodo}
@@ -431,7 +432,7 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
             </label>
           </div>
           <AddModalButton onClick={handleAdd}>추가</AddModalButton>
-          <AddModalButton onClick={() => {setInputText(""); setShowModal(false);}}>취소</AddModalButton>
+          <AddModalButton onClick={() => { setInputText(""); setShowModal(false); }}>취소</AddModalButton>
         </AddModal>
       )}
       {showEditModal && (
@@ -440,8 +441,9 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
           <input
             value={editText}
             onChange={(e) => {
-              e.target.value.length<=30?setEditText(e.target.value):alert("할 일은 30자 이내로 입력해주세요.")
-              setIsChange(true)}}
+              e.target.value.length <= 30 ? setEditText(e.target.value) : alert("할 일은 30자 이내로 입력해주세요.")
+              setIsChange(true)
+            }}
             ref={focusEditTodo}
             maxLength={30}
           />
@@ -450,18 +452,18 @@ function CheckList({ projectId, updateProgress }: { projectId: number, updatePro
           </div>
           <EditModalButton onClick={() => handleEdit(editIndex, editText)}>저장</EditModalButton>
           <EditModalButton onClick={() => {
-            if(isChange){
-              if(window.confirm("변경 사항이 있습니다. 변경사항을 삭제하시겠습니까?")){
+            if (isChange) {
+              if (window.confirm("변경 사항이 있습니다. 변경사항을 삭제하시겠습니까?")) {
                 setEditModal(false);
-              setIsChange(false);
-              setOnModal(false);
-              }else return
-            }else{
+                setIsChange(false);
+                setOnModal(false);
+              } else return
+            } else {
               setIsChange(false)
               setEditModal(false)
               setOnModal(false);
             }
-            }}>취소</EditModalButton>
+          }}>취소</EditModalButton>
         </EditModal>
       )}
 
