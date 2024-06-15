@@ -101,9 +101,9 @@ function toKoreanTime(date: Date): string {
 }
 
 //프로젝트의 시작날짜와 마지막 날짜 사이에 일정이 추가되어야 함.
-const MyManage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const [startDate, setStartDate] = useState(toKoreanTime(new Date()));
-  const [endDate, setEndDate] = useState(toKoreanTime(new Date()));
+const MyManage: React.FC<{ onClose: () => void, date:Date }> = ({ onClose, date }) => {
+  const [startDate, setStartDate] = useState(toKoreanTime(date));
+  const [endDate, setEndDate] = useState(toKoreanTime(date));
   const setOnModal=useSetRecoilState(modalOn);
 
   const focusSchedule=useRef<HTMLInputElement>(null);
