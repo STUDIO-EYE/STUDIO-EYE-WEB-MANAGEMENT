@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ReactElement, ChangeEvent } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import LoginIMG from "../../assets/logo/studioeye.png";
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
@@ -60,6 +60,36 @@ const HorizontalBox = styled.div`
   display: flex;
   justify-content: space-between;
   width: 100%;
+`;
+
+const spin = keyframes`
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+`;
+
+const Spinner = styled.div`
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: ${spin} 1s linear infinite;
+`;
+
+export const Overlay = styled.div<{ visible: boolean }>`
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: ${props => (props.visible ? 'flex' : 'none')};
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
 `;
 
 function SignInPage() {
@@ -255,8 +285,11 @@ function SignInPage() {
 
             <SignInBox className="SignInBox">
                 <SubInputForm className="SubInputFormWithButton">
-                    {loading &&
-                        <div style={{ color: 'red', fontFamily: 'pretendard', fontWeight: '600' }}>로딩 중...</div>}
+                    {loading && (
+                        <Overlay visible={loading}>
+                            <Spinner />
+                        </Overlay>
+                    )}
                     <TextMd>EMAIL</TextMd>
                     <HorizontalBox>
                         <InputText
