@@ -255,7 +255,9 @@ function SignInPage() {
 
             <SignInBox className="SignInBox">
                 <SubInputForm className="SubInputFormWithButton">
-                    {loading && <p>로딩 중...</p>}
+                    {loading &&
+                        <TextSm style={{ color: 'gray' }}>로딩 중...</TextSm>
+                    }
                     <TextMd>EMAIL</TextMd>
                     <HorizontalBox>
                         <InputText
