@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 interface IPaginationProps {
@@ -10,6 +9,7 @@ interface IPaginationProps {
 
 const Pagination = ({ postsPerPage, totalPosts, paginate }: IPaginationProps) => {
     const [currentPageRange, setCurrentPageRange] = useState(0);
+    const [index, setIndex] = useState<null | number>(0);
     const pageNumbers = [];
     for (let i = 1; i <= Math.ceil(totalPosts / postsPerPage); i++) {
         pageNumbers.push(i);
@@ -30,30 +30,29 @@ const Pagination = ({ postsPerPage, totalPosts, paginate }: IPaginationProps) =>
     };
 
     return (
-        <div>
+        <Wrapper>
             {currentPageRange > 0 && (
                 <>
-                    <button onClick={() => setCurrentPageRange(0)}>{"<<"}</button>
-                    <button onClick={handlePrevRange}>{"<"}</button>
+                    <PageLi onClick={() => setCurrentPageRange(0)} selected={false}>{"<<"}</PageLi>
+                    <PageLi onClick={handlePrevRange} selected={false}>{"<"}</PageLi>
                 </>
             )}
             {displayedPages.map(number => (
-                <button key={number} onClick={() => paginate(number)}>
+                <PageLi key={number} onClick={() => paginate(number)} selected={number === index ? true : false}>
                     {number}
-                </button>
+                </PageLi>
             ))}
             {currentPageRange < Math.ceil(pageNumbers.length / 10) - 1 && (
                 <>
-                    <button onClick={handleNextRange}>{">"}</button>
-                    <button onClick={() => setCurrentPageRange(Math.ceil(pageNumbers.length / 10) - 1)}>{">>"}</button>
+                    <PageLi onClick={handleNextRange} selected={false}>{">"}</PageLi>
+                    <PageLi onClick={() => setCurrentPageRange(Math.ceil(pageNumbers.length / 10) - 1)} selected={false}>{">>"}</PageLi>
                 </>
             )}
-        </div>
+        </Wrapper>
     );
 };
 
 export default Pagination;
-
 
 const Wrapper = styled.div`
   display: flex;
@@ -62,16 +61,23 @@ const Wrapper = styled.div`
 `;
 
 const PageLi = styled.div<{ selected: boolean }>`
-  display: flex;
+  display: inline-flex; /* Changed from flex to inline-flex */
   justify-content: center;
   align-items: center;
-  font-size: 16px;
+  font-size: 0.9rem;
   padding: 10px 15px;
   margin-right: 3px;
   box-sizing: border-box;
-  font-family: 'pretendard-semibold';
+  font-family: 'pretendard';
+  font-weight: 800;
   transition: all 300ms ease-in-out;
   border-radius: 5px;
   cursor: pointer;
 
+  &:hover {
+    transition: all 300ms ease-in-out;
+    cursor: pointer;
+    color: white;
+    background-color: #ffa900;
+  }
 `;

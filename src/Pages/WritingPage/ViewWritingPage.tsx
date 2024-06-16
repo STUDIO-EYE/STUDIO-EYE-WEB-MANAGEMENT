@@ -19,6 +19,8 @@ const FormContainer = styled.div<{ marginBottom: number }>`
   max-height: 30rem;
   padding: 0 0.5rem;
   margin-bottom: ${(props) => props.marginBottom}rem;
+  /* margin-left: -3.3rem; */
+  width: 100%;
 `;
 
 const TitleInput = styled.input`
@@ -131,7 +133,9 @@ const Content = styled.div`
   margin-top: 0.1rem;
   margin-bottom: 0.1rem;
   min-height: 10rem;
-  white-space: nowrap;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: hidden;
 
   .ql-size-huge {
     font-size: 2.5em;
@@ -153,7 +157,7 @@ const Content = styled.div`
   }
   .ql-strike {
     text-decoration: overline;
-}
+  }
 `;
 
 const FileInput = styled.input`
