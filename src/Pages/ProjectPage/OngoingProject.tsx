@@ -163,7 +163,7 @@ function OngoingProject() {
       alert('상세 내용은 프로젝트에 속한 팀원만 확인할 수 있습니다.');
     }
   };
-  
+
 
   const refresh = () => {
     setTimeout(function () {
@@ -230,13 +230,17 @@ function OngoingProject() {
   }
 
   const handleMouseEnter = (projectId: number, member: ProjectMember) => {
+    const isLeader = member.role === "팀장";
+    const tooltipText = isLeader ? `팀장 ${member.name} (${member.email})` : `${member.name} (${member.email})`;
+
     setTooltipVisible({
       projectId,
       userId: member.userId,
-      name: member.name,
+      name: tooltipText,
       email: member.email,
     });
   };
+
 
   const handleMouseLeave = () => {
     setTooltipVisible(null);
@@ -289,7 +293,7 @@ function OngoingProject() {
                         currentDetailsProjects[index]?.data?.data?.leaderAndMemberList?.map((member: ProjectMember, memberIndex: number) => (
                           <Tooltip
                             key={member.userId}
-                            title={`${member.name} (${member.email})`}
+                            title={tooltipVisible?.name}
                             open={isTooltipOpen(tooltipVisible, project.projectId, member.userId)}
                             disableHoverListener
                           >
@@ -301,6 +305,7 @@ function OngoingProject() {
                               {member.name.slice(-2)}
                             </MemberInitials>
                           </Tooltip>
+
                         ))
                       ) : (
                         <span style={{ color: 'red' }}>해당 프로젝트의 멤버가 아닙니다.</span>
