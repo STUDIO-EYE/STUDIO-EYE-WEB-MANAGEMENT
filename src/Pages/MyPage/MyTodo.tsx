@@ -241,7 +241,8 @@ function MyTodo() {
     fetchData();
   }, [navigate]);
 
-  const handleCheck = async (id: number) => {
+  const handleCheck = async (id: number, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent event from propagating to the parent Item
     try {
       const response = await myPageApi.checkTodo(id);
       if (response.status === 200) {
@@ -392,7 +393,7 @@ function MyTodo() {
             <Checkbox
               type="checkbox"
               checked={item.checked}
-              onChange={() => !onModal?handleCheck(item.userTodoId):null}
+              onClick={(e) => !onModal?handleCheck(item.userTodoId, e):null}
             />
             {item.todoEmergency ? <UrgencyLabel>[긴급]</UrgencyLabel> : null}
             <ItemContent>{item.todoContent}</ItemContent>
